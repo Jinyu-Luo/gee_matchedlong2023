@@ -1,0 +1,114 @@
+---
+title: "CHL5207 Practicum Weekly Record"
+author: 
+  - Jinyu Luo^[University of Toronto, jinyu.luo@mail.utoronto.ca]
+  - 1004935457
+date: "`r Sys.Date()`"
+output: pdf_document
+fontsize: 10pt
+---
+
+\renewcommand{\floatpagefraction}{.8}
+\renewcommand{\textfraction}{.1}
+\renewcommand{\topfraction}{.85}
+\renewcommand{\bottomfraction}{.7}
+\renewcommand{\dbltopfraction}{.66}
+\renewcommand{\dblfloatpagefraction}{.8}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+# Meeting 1 
+
+**Date:** 2023.10.31
+
+* Completed GitHub setup and successfully cloned the repository.  
+* Reviewed the project's history, focusing on achievements and progress made in the previous year.  
+* Defined and clarified the objectives for this year's study, aligning them with ongoing project goals.  
+
+### Weekly Progress Summary 
+
+1. Literature Review  
+    a) Hui, S. K., Fan, C.-P. S., Christie, S., Feindel, C. M., David, T. E., & Ouzounian, M. (2018). The aortic root does not dilate over time after replacement of the aortic valve and ascending aorta in patients with bicuspid or tricuspid aortic valves. The Journal of Thoracic and Cardiovascular Surgery, 156(1).   
+    b) Li, P., Mitani, A., Fan, C.-P. S., & Saha, S. (2023). Modeling longitudinal outcomes in a small matched-pair sample motivated by cardiovascular data: A simulation study. University of Toronto Journal of Public Health, 4(1). https://doi.org/10.33137/utjph.v4i1.41675.  
+    c) Wan F. (2019). Matched or unmatched analyses with propensity-score-matched data?. Statistics in medicine, 38(2), 289–300. https://doi.org/10.1002/sim.7976.  
+    d) Papneja, K., Blatman, Z. M., Kawpeng, I. D., Wheatley, J., Oscé, H., Li, B., Lafreniere-Roula, M., Fan, C. P. S., Manlhiot, C., Benson, L. N., & Mertens, L. (2022). Trajectory of Left Ventricular Remodeling in Children With Valvar Aortic Stenosis Following Balloon Aortic Valvuloplasty. Circulation. Cardiovascular imaging, 15(1), e013200. https://doi.org/10.1161/CIRCIMAGING.121.013200.  
+    e) Wang, M. (2014). Generalized estimating equations in Longitudinal Data Analysis: A review and recent developments. Advances in Statistics, 2014, 1–11. https://doi.org/10.1155/2014/303728.  
+    f) Austin P. C. (2011). An Introduction to Propensity Score Methods for Reducing the Effects of Confounding in Observational Studies. Multivariate behavioral research, 46(3), 399–424. https://doi.org/10.1080/00273171.2011.568786.  
+
+2. UHN On-boarding process   
+    * Completed the UHN Office of Research Trainee(ORT) e-registration form.  
+    * Addressing the registration issue with Amy through Email.  
+    
+3. Presentation Slide (1st Draft)
+
+4. Reproduced the simulation process
+
+### Questions 
+
+1. According to Agresti's textbook in Chapter 12, Generalized Estimating Equations (GEE) are primarily used for categorical outcomes. However, last year's simulation focused on continuous outcomes. Could you explain the rationale behind this approach? Additionally, is it considered appropriate to use GEE for continuous outcomes in this context?  
+    - It is easier to start with continuous outcome. Although GEE is mainly used for categorical outcome, it is still appropriate to use with continuous outcome.  
+2. The statement "Quasi-Least Squares (QLS) falls under the framework of Generalized Estimating Equations (GEE)" suggests a close relationship between these two methodologies. Could you clarify what is meant by QLS being under the GEE framework? If QLS is indeed an advancement or a subsequent development of GEE, what is the purpose or benefit of conducting a comparative analysis between them?  
+    - QLS is an approach based on GEE that estimates the correlation parameters in two stages. It account for the matching correlation which is ignored by GEE. QLS can be applied when GEE estimate is infeasible or when GEE’s assumptions do not hold. Therefore, we need to use it to evaluate GEE's performance.    
+3. Considering the findings from last year's work, are we planning to concentrate primarily on these three specific points for the current year's objectives?  
+    * The abstract page mentioned that the correlation structure should focus on exchangeable structure.  
+        + No, the data was generated using exchangeable structure, so it had the least deviation.  
+    * On page 13, it mentioned that there is need for caution and further investigation into the accuracy of the estimated standard errors to ensure appropriate inference.  
+    * On page 13, it mentioned that we need to explore the way to account for correlation in the generation process.  
+    
+
+\newpage 
+
+# Meeting 2 
+
+**Date:** 2023.11.13 
+
+* Addressed questions I had last week.  
+* Clarified the study's objective for this year:  
+    + Investigate the performance of GEE when the **dropout rate is informative** on the outcome. In other words, the dropout rate depends on outcome and predictors.  
+* The outcome variable will be binary, a measure of heart function.  
+* Provided suggestions for presentation slides: there should be 2 slides for introducing the motivation, including treatment and cardiac surgery.   
+* Assigned new paper about the algorithm of binary outcome generation process: Jiang, W., Song, S., Hou, L., &amp; Zhao, H. (2020). A set of efficient methods to generate high-dimensional binary data with specified correlation structures. The American Statistician, 75(3), 310–322. https://doi.org/10.1080/00031305.2020.1816213.  
+
+### Weekly Progress Summary 
+
+1. Prepared presentation slides.  
+
+2. Followed the sample code to produce the binary outcome simulation.  
+
+3. On-boarding process:
+  + UHN network account access information(TID): t127930uhn
+  + Employee ID: 544196
+  + UHN email address: Jinyu.Luo@uhn.ca
+  
+
+\newpage 
+
+# Meeting 3 
+
+**Date:** 2023.11.22
+
+* Completed UHN E-learning courses and orientation.  
+* Discussed about presentation contents and modified the slides.  
+
+### Weekly Progress Summary 
+
+1. Picked up laptop on November 24th.   
+2. Tried to setup Ubuntu and Rdocker.  
+3. Scheduled a meeting with Sudip and Steve to fix mounting issue.  
+
+### Next Step 
+
+1. Produce Table 1 by BAV and TAV groups.  
+
+2. Make Rscript of describing weekly jobs.  
+
+3. Read Sudip's paper. 
+
+
+
+
+
+
+
