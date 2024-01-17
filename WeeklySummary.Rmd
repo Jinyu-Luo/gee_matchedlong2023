@@ -107,7 +107,77 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
 3. Read Sudip's paper. 
 
 
+\newpage 
 
+# Meeting 4 
+
+**Date:** 2023.12.15
+
+* Fixed the issue of ubuntu connection and drive mounting.  
+* Created R script for recording weekly meeting.  
+* Read papers in the shared file. 
+
+### Issues need to be addressed later
+
+1. Identify confounding variables.  
+2.Reduce the number of potential predictors because the target number is too low.   
+3. Understand which variable is changing over time.  
+
+What are the situations of applying correlation analysis?  
+- Changing in root over time (measured outcome multiple times).  
+- Repeated measure of outcome --> so they are correlated.  
+
+Distinguish between:
+1. correlation between outcomes.  
+2. correlations between features.  
+
+### Next Step 
+
+1. Produce Table 1  
+2. Perform EDA  
+3. Read papers in L drive folder  
+4. Summarize Matched or unmatched PPS analysis:  
+  - what are the similarities and differences from our situation?  
+5. Use the data:  
+  a) Match patients with baseline features using logistic regression.  
+    - ensuring equal number of patients in each group.  
+    - Each patient should have repeated measurements.  
+  b) Dichotomize the outcome using cutoff point, then fit GEE. 
+  
+
+\newpage 
+
+<Winter Break>
+
+# Meeting 5 
+
+**Date:** 2024.01.10
+
+* Completed EDA and Table 1.  
+* Finished Paper reading.  
+* Finished the comparison between paper DOI: 10.1002/sim.7976 and last year final paper.  
+* Tested the mean difference before and after matching.  
+* Reviewed the concept of statistical power, correlation between outcomes, and correlations between features
+
+## Questions to ask 
+
+* What should we do if the mean difference before matching is NOT statistically significant while the difference after matching is statistically significant after matching?  
+* How to deal with missing values?  
+
+## Meeting Summary 
+
+* Use standardized difference to compare before and after matching.  
+* Plot the distribution of propensity score (density) after matching when we have the probability of being BAV vs. TAV. The overlapped region are matched pairs. 
+
+## Next Step
+
+1. Recreate TableOne for matched-pair.  
+2. Confirm with Sudip about how to dichotomize root size to binary and then Plot the proportion.  
+3. Descriptive analysis on longitudinal measurements (refer to correlated data).  
+4. Check whether missings in root, missing by records or missing by patient.  
+   - Check how many patient don't have baseline root and how many patient have at least one root missing. 
+
+Fit GEE with the binary data during the meeting. 
 
 
 
