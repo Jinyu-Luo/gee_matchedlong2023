@@ -174,10 +174,33 @@ Distinguish between:
 1. Recreate TableOne for matched-pair.  
 2. Confirm with Sudip about how to dichotomize root size to binary and then Plot the proportion.  
 3. Descriptive analysis on longitudinal measurements (refer to correlated data).  
-4. Check whether missings in root, missing by records or missing by patient.  
+4. Check whether missing in root, missing by records or missing by patient.  
    - Check how many patient don't have baseline root and how many patient have at least one root missing. 
 
 Fit GEE with the binary data during the meeting. 
+
+\newpage
+
+**Date:** 2024.01.17
+
+* Re-performed data cleaning mainly for filtering out records without root size information.  
+* Re-performed EDA using methods learned from lecture 1 of correlated data.  
+* Confirmed with Sudip about the cutoff point for dichotomizing root to binary.  
+    + The absolute value of the aortic root size > 4.5cm or growth > 5mm over time.  
+    + Sudip is on vacation, so I haven't ask about relevant literature for supporting this cutoff criteria.  
+
+TODO:  
+* Fix issues within the matching process.  
+* Plot the distribution of propensity score (density) after matching.  
+* Recreate TableOne for matched pairs.  
+* Confirm with Sudip whether or not setting the absolute value of growth > 5mm to be 1 as well.  
+* Confirm with Sudip that whether it is correct to take the cutoff point using the root size measured at the last visit.  
+
+## Questions to ask 
+
+* 
+
+## Meeting Summary 
 
 
 
