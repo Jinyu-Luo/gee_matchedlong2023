@@ -198,9 +198,27 @@ TODO:
 
 ## Questions to ask 
 
-* 
+1. When the number of visits are not consistent across group and individuals, how to construct covariance matrix?  
+2. How to calculate growth? Which measurement result should we use?
 
-## Meeting Summary 
+## Meeting Summary  
+* Went through the entire data clening process, mainly in clarifying the process of removing records with NA at the column of root.  
+* Corrected the calculation for root size.  
+    + Each record from the same patient should have different growth and so different outcome variable.  
+    + The outcome variable should be corrected accordingly.  
+
+## Next Step  
+1. Recalculate the growth for each record usinng y_{ij} - y_{i j-1}.  
+2. Correct the outcome column using the updated growth.  
+3. Create a TableOne for age, sex, bsa by exposure groups before and aafter usinng info from the first visit.  
+4. Read paper in the shared folder.  
+5. Find all coefficients.  
+
+\newpage 
+
+**Date:** 2024.01.24
+
+
 
 
 
