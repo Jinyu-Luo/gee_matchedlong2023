@@ -218,6 +218,16 @@ TODO:
 
 **Date:** 2024.01.24
 
+* Recalculated growth for each record.  
+* Corrected the outcom column.  
+* Created two tableone for the initial visit and the last visit.  
+* Performed pair-matching using both matchIt and optmatch.  
+* Extracted coefficients from the logistic regression model.  
+* Separated Coding files for data cleaning, EDA, Propensity Score Matching
+
+
+
+
 
 
 
