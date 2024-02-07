@@ -225,6 +225,39 @@ TODO:
 * Extracted coefficients from the logistic regression model.  
 * Separated Coding files for data cleaning, EDA, Propensity Score Matching
 
+## Meeting Summary 
+* Went through the data cleaning process 
+* Solved the issues in the matching process
+* Pointed out the need to create pair ID for the data generation process
+
+## Next Step 
+* Extract matched pairs and create pair IDs for them. 
+* Create a long table for matched pairs. 
+* Create Table One for matched pairs. 
+* Generate binary outcome using visit, age, baseline BSA, exposure group and their interaction effect with visit. 
+* Fit the data with GEE and QLS. 
+* Read GEE Wang 2014. 
+
+\newpage 
+
+**Date:** 2024.02.07 
+
+* Extracted matched pairs to form the long table. 
+* Created pair IDs and subject IDs. 
+* Created Table One for the long table of matched pairs and compared to the Table One of the original dataset. 
+* Fitted the matched pair data with GEE, but failed to fit with QLS. 
+* Re-read Peiyu's final paper and the code file for GEE-QLS analyses. 
+* Tutorials and Papers:
+    + Xie, Jichun and Shults, Justine, ""Implementation of quasi-least squares With the R package qlspack"" (June 2009). UPenn Biostatistics Working Papers. Working Paper 32.
+https://biostats.bepress.com/upennbiostat/art32
+    + Schwartz, S. (2022, December 1). Quantitative Methods in R - Vol.5 Multilevel. 16 GEE, Binary Outcome: Respiratory Illness. https://cehs-research.github.io/eBook_multilevel/gee-binary-outcome-respiratory-illness.html. 
+    + Balise, R. (2023, April 4). Intro to Categorical Data . 8 Models for Matched Pairs. https://raymondbalise.github.io/Agresti_IntroToCategorical/Matched.html#x8.1 
+
+## Questions / Problems need to be solved 
+* How does the correlation estimation process changed from continuous outcome to binary outcome? 
+* Xie's paper argued that the estimates for independence structure are identical for QLS and GEE, do we need to still consider this as a comparison?
+* AR1 structure is appropriate for studies in which the measurements are equally spaced in time, but measurements in our dataset are not equally spaced in time. Is it meaningful to implement QLS estimation with AR1 structure?
+
 
 
 
