@@ -263,7 +263,7 @@ https://biostats.bepress.com/upennbiostat/art32
 * Found paper and code for simulation. 
 
 ## Next Step 
-* Generate all covariates. 
+*1. Generate all covariates. 
   + `male` $\sim$ Binomial (size = 1, prob = 0.65, n = 250) using #rbinom.
   + `age` $\sim$ rnorm(n=250, mean = 60, sd = 10)
   + `BSA` $\sim$ rnorm(n=250, mean = 2, sd =0.2) 
@@ -272,16 +272,16 @@ $$
 $$
 where Pr$(BAV=1) = \frac{\exp(m)}{1+\exp(m)}$ represents the propensity score. 
 
-* Generate BAV using rnorm(size = 1, prob = pscore, n = 250)
-* Set visit to be 5. 
-* Generate the outcome variable:
+2. Generate BAV using rnorm(size = 1, prob = pscore, n = 250)
+3. Set visit to be 5. 
+4. Generate the outcome variable:
 $$
 \text{logit Pr}(Y=1) = -1 -0.05\times \text{visit} - 2\times \text{BAV} - 0.05 \text{Age} + 1.5 \times \text{Male} + 0.5 \times \text{BSA} + 0.5 \times \text{Visit} \times \text{BAV}
 $$
 
-* Fit GEE with exchangeable structure to the full data using n = 250 
-* Use Propensity score matching to get matched data. 
-* Fit Gee with exchangeable structure to the matched data. 
+5. Fit GEE with exchangeable structure to the full data using n = 250 
+6. Use Propensity score matching to get matched data. 
+7. Fit Gee with exchangeable structure to the matched data. 
 
 \newpage 
 
