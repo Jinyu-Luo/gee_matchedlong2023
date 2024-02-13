@@ -258,10 +258,34 @@ https://biostats.bepress.com/upennbiostat/art32
 * Xie's paper argued that the estimates for independence structure are identical for QLS and GEE, do we need to still consider this as a comparison?
 * AR1 structure is appropriate for studies in which the measurements are equally spaced in time, but measurements in our dataset are not equally spaced in time. Is it meaningful to implement QLS estimation with AR1 structure?
 
+## Meeting Summary 
+* Answered the above questions. 
+* Found paper and code for simulation. 
 
+## Next Step 
+* Generate all covariates. 
+  + `male` $\sim$ Binomial (size = 1, prob = 0.65, n = 250) using #rbinom.
+  + `age` $\sim$ rnorm(n=250, mean = 60, sd = 10)
+  + `BSA` $\sim$ rnorm(n=250, mean = 2, sd =0.2) 
+$$
+\text{logit Pr}(BAV=1) = -0.4-0.1\times \text{Age} + 1.2\times \text{male} + 3\times \text{BSA} = m
+$$
+where Pr$(BAV=1) = \frac{\exp(m)}{1+\exp(m)}$ represents the propensity score. 
 
+* Generate BAV using rnorm(size = 1, prob = pscore, n = 250)
+* Set visit to be 5. 
+* Generate the outcome variable:
+$$
+\text{logit Pr}(Y=1) = -1 -0.05\times \text{visit} - 2\times \text{BAV} - 0.05 \text{Age} + 1.5 \times \text{Male} + 0.5 \times \text{BSA} + 0.5 \times \text{Visit} \times \text{BAV}
+$$
 
+* Fit GEE with exchangeable structure to the full data using n = 250 
+* Use Propensity score matching to get matched data. 
+* Fit Gee with exchangeable structure to the matched data. 
 
+\newpage 
+
+**Date:** 2024.02.13
 
 
 
