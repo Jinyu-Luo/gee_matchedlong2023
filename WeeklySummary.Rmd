@@ -287,6 +287,27 @@ $$
 
 **Date:** 2024.02.13
 
+## Completed Items 
+
+* Generated all covariates for 250 patients, with each has 10 observations. 
+* Generated the outcome variable for each visit per patient. 
+* Fitted GEE with exchangeable structure to the full data using n = 250. 
+* Performed propensity score matching. 
+* Fitted GEE with the matched data. 
+
+## Questions 
+
+1. How to select value for the common correlation $\rho$?
+2. Is it correct to assume age and BSA to be constant over time?
+3. How to control the interval between each visit?
+
+## Meeting Summary
+
+
+## Next Step 
+
+
+Reading Week: No meeting. 
 
 
 
