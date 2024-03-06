@@ -310,4 +310,40 @@ $$
 Reading Week: No meeting. 
 
 
+\newpage 
+
+**Date:** 2024.02.28
+
+* Created R script for simulation process 
+* Failed to simulate samples 
+
+## Meeting Summary 
+
+Fixed problems occurred in the simulation process. 
+
+## Next Step 
+
+1. Fit 6 models with different correlation structures 
+2. Extract coefficients 
+
+\newpage 
+
+**Date:** 2024.03.06
+
+* Fitted 6 models 
+* Added a GLMM at the end of simulation. 
+* Encountered the issue of rank deficient in the process of simulation for adjusted GEEs 
+* Tried to solve the problem:
+  1. replaced `BAV:visit` with `BAV+visit+BAV*visit`. The problem retains. 
+  2. created a column of interaction using `interaction()` function and use this column as the main effect. The problem retains. 
+* Possible reasons and solutions for rank deficiency: 
+    + **Collinearity among predictors**: If two or more predictors in your model are highly correlated, it can lead to rank deficiency in the model matrix. So, is it appropriate to remove main effects of visit and BAV? 
+    + **Sparse data or categories with very few observations**: This might be a potential reason because our data is too small. 
+
+## To discuss 
+
+* How to solve the issue of rank deficiency? 
+* Need to figure out the mathematical theory of the simulation process and the survival analysis. 
+  
+## Meeting Summary 
 
