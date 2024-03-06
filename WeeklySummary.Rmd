@@ -344,6 +344,7 @@ Fixed problems occurred in the simulation process.
 
 * How to solve the issue of rank deficiency? 
 * Need to figure out the mathematical theory of the simulation process and the survival analysis. 
+* The project time line before the final presentation. 
   
 ## Meeting Summary 
 
