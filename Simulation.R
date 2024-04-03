@@ -11,7 +11,7 @@ library(kableExtra)
 library(survival)
 
 # Initialize Global Variables
-simnum <- 500 # 1050 # the total number of simulation
+simnum <- 1050 # 1050 # the total number of simulation
 N <- 500       # the total number of patients for each simulation 
 maxT <- 5      # maximum number of visit 
 visits <- rep(1:maxT, N)     # vector of visits for all patients
@@ -80,12 +80,12 @@ geeci <- function(model, N, alpha = 0.05) {
 gee.output <- function(type = "full", dat, corstr, N) {
   if (type == "full"){
     true_p = true_par_full
-    fmod = y ~ age + male + bsa + bav*visit
+    fmod = y ~ visit + bav + age + male + bsa + bav:visit
     fit <- geeglm(fmod, family = binomial("logit"), id = dat$id, data = dat, 
                   corstr = corstr, scale.fix = TRUE)
   } else{
     true_p = true_par_red
-    rmod = y ~ bav * visit
+    rmod = y ~ bav+visit+bav:visit
     fit <- geeglm(rmod, family = binomial("logit"), id = dat$id, data = dat, 
                   corstr = corstr, scale.fix = TRUE)
   }
@@ -185,8 +185,8 @@ for (s in 1:simnum) {
     drop_sim <- simsurv(lambdas = 0.499, # log(scale) = exp(-0.695)
                         gammas = 1, # shape parameter
                         x = covs, maxt = 5, 
-                        betas = c(age = beta_age, bav = beta_BAV, y = beta_y, 
-                                  male = beta_male, bsa = beta_bsa), 
+                        betas = c(age = wb_age, bav = wb_bav, y = wb_y, 
+                                  male = wb_male, bsa = wb_bsa), 
                         dist = "weibull")  %>% # Assuming exponential distribution for simplicity
       mutate(drop_vst = round(eventtime), 
              to_drop = case_when(drop_vst == 0 ~ 1, TRUE ~ drop_vst)) 
@@ -324,7 +324,38 @@ full_results <- cbind(est.ind = colMeans(est_res[[1]]$independence, na.rm = TRUE
 colnames(full_results) <- param_full
 rownames(full_results) <- rep(res_cols, 3)
 kableExtra::kable(full_results, escape = FALSE, digits = 3, 
-                  caption = "Estimation Results for Full Model with 1000 Simulations") %>%
+                  caption = "Estimation Results for Full Model without dropout from 1000 Simulations") %>%
+  kable_styling(full_width = F, position = "center") %>% 
+  column_spec(8, bold = T) %>% 
+  pack_rows("Independent", 1, 6) %>% 
+  pack_rows("Exchangeable", 7, 12) %>% 
+  pack_rows("AR1", 13, 18)
+
+# Results for Full Set of Parameter Estimates with Drop outs 
+res_cols <- c("Mean Estimate", "SD(Estimate)", "Mean Std. Error", "SD(Std. Error)", "Mean Bias", "Mean MSE")
+# 1. Full set of covariates
+full_results_do <- cbind(est.ind = colMeans(est_do[[1]]$independence, na.rm = TRUE),
+                      sd.ind = apply(est_do[[1]]$independence, 2, sd, na.rm = TRUE), 
+                      se.ind = colMeans(se_do[[1]]$independence, na.rm = TRUE),
+                      se.sd.ind = apply(se_do[[1]]$independence, 2, sd, na.rm = TRUE),
+                      bias.ind = colMeans(bias_do[[1]]$independence, na.rm = TRUE),
+                      mse.ind = colMeans(mse_do[[1]]$independence, na.rm = TRUE), 
+                      est.ex = colMeans(est_do[[1]]$exchangeable, na.rm = TRUE),
+                      sd.ex = apply(est_do[[1]]$exchangeable, 2, sd, na.rm = TRUE), 
+                      se.ex = colMeans(se_do[[1]]$exchangeable, na.rm = TRUE),
+                      se.sd.ex = apply(se_do[[1]]$exchangeable, 2, sd, na.rm = TRUE),
+                      bias.ex = colMeans(bias_do[[1]]$exchangeable, na.rm = TRUE),
+                      mse.ex = colMeans(mse_do[[1]]$exchangeable, na.rm = TRUE), 
+                      est.ar1 = colMeans(est_do[[1]]$ar1, na.rm = TRUE),
+                      sd.ar1 = apply(est_do[[1]]$ar1, 2, sd, na.rm = TRUE),
+                      se.ar1 = colMeans(se_do[[1]]$ar1, na.rm = TRUE),
+                      se.sd.ar1 = apply(se_do[[1]]$ar1, 2, sd, na.rm = TRUE),
+                      bias.ar1 = colMeans(bias_do[[1]]$ar1, na.rm = TRUE),
+                      mse.ar1 = colMeans(mse_do[[1]]$ar1, na.rm = TRUE)) %>% t()
+colnames(full_results_do) <- param_full
+rownames(full_results_do) <- rep(res_cols, 3)
+kableExtra::kable(full_results_do, escape = FALSE, digits = 3, 
+                  caption = "Estimation Results for Full Model with Drop outs from 1000 Simulations") %>%
   kable_styling(full_width = F, position = "center") %>% 
   column_spec(8, bold = T) %>% 
   pack_rows("Independent", 1, 6) %>% 
@@ -354,10 +385,40 @@ reduced_result <- cbind(est.ind = colMeans(est_res[[2]]$independence, na.rm = TR
 colnames(reduced_result) <- red_param
 rownames(reduced_result) <- rep(res_cols, 3)
 kableExtra::kable(reduced_result, escape = FALSE, digits = 3, 
-                  caption = "Estimate Results for Reduced Model with 1000 Simulations") %>%
+                  caption = "Estimate Results for Reduced Model without dropouts from 1000 Simulations") %>%
   kable_styling(full_width = F, position = "center") %>% 
   column_spec(5, bold = T) %>% 
   pack_rows("Independent", 1, 6) %>% 
   pack_rows("Exchangeable", 7, 12) %>% 
   pack_rows("AR1", 13, 18)
+
+# Reduced model with drop outs 
+reduced_result_do <- cbind(est.ind = colMeans(est_do[[2]]$independence, na.rm = TRUE),
+                        sd.ind = apply(est_do[[2]]$independence, 2, sd, na.rm = TRUE), 
+                        se.ind = colMeans(se_do[[2]]$independence, na.rm = TRUE),
+                        se.sd.ind = apply(se_do[[2]]$independence, 2, sd, na.rm = TRUE),
+                        bias.ind = colMeans(bias_do[[2]]$independence, na.rm = TRUE),
+                        mse.ind = colMeans(mse_do[[2]]$independence, na.rm = TRUE), 
+                        est.ex = colMeans(est_do[[2]]$exchangeable, na.rm = TRUE),
+                        sd.ex = apply(est_do[[2]]$exchangeable, 2, sd, na.rm = TRUE), 
+                        se.ex = colMeans(se_do[[2]]$exchangeable, na.rm = TRUE),
+                        se.sd.ex = apply(se_do[[2]]$exchangeable, 2, sd, na.rm = TRUE),
+                        bias.ex = colMeans(bias_do[[2]]$exchangeable, na.rm = TRUE),
+                        mse.ex = colMeans(mse_do[[2]]$exchangeable, na.rm = TRUE), 
+                        est.ar1 = colMeans(est_do[[2]]$ar1, na.rm = TRUE),
+                        sd.ar1 = apply(est_do[[2]]$ar1, 2, sd, na.rm = TRUE),
+                        se.ar1 = colMeans(se_do[[2]]$ar1, na.rm = TRUE),
+                        se.sd.ar1 = apply(se_do[[2]]$ar1, 2, sd, na.rm = TRUE),
+                        bias.ar1 = colMeans(bias_do[[2]]$ar1, na.rm = TRUE),
+                        mse.ar1 = colMeans(mse_do[[2]]$ar1, na.rm = TRUE)) %>% t()
+colnames(reduced_result_do) <- red_param
+rownames(reduced_result_do) <- rep(res_cols, 3)
+kableExtra::kable(reduced_result_do, escape = FALSE, digits = 3, 
+                  caption = "Estimate Results for Reduced Model with dropout from 1000 Simulations") %>%
+  kable_styling(full_width = F, position = "center") %>% 
+  column_spec(5, bold = T) %>% 
+  pack_rows("Independent", 1, 6) %>% 
+  pack_rows("Exchangeable", 7, 12) %>% 
+  pack_rows("AR1", 13, 18)
+
 

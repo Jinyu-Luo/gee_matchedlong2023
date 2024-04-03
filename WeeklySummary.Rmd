@@ -446,16 +446,16 @@ cox_model
 # 
 # n= 137, number of events= 121 
 # 
-#               coef exp(coef) se(coef)      z Pr(>|z|)    
-# age       -0.03810   0.96262  0.01086 -3.507 0.000454 ***
-#   bavBAV   0.16574   1.18027  0.19779  0.838 0.402052    
+#             coef exp(coef) se(coef)      z Pr(>|z|)    
+# age     -0.03810   0.96262  0.01086 -3.507 0.000454 ***
+# bavBAV   0.16574   1.18027  0.19779  0.838 0.402052    
 # y        0.93280   2.54161  0.63862  1.461 0.144110    
 # sexmale -0.67235   0.51051  0.20912 -3.215 0.001304 ** 
-#   bsa     -0.52135   0.59372  0.68091 -0.766 0.443876    
+# bsa     -0.52135   0.59372  0.68091 -0.766 0.443876    
 # ---
 #   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 # 
-# exp(coef) exp(-coef) lower .95 upper .95
+#         exp(coef) exp(-coef) lower .95 upper .95
 # age        0.9626     1.0388    0.9423    0.9833
 # bavBAV     1.1803     0.8473    0.8010    1.7392
 # y          2.5416     0.3935    0.7270    8.8859
@@ -505,7 +505,19 @@ weibull_mod
 
 How to construct the time-to-event data for survival analysis using the real data? How to define drop out? 
 
+
+## Meeting Summary 
+
+* Starts with presentation slides and poster preparation. 
+
 ## Next Step
+
+* Run the simsurv function with only baseline data, set the maxT = 2. Drop patients who die at time 1. People who survived at time 1, fit simsurv function using visit 2. 
+* Set the maxT = 2, fit the survived patients for the next round.  
+* Repeat the process 
+* Increase the number of people for dropping out at each time point.  
+* Check the proportion of outcomes before drop outs. The proportion of people drop outs who experienced the outcome should be higher than the proportion of people who did not experience the outcome.  
+* rows are visits, and columns are outcome proportion.  
 
 
 
