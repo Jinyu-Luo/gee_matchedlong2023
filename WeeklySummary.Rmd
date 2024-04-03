@@ -348,3 +348,161 @@ Fixed problems occurred in the simulation process.
   
 ## Meeting Summary 
 
+## Meeting Summary 
+
+* Clarified the reasons of fitting linear mixed model in last year's project. 
+* GLMM cannot produce the same coefficient as GEE. 
+* Checked the simulation results which producing reasonable proportion of positive outcomes. 
+* Proposed trying `trycatch` to allow the simulation run. 
+* The main topic of the second presentation can be **Endogeneity**. 
+
+## Next Step 
+
+* Run the simulation with "trycatch"  
+* Add dropouts using `simsurv` 
+* Check the simulated data, including the mean of estimates, SE, SD, MSE, and Bias. 
+* Find the 95% Convergence probability. 
+
+
+\newpage 
+
+**Date:** 2024.03.13
+
+* Increased the total number of simulation to 1100. 
+* Conducted survival analysis on the original data to extract coefficients. 
+* Extracted estimations from simulations. 
+
+## To discuss 
+
+In the coding for survival analysis, 
+
+1. Do we need to calculate the follow up time from the time that record of visit to the time that the outcome showed positive?
+
+2. Do we need to include the remaining record after the first occurrence of the outcome? In survival data, if death occurs once, then it won't have follow up visit. 
+
+## Meeting Summary 
+
+* Model the informative drop outs which dependent on the outcome and time. 
+* Calculate the coverage probabilities for each GEE 
+* The outcome should be an covariate in the survival model 
+
+## Next Step 
+
+* Perform survival analysis and extract coefficients for simulating dropouts 
+* Find the coverage probabilities for each GEE 
+
+\newpage 
+
+**Date:** 2024.03.20
+
+* Cleaned the data based on the assumptions: 
+  1. monotone missing pattern - only include visits that had root size measurement and re-set visit numbers. 
+  2. patients underwent the operation - only include visits that occurred after the date of operation. 
+* Created an indicator column for drop out. 
+* Created the follow up time by subtracting the date of operation from the date of visit. 
+* Used the last visit for parametric survival modeling by assuming exponential time distribution. 
+* Re-performed the propensity score matching process and GEE with the latest data. 
+* Incorporate survival model in the simulation to simulate drop outs. 
+
+## To discuss
+
+During the simulation process for patients' visit, each visit will have a drop out indicator. Which one should we choose?
+
+## Next Step 
+
+* Make sure to simulate data from true parameter. 
+* Make sure the simulated parameters have biases close to 0
+* mse close to 0. 
+* Coverage probability close to 95%. 
+* Mean of standard error estimates should be approx = standard deviation of parameter estimates. ==> empirical SE 
+
+
+\newpage 
+
+**Date:** 2024.04.03 
+
+* Refit the survival model and extracted the coefficient to run the simulation. The time-to-event data is created by selecting the last observation from each participant and labeling them as 1 to represent event of not having 8 visits, 0 otherwise.  
+* The coverage probability for interaction effect achieved 100%, but the coverage probability of male, visit, and BAV are still 0.  
+* Reviewed paper for discussing simulation and the document of using `simsurv`.  
+
+$$
+h_i(t) = \lambda \gamma t^{\gamma - 1} \exp(X_i^T \beta)
+$$
+where  
+* $\lambda$ is the scale parameter.  
+* $\gamma$ is the shape parameter.  
+* $X_i$ is covariate which comes from Bernoulli distribution with mean of 0.5.  
+
+```{r}
+cox_model <- coxph(Surv(Time, Event) ~ age + bav+ y+sex+bsa, data = surv_data)
+cox_model
+
+# Call:
+#   coxph(formula = Surv(Time, Event) ~ age + bav + y + sex + bsa, 
+#         data = surv_data)
+# 
+# n= 137, number of events= 121 
+# 
+# coef exp(coef) se(coef)      z Pr(>|z|)    
+# age     -0.03810   0.96262  0.01086 -3.507 0.000454 ***
+#   bavBAV   0.16574   1.18027  0.19779  0.838 0.402052    
+# y        0.93280   2.54161  0.63862  1.461 0.144110    
+# sexmale -0.67235   0.51051  0.20912 -3.215 0.001304 ** 
+#   bsa     -0.52135   0.59372  0.68091 -0.766 0.443876    
+# ---
+#   Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+# 
+# exp(coef) exp(-coef) lower .95 upper .95
+# age        0.9626     1.0388    0.9423    0.9833
+# bavBAV     1.1803     0.8473    0.8010    1.7392
+# y          2.5416     0.3935    0.7270    8.8859
+# sexmale    0.5105     1.9588    0.3388    0.7691
+# bsa        0.5937     1.6843    0.1563    2.2551
+# 
+# Concordance= 0.665  (se = 0.034 )
+# Likelihood ratio test= 33.79  on 5 df,   p=3e-06
+# Wald test            = 37.5  on 5 df,   p=5e-07
+# Score (logrank) test = 41.14  on 5 df,   p=9e-08
+```
+
+
+```{r, eval = false}
+library(eha)
+weibull_mod <- phreg(Surv(Time, Event) ~ age + bav+ y+sex+bsa, data = surv_data, 
+                   dist = "weibull", shape = 1)
+weibull_mod
+# Call:
+#   phreg(formula = Surv(Time, Event) ~ age + bav + y + sex + bsa, 
+#         data = surv_data, dist = "weibull", shape = 1)
+# 
+# Covariate          W.mean      Coef Exp(Coef)  se(Coef)    Wald p
+# age                72.491    -0.019     0.981     0.010     0.055 
+# bav 
+#              TAV    0.567     0         1           (reference)
+#.             BAV    0.433     0.159     1.172     0.188     0.398 
+# y                   0.026     0.654     1.924     0.602     0.277 
+# sex 
+#           female    0.424     0         1           (reference)
+#             male    0.576    -0.462     0.630     0.203     0.022 
+# bsa                 1.818    -0.456     0.634     0.585     0.436 
+# 
+# log(scale)                   -0.695               1.127     0.538 
+# 
+# Shape is fixed at  1 
+# 
+# Events                    121 
+# Total time at risk           609 
+# Max. log. likelihood      -308.97 
+# LR test statistic         15.13 
+# Degrees of freedom        5 
+# Overall p-value           0.0098103
+```
+
+## To discuss 
+
+How to construct the time-to-event data for survival analysis using the real data? How to define drop out? 
+## Next Step
+
+
+
+
