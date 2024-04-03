@@ -423,6 +423,9 @@ During the simulation process for patients' visit, each visit will have a drop o
 
 * Refit the survival model and extracted the coefficient to run the simulation. The time-to-event data is created by selecting the last observation from each participant and labeling them as 1 to represent event of not having 8 visits, 0 otherwise.  
 * The coverage probability for interaction effect achieved 100%, but the coverage probability of male, visit, and BAV are still 0.  
+* Large bias for male, BAS, BAV, and visit, but very small bias for the interaction effect.  
+* The estimation results are similar across different correlation structures. 
+* Adjusted models had slightly better estimates than Unadjusted models.  
 * Reviewed paper for discussing simulation and the document of using `simsurv`.  
 
 $$
@@ -433,7 +436,7 @@ where
 * $\gamma$ is the shape parameter.  
 * $X_i$ is covariate which comes from Bernoulli distribution with mean of 0.5.  
 
-```{r}
+```{r, eval=FALSE}
 cox_model <- coxph(Surv(Time, Event) ~ age + bav+ y+sex+bsa, data = surv_data)
 cox_model
 
@@ -443,8 +446,8 @@ cox_model
 # 
 # n= 137, number of events= 121 
 # 
-# coef exp(coef) se(coef)      z Pr(>|z|)    
-# age     -0.03810   0.96262  0.01086 -3.507 0.000454 ***
+#               coef exp(coef) se(coef)      z Pr(>|z|)    
+# age       -0.03810   0.96262  0.01086 -3.507 0.000454 ***
 #   bavBAV   0.16574   1.18027  0.19779  0.838 0.402052    
 # y        0.93280   2.54161  0.63862  1.461 0.144110    
 # sexmale -0.67235   0.51051  0.20912 -3.215 0.001304 ** 
@@ -501,6 +504,7 @@ weibull_mod
 ## To discuss 
 
 How to construct the time-to-event data for survival analysis using the real data? How to define drop out? 
+
 ## Next Step
 
 
