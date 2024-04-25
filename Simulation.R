@@ -1,4 +1,8 @@
+# title: Simulation for Cardiovascular Data
+# author: Jinyu Luo
+# version: "2024-04-25 after the meeting on 24th"
 
+# Required R packages
 library(CorBin)
 library(optmatch)
 library(tidyverse)
@@ -10,59 +14,43 @@ library(simsurv)
 library(kableExtra)
 library(survival)
 
-# Initialize Global Variables
-simnum <- 1050 # 1050 # the total number of simulation
-N <- 500       # the total number of patients for each simulation 
+## Global Variables ---------------------------------------------
+# 1. Simulation Variables 
+N.sim <- 1030  # the total number of simulation
+N <- 500       # the total number of patients in each simulation 
 maxT <- 5      # maximum number of visit 
-visits <- rep(1:maxT, N)     # vector of visits for all patients
 pid <- rep(1:N, each = maxT) # vector of patient IDs
-rho <- 0.3
+rho <- 0.1
 
-# Coefficients for exposure group simulation 
-a_bav <- -0.4  # intercept 
-b1_bav <- -0.1 # age 
-b2_bav <- 1.2  # male
-b3_bav <- 3    # BSA
+# 2. Coefficients for exposure group simulation 
+glm_coef <- c(b0=1.600, # intercept
+              age = -0.081, male = 1.289, bsa = 2.315)
 
-# Coefficients for outcome simulation
-a_oc <- -1     # intercept 
-b1_oc <- -0.05 # visit 
-b2_oc <- -2    # BAV 
-b3_oc <- -0.05 # age 
-b4_oc <- 1.4   # male 
-b5_oc <- 0.5   # BSA
-b6_oc <- 0.5   # BAV * visit
+# 3. Coefficients for outcome simulation
+# Full model 
+gee_coef <- c(b0=-3.815, bav=-1.938, visit=0.114, age=-0.036, 
+              male=1.196, bsa=1.955, bav_visit=0.345)
+param_full <- c("Intercept","BAV","Visit", "Age", "Male", "BSA","BAV:Visit")
 
-true_par_full <- c(a_oc, b1_oc, b2_oc, b3_oc, b4_oc, b5_oc, b6_oc)
-par_name_full <- c("Intercept",  "visit", "bav","age", "male", "bsa",  "bav:visit")
-num_coeffs_full <- length(true_par_full)
+# Reduced model 
+red_gee_coef <- c(gee_coef[1:3], gee_coef[7])
+red_param <- c("Intercept", "BAV", "Visit",  "BAV:Visit")
 
-true_par_red <- c(true_par_full[1:3], b6_oc)
-par_name_red <- c("Intercept", "visit", "bav", "bav:visit")
-num_coeffs_red <- length(true_par_red)
+# 4. Coefficients for dropouts (Survival outcome)
+surv_coef1 <- c(scale=exp(0.485), age=-0.021, bav=0.482,male=-0.261,bsa=-0.275,y=0.276)
+surv_coef2 <- c(scale=exp(3.321),age=-0.007,bav=-0.032,male=-0.401,bsa=-0.619,y=-0.038)
+surv_coef3 <- c(scale = exp(1.342), age =-0.022,bav = 0.293,male = -0.347,bsa = -0.093,y = 0.889)
 
-# Survival variables 
-beta_age <- -0.03810  # Effect of age on hazard rate
-beta_BAV <- 0.16574  # Effect of BAV on hazard rate
-beta_y <- 0.93280
-beta_male <- -0.67235
-beta_bsa <- -0.52135
-# wb_age <- -0.019
-# wb_bav <- 0.159
-# wb_male <- -0.462
-# wb_bsa <- -0.456
-# wb_y <- 0.654
-
-
-
-# Function to calculate CIs with unadjusted and DF-adjusted sandwich estimator
+## Helper Functions ---------------------------------------------
+# 1. Function to calculate CIs with 
+#    unadjusted and DF-adjusted sandwich estimator
 geeci <- function(model, N, alpha = 0.05) {
   fit <- summary(model)
   est <- fit$coefficients[, "Estimate"]
   se <- fit$coefficients[, "Std.err"] 
   
   p <- length(est) # Number of parameters
-  v_cov <- vcov(model) # Sandwich estimator: standard error
+  v_cov <- vcov(model) # Sandwich estimator
   V_df <- (N / (N - p)) * v_cov # DF correction
   adj_se <- sqrt(diag(V_df)) # Standard errors from corrected matrix
   
@@ -76,206 +64,207 @@ geeci <- function(model, N, alpha = 0.05) {
   return(result)
 }
 
-# Function for Fitting GEE model and Extract Estimates 
+
+# 2. Function for Fitting GEE model and Extract Estimates 
 gee.output <- function(type = "full", dat, corstr, N) {
   if (type == "full"){
-    true_p = true_par_full
-    fmod = y ~ visit + bav + age + male + bsa + bav:visit
-    fit <- geeglm(fmod, family = binomial("logit"), id = dat$id, data = dat, 
-                  corstr = corstr, scale.fix = TRUE)
+    true_p = gee_coef
+    mod = y ~ bav * visit + age + male + bsa 
+    
   } else{
-    true_p = true_par_red
-    rmod = y ~ visit+bav+bav:visit
-    fit <- geeglm(rmod, family = binomial("logit"), id = dat$id, data = dat, 
-                  corstr = corstr, scale.fix = TRUE)
+    true_p = red_gee_coef
+    mod = y ~ bav * visit
   }
-  
+  fit <- geeglm(mod, family = binomial("logit"), id = dat$id, data = dat, 
+                corstr = corstr, scale.fix = TRUE)
   est <- geeci(fit, N)
-  cov_prob <- c(ifelse((est$lower <= true_p & est$upper >= true_p), 1, 0),
-                ifelse((est$adj_lower <= true_p & est$adj_upper >= true_p), 1, 0))
+  coveraged <- c(ifelse((est$lower <= true_p & true_p <= est$upper), 1, 0),
+                 ifelse((est$adj_lower <= true_p & true_p <= est$adj_upper), 1, 0))
   est_set <- est[,1:2] %>% mutate(bias = (estimate - true_p)/true_p, mse = (estimate - true_p)^2)
-  out <- list("Estimates" = est_set, "Cov.Prob" = cov_prob)
+  out <- list("Estimates" = est_set, "Cov.Prob" = coveraged)
   
   return(out)
 }
 
-corstrs <- c("independence", "exchangeable", "ar1")
-mod_types <- c("full", "reduced")
-
-est_res <- list(); se_res <- list(); bias_res <- list(); mse_res <- list(); cov_prob <- list()
-est_do <- list(); se_do <- list(); bias_do <- list(); mse_do <- list(); Cprob_do <- list()
-
-for (i in 1:2) {
-  p1 <- ifelse(i == 2, 4, 7)
-  p2 <- ifelse(i == 2, 8, 14)
-  est_res[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                       "exchangeable" = matrix(NA, simnum, p1), 
-                       "ar1" = matrix(NA, simnum, p1))
-  est_do[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                      "exchangeable" = matrix(NA, simnum, p1), 
-                      "ar1" = matrix(NA, simnum, p1))
-  se_res[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                      "exchangeable" = matrix(NA, simnum, p1), 
-                      "AR1" = matrix(NA, simnum, p1))
-  se_do[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                     "exchangeable" = matrix(NA, simnum, p1), 
-                     "ar1" = matrix(NA, simnum, p1))
-  bias_res[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                        "exchangeable" = matrix(NA, simnum, p1), 
-                        "ar1" = matrix(NA, simnum, p1))
-  bias_do[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                       "exchangeable" = matrix(NA, simnum, p1), 
-                       "ar1" = matrix(NA, simnum, p1))
-  mse_res[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                       "exchangeable" = matrix(NA, simnum, p1), 
-                       "ar1" = matrix(NA, simnum, p1))
-  mse_do[[i]] <- list("independence" = matrix(NA, simnum, p1), 
-                      "exchangeable" = matrix(NA, simnum, p1), 
-                      "ar1" = matrix(NA, simnum, p1))
-  cov_prob[[i]] <- list("independence" = matrix(NA, simnum, p2), 
-                        "exchangeable" = matrix(NA, simnum, p2), 
-                        "ar1" = matrix(NA, simnum, p2))
-  Cprob_do[[i]] <- list("independence" = matrix(NA, simnum, p2), 
-                        "exchangeable" = matrix(NA, simnum, p2), 
-                        "ar1" = matrix(NA, simnum, p2))
+# Function to create a list of matrices
+create_matrices <- function(N.sim, p1, p2) {
+  list("Estimation" = matrix(NA, N.sim, p1),
+       "SE" = matrix(NA, N.sim, p1),
+       "Bias" = matrix(NA, N.sim, p1), 
+       "MSE" = matrix(NA, N.sim, p1), 
+       "Coverage" = matrix(NA, N.sim, p2))
 }
-names(est_res) <- mod_types
-names(se_res) <- mod_types
-names(bias_res) <- mod_types
-names(mse_res) <- mod_types
-names(est_do) <- mod_types
-names(se_do) <- mod_types
-names(bias_do) <- mod_types
-names(mse_do) <- mod_types
 
-# =================== Simulation ====================== # 
-set.seed(5207)
-for (s in 1:simnum) {
+##  Result Containers -------------------------------------------
+# Correlation structures
+corstrs <- c("independence", "exchangeable", "ar1") 
+
+### 1. Without Dropouts -----------------------------------------
+# Full model
+fullmod_res <- list(independent = create_matrices(N.sim, 7, 14),   
+                    exchangeable = create_matrices(N.sim, 7, 14),
+                    ar1 = create_matrices(N.sim, 7, 14))
+# Reduced model
+redmod_res <- list(independent = create_matrices(N.sim, 4, 8),   
+                   exchangeable = create_matrices(N.sim, 4, 8),
+                   ar1 = create_matrices(N.sim, 4, 8))
+
+### 2. With Dropouts --------------------------------------------
+# Full model
+fullmod_resdo <- list(independent = create_matrices(N.sim, 7, 14),   
+                      exchangeable = create_matrices(N.sim, 7, 14),
+                      ar1 = create_matrices(N.sim, 7, 14))
+# Reduced model
+redmod_resdo <- list(independent = create_matrices(N.sim, 4, 8),   
+                     exchangeable = create_matrices(N.sim, 4, 8),
+                     ar1 = create_matrices(N.sim, 4, 8))
+
+# Dropout container
+N_dropouts <- list()
+
+# Effective sample size 
+eff_sizes <- NULL
+
+## Simulation -------------------------------------------------
+set.seed(0426)
+for (s in 1:N.sim) {
   tryCatch({ # catch any error without breaking the simulation 
     simlist <- list()
     for(i in 1:N){
       # Baseline Covariates 
-      male <- rbinom(1, size = 1, prob = 0.65) 
-      age <- round(rnorm(1, mean = 50, sd = 10))
-      BSA <- rnorm(1, mean = 2, sd = 0.3)
-      
-      # Generate exposure groups 
-      logit_bav <- a_bav + b1_bav*age + b2_bav*male + b3_bav*BSA # logit of Pr(BAV = 1)
+      base_covs <- c(a = 1,
+                     age = round(rnorm(1, mean = 50, sd = 10)), 
+                     male = rbinom(1, size = 1, prob = 0.65) , 
+                     bsa = rnorm(1, mean = 2, sd = 0.3))
+      logit_bav <- sum(base_covs*glm_coef)
       prob_bav <- exp(logit_bav) / (1+exp(logit_bav))
+      
+      # Generate Exposure Group
       BAV <- rbinom(1, size = 1, prob = prob_bav) 
       
-      # Simulate time to dropout
-      covs <- data.frame(id = i, age = age, bav = BAV, male = male, bsa = BSA)
-      drop_sim <- simsurv(lambdas = 0.499, gammas = 1, x = covs, maxt = maxT, 
-                          betas = c(age = beta_age, bav = beta_BAV, male = beta_male, bsa = beta_bsa),
-                          dist = "weibull") 
-      drop_vst <- round(drop_sim$eventtime)
+      # Simulate the initial outcome 
+      vst <- 1:maxT
+      logit_y <- gee_coef[1]+BAV*gee_coef[2]+vst*gee_coef[3]+
+        sum(base_covs[2:4]*gee_coef[4:6])+BAV*vst*gee_coef[7]
+      prob_y <- exp(logit_y) / (1+exp(logit_y)) 
+      y <- as.vector(cBernEx(n = 1, p = prob_y, rho = rho))
       
-      # Simulate visits up to dropout or maxT
-      y_prev <- NA  # Placeholder for previous visit's outcome
-      for(t in 1:maxT){
-        if(t > drop_vst) break  # Check for dropout
-        age_t <- age + t
-        
-        logit_y <- a_oc + b1_oc*t + b2_oc*BAV + b3_oc*age_t + b4_oc*male + b5_oc*BSA + b6_oc*BAV*t + ifelse(is.na(y_prev), 0, beta_y*y_prev)
-        prob_y <- exp(logit_y) / (1 + exp(logit_y))
-        y_t <- rbinom(1, 1, prob_y)
-        
-        # Save this visit's data
-        simlist <- rbind(simlist, data.frame(id = i, visit = t, y = y_t, age = age_t, bsa = BSA, male = male, bav = BAV))
-        
-        y_prev <- y_t  # Update previous outcome
-      }
+      records <- data.frame(id = rep(i, maxT),  age = rep(base_covs[2], maxT),
+                            bav = rep(BAV, maxT),  
+                            male = rep(base_covs[3], maxT),
+                            bsa = rep(base_covs[4], maxT),y=y, 
+                            visit = 1:maxT) 
       
-      # age_5 <- c(0:4)+age
-      # 
-      # visit <- 1:maxT
-      # logit_y <- a_oc + b1_oc*visit + b2_oc*BAV + b3_oc*age_5 + b4_oc*male + b5_oc*BSA + b6_oc*BAV*visit
-      # prob_y <- exp(logit_y) / (1+exp(logit_y)) # a vector of  marginal probabilities with dimension maxT = 5
-      # y <- cBern(n = 1, p = prob_y, rho = rho, type = "DCP") 
-      # 
-      # records <- data.frame(id = rep(i, 5), visit = visit, y = y[1,], age = age_5, 
-      #                       bsa = rep(BSA, 5), male = rep(male, 5), bav = rep(BAV, 5))
-      # 
-      # simlist <- rbind(simlist, records)
+      simlist <- rbind(simlist, records)
     }
     
-    baseline_data <- simlist %>% group_by(id) %>% slice(1)
-    # 
-    # covs <- uni_data %>% select(id, y, age, bsa, male, bav) 
+    ### Dropouts Simulation -------------------------------------
+    # 1. Simulate Patients who dropped out after the second measurement
+    visit2_df <- simlist %>% filter(visit == 2)
+    Z1 <- visit2_df %>% select(-visit)
+    # Assuming dropout time follows exponential distribution 
+    surv_prob1 <- simsurv(lambdas = surv_coef1[1], 
+                          gammas = 1, # shape parameter
+                          x = Z1, maxt = 1,
+                          betas = surv_coef1[2:6],
+                          dist = "weibull") 
     
-    # ============ Simulate time to dropout for subject i ==================== #
-    # drop_sim <- simsurv(lambdas = 0.499, # log(scale) = exp(-0.695)
-    #                     gammas = 1, # shape parameter
-    #                     x = covs, maxt = 5, 
-    #                     betas = c(age = wb_age, bav = wb_bav, y = wb_y, 
-    #                               male = wb_male, bsa = wb_bsa), 
-    #                     dist = "weibull")  %>% # Assuming exponential distribution for simplicity
-    #   mutate(drop_vst = round(eventtime), 
-    #          to_drop = case_when(drop_vst == 0 ~ 1, TRUE ~ drop_vst)) 
-    # 
-    # drop_sim %>% group_by(to_drop) %>% summarise(n=n())
+    # record dropout numbers
+    N_dropouts <- rbind(N_dropouts, table(surv_prob1$status))
     
-    # data_dropped <- simlist %>% 
-    #   left_join(drop_sim, by = "id") %>% 
-    #   filter(visit <= to_drop) %>% 
-    #   select(-c(eventtime, status, drop_vst, to_drop))
+    # remove dropouts
+    to_drop <- which(surv_prob1$status == 1)
+    dropped1 <- simlist %>% filter(!(visit >= 3 & id %in% to_drop))
     
-    ####################### Propensity Score Matching ##########################
-    # base_dat_drop <- data_dropped %>%  group_by(id) %>% slice(1)
-    # Step1: Estimate propensity scores with logistic regression
-    ps_model <- glm(y ~ age + male + bsa, family = binomial, data = baseline_data)
+    # 2. Simulate Patients who dropped out after the third measurement
+    visit3_df <- dropped1 %>% filter(visit == 3 & !(id %in% to_drop))
+    Z2 <- visit3_df %>% select(-visit)
+    # Assuming dropout time follows exponential distribution 
+    surv_prob2 <- simsurv(lambdas = surv_coef2[1], 
+                          gammas = 1, # shape parameter
+                          x = Z2, maxt = 1,
+                          betas = surv_coef2[2:6],
+                          dist = "weibull") 
     
-    # Step2: Perform propensity score matching 
-    pps_match <- pairmatch(ps_model, data = baseline_data)
+    # record dropout numbers
+    N_dropouts <- rbind(N_dropouts, table(surv_prob2$status))
     
-    # Step3: Get the matched data 
-    matched_df <- data.frame(baseline_data, matched = pps_match, check.rows = TRUE) %>% 
-      filter(!is.na(matched))
+    # remove dropouts
+    to_drop <- which(surv_prob2$status == 1)
+    dropped2 <- dropped1 %>% filter(!(visit >= 4 & id %in% to_drop))
     
-    # The number of patients in the matched dataset 
-    N_patients <- nrow(matched_df) 
+    # 3. Simulate Patients who dropped out after the fourth measurement
+    visit4_df <- dropped2 %>% filter(visit == 4 & !(id %in% to_drop))
+    Z3 <- visit4_df %>% select(-visit)
+    # Assuming dropout time follows exponential distribution 
+    surv_prob3 <- simsurv(lambdas = surv_coef3[1], 
+                          gammas = 1, # shape parameter
+                          x = Z3, maxt = 1,
+                          betas = surv_coef3[2:6],
+                          dist = "weibull") 
     
-    # Step4: Get the matched data in long format 
-    matched_long <- simlist %>% filter(id %in% matched_df$id) %>% 
-      left_join(matched_df %>% select(id, matched), by = "id") 
+    # record dropout numbers
+    N_dropouts <- rbind(N_dropouts, table(surv_prob3$status))
     
-    ############################# Fit GEE #################################
+    # remove dropouts
+    to_drop <- which(surv_prob3$status == 1)
+    dropped3 <- dropped2 %>% filter(!(visit > 4 & id %in% to_drop))
+    
+    ### Propensity Score Matching ------------------------------------
+    match_function <- function(dropped = TRUE){
+      if (dropped){ data = dropped3} else {data = simlist}
+      base_dat <- data %>% filter(visit == 1)
+      ps_model <- glm(bav ~ age + male + bsa, family = binomial, data = base_dat)
+      pps_match <- pairmatch(ps_model, data = base_dat)
+      matched_df <- data.frame(base_dat, matched = pps_match, check.rows = TRUE) %>% 
+        filter(!is.na(matched))
+      Npatients <- nrow(matched_df)
+      matched_long <- simlist %>% filter(id %in% matched_df$id) %>% 
+        left_join(matched_df %>% select(id, matched), by = "id") 
+      return(list(N = Npatients, data = matched_long))
+    }
+    
+    no_dropouts <- match_function(dropped = FALSE)
+    dropouts <- match_function()
+    
+    ### GEE -----------------------------------------------------------
     for (m in 1:3) {
       str <- corstrs[m]
       # When there is no drop out
       # (1) Full covariate set 
-      gee_full <- gee.output(type = "full", dat = simlist, corstr = str, N = N_patients)
-      est_res[[1]][[m]][s, ] <- gee_full$Estimates[,"estimate"]
-      se_res[[1]][[m]][s, ] <- gee_full$Estimates[,"se"]
-      bias_res[[1]][[m]][s, ] <- gee_full$Estimates[,"bias"]
-      mse_res[[1]][[m]][s, ] <- gee_full$Estimates[,"mse"]
-      cov_prob[[1]][[m]][s, ] <- gee_full$Cov.Prob
+      gee_full <- gee.output(type = "full", dat = no_dropouts$data, 
+                             corstr = str, N = no_dropouts$N)
+      fullmod_res[[m]]$Estimation[s,] <- gee_full$Estimates[,"estimate"]
+      fullmod_res[[m]]$SE[s,] <- gee_full$Estimates[,"se"]
+      fullmod_res[[m]]$Bias[s,] <- gee_full$Estimates[,"bias"]
+      fullmod_res[[m]]$MSE[s,] <- gee_full$Estimates[,"mse"]
+      fullmod_res[[m]]$Coverage[s,] <- gee_full$Cov.Prob
       
       # (2) Reduced covariate set 
-      gee_red <- gee.output(type = "reduced", dat = simlist, corstr = str, N = N_patients)
-      est_res[[2]][[m]][s, ] <- gee_red$Estimates[,"estimate"]
-      se_res[[2]][[m]][s, ] <- gee_red$Estimates[,"se"]
-      bias_res[[2]][[m]][s, ] <- gee_red$Estimates[,"bias"]
-      mse_res[[2]][[m]][s, ] <- gee_red$Estimates[,"mse"]
-      cov_prob[[2]][[m]][s, ] <- gee_red$Cov.Prob
+      gee_red <- gee.output(type = "reduced", dat = no_dropouts$data, 
+                            corstr = str, N = no_dropouts$N)
+      redmod_res[[m]]$Estimation[s,] <- gee_red$Estimates[,"estimate"]
+      redmod_res[[m]]$SE[s,] <- gee_red$Estimates[,"se"]
+      redmod_res[[m]]$Bias[s,] <- gee_red$Estimates[,"bias"]
+      redmod_res[[m]]$MSE[s,]<- gee_red$Estimates[,"mse"]
+      redmod_res[[m]]$Coverage[s,]<- gee_red$Cov.Prob
       
       # When there is drop out
       # (1) Full covariate set 
-      gee_full_do <- gee.output(type = "full", dat = matched_long, corstr = str, N = N_patients)
-      est_do[[1]][[m]][s, ] <- gee_full_do$Estimates[,"estimate"]
-      se_do[[1]][[m]][s, ] <- gee_full_do$Estimates[,"se"]
-      bias_do[[1]][[m]][s, ] <- gee_full_do$Estimates[,"bias"]
-      mse_do[[1]][[m]][s, ] <- gee_full_do$Estimates[,"mse"]
-      Cprob_do[[1]][[m]][s, ] <- gee_full_do$Cov.Prob
+      gee_full_do <- gee.output(type = "full", dat = dropouts$data, corstr = str, N = dropouts$N)
+      fullmod_resdo[[m]]$Estimation[s,] <- gee_full$Estimates[,"estimate"]
+      fullmod_resdo[[m]]$SE[s,] <- gee_full$Estimates[,"se"]
+      fullmod_resdo[[m]]$Bias[s,] <- gee_full$Estimates[,"bias"]
+      fullmod_resdo[[m]]$MSE[s,] <- gee_full$Estimates[,"mse"]
+      fullmod_resdo[[m]]$Coverage[s,] <- gee_full$Cov.Prob
       
       # (2) Reduced covariate set 
-      gee_red_do <- gee.output(type = "reduced", dat = matched_long, corstr = str, N = N_patients)
-      est_do[[2]][[m]][s, ] <- gee_red_do$Estimates[,"estimate"]
-      se_do[[2]][[m]][s, ] <- gee_red_do$Estimates[,"se"]
-      bias_do[[2]][[m]][s, ] <- gee_red_do$Estimates[,"bias"]
-      mse_do[[2]][[m]][s, ] <- gee_red_do$Estimates[,"mse"]
-      Cprob_do[[2]][[m]][s, ] <- gee_red_do$Cov.Prob
+      gee_red_do <- gee.output(type = "reduced", dat = dropouts$data, corstr = str, N = dropouts$N)
+      redmod_resdo[[m]]$Estimation[s,] <- gee_red$Estimates[,"estimate"]
+      redmod_resdo[[m]]$SE[s,] <- gee_red$Estimates[,"se"]
+      redmod_resdo[[m]]$Bias[s,] <- gee_red$Estimates[,"bias"]
+      redmod_resdo[[m]]$MSE[s,]<- gee_red$Estimates[,"mse"]
+      redmod_resdo[[m]]$Coverage[s,]<- gee_red$Cov.Prob
     }
   }, error = function(e){
     cat("Error in iteration", s, ": ", e$message, "\n")
@@ -283,168 +272,34 @@ for (s in 1:simnum) {
   print(s)
 }
 
-# Table for coverage probabilities from full covariates 
-full_cp <- rbind(colMeans(cov_prob[[1]]$independence, na.rm = TRUE),
-                 colMeans(cov_prob[[1]]$exchangeable, na.rm = TRUE),
-                 colMeans(cov_prob[[1]]$ar1, na.rm = TRUE), 
-                 colMeans(Cprob_do[[1]]$independence, na.rm = TRUE),
-                 colMeans(Cprob_do[[1]]$exchangeable, na.rm = TRUE),
-                 colMeans(Cprob_do[[1]]$ar1, na.rm = TRUE)) 
-param_full <- c("Intercept", "Visit", "BAV", "Age", "Male", "BSA","BAV:Visit")
+
+## Coverage Probability -----------------------------------------
+### 1. Full Model -----------------------------------------------
+full_cp <- rbind(
+  # Without dropouts 
+  colMeans(fullmod_res$independent$Coverage, na.rm = TRUE),
+  colMeans(fullmod_res$exchangeable$Coverage,  na.rm = TRUE),
+  colMeans(fullmod_res$ar1$Coverage,  na.rm = TRUE), 
+  # With dropouts
+  colMeans(fullmod_resdo$independent$Coverage, na.rm = TRUE),
+  colMeans(fullmod_resdo$exchangeable$Coverage, na.rm = TRUE),
+  colMeans(fullmod_resdo$ar1$Coverage, na.rm = TRUE)) 
 colnames(full_cp) <- rep(param_full, 2)
 rownames(full_cp) <- rep(c("Independent", "Exchangeable", "AR1"), 2)
-library(kableExtra)
-kableExtra::kable(full_cp, escape = FALSE, digits = 3, 
-                  caption = "True Parameter Coverage Rate from Full Model with 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  add_header_above(c(" ", "Unadjusted Standard Error" = 7, "Adjusted Standard Error" = 7)) %>% 
-  column_spec(8, bold = T) %>% 
-  column_spec(15, bold = T) %>% 
-  pack_rows("With Drop out", 1, 3) %>% 
-  pack_rows("Without Drop outs", 4, 6)
 
-# Table for coverage probabilities from reduced covariates 
-red_cp <- rbind(colMeans(cov_prob[[2]]$independence, na.rm = TRUE),
-                colMeans(cov_prob[[2]]$exchangeable, na.rm = TRUE),
-                colMeans(cov_prob[[2]]$ar1, na.rm = TRUE), 
-                colMeans(Cprob_do[[2]]$independence, na.rm = TRUE),
-                colMeans(Cprob_do[[2]]$exchangeable, na.rm = TRUE),
-                colMeans(Cprob_do[[2]]$ar1, na.rm = TRUE)) 
-red_param <- c("Intercept", "Visit", "BAV",  "BAV:Visit")
+
+### 2. Reduced Model ---------------------------------------------
+red_cp <- rbind(
+  # Without dropouts
+  colMeans(redmod_res$independent$Coverage, na.rm = TRUE),
+  colMeans(redmod_res$exchangeable$Coverage, na.rm = TRUE),
+  colMeans(redmod_res$ar1$Coverage,  na.rm = TRUE), 
+  # With dropouts 
+  colMeans(redmod_resdo$independent$Coverage, na.rm = TRUE),
+  colMeans(redmod_resdo$exchangeable$Coverage, na.rm = TRUE),
+  colMeans(redmod_resdo$ar1$Coverage, na.rm = TRUE)) 
 colnames(red_cp) <- rep(red_param, 2)
 rownames(red_cp) <- rep(c("Independent", "Exchangeable", "AR1"), 2)
-kableExtra::kable(red_cp, escape = FALSE, digits = 3, 
-                  caption = "True Parameter Coverage Rate from Reduced Model with 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  add_header_above(c(" ", "Unadjusted Standard Error" = 4, "Adjusted Standard Error" = 4)) %>% 
-  column_spec(5, bold = T) %>% 
-  column_spec(9, bold = T) %>% 
-  pack_rows("With Drop out", 1, 3) %>% 
-  pack_rows("Without Drop outs", 4, 6)
 
-
-# Results for Full Set of Parameter Estimates
-res_cols <- c("Mean Estimate", "SD(Estimate)", "Mean Std. Error", "SD(Std. Error)", "Mean Bias", "Mean MSE")
-# 1. Full set of covariates
-full_results <- cbind(`True Values` = true_par_full, 
-                      est.ind = colMeans(est_res[[1]]$independence, na.rm = TRUE),
-                      sd.ind = apply(est_res[[1]]$independence, 2, sd, na.rm = TRUE), 
-                      se.ind = colMeans(se_res[[1]]$independence, na.rm = TRUE),
-                      se.sd.ind = apply(se_res[[1]]$independence, 2, sd, na.rm = TRUE),
-                      bias.ind = colMeans(bias_res[[1]]$independence, na.rm = TRUE),
-                      mse.ind = colMeans(mse_res[[1]]$independence, na.rm = TRUE), 
-                      est.ex = colMeans(est_res[[1]]$exchangeable, na.rm = TRUE),
-                      sd.ex = apply(est_res[[1]]$exchangeable, 2, sd, na.rm = TRUE), 
-                      se.ex = colMeans(se_res[[1]]$exchangeable, na.rm = TRUE),
-                      se.sd.ex = apply(se_res[[1]]$exchangeable, 2, sd, na.rm = TRUE),
-                      bias.ex = colMeans(bias_res[[1]]$exchangeable, na.rm = TRUE),
-                      mse.ex = colMeans(mse_res[[1]]$exchangeable, na.rm = TRUE), 
-                      est.ar1 = colMeans(est_res[[1]]$ar1, na.rm = TRUE),
-                      sd.ar1 = apply(est_res[[1]]$ar1, 2, sd, na.rm = TRUE),
-                      se.ar1 = colMeans(se_res[[1]]$AR1, na.rm = TRUE),
-                      se.sd.ar1 = apply(se_res[[1]]$AR1, 2, sd, na.rm = TRUE),
-                      bias.ar1 = colMeans(bias_res[[1]]$ar1, na.rm = TRUE),
-                      mse.ar1 = colMeans(mse_res[[1]]$ar1, na.rm = TRUE)) %>% t()
-colnames(full_results) <- param_full
-rownames(full_results) <- c("True Value", rep(res_cols, 3))
-kableExtra::kable(full_results, escape = FALSE, digits = 3, 
-                  caption = "Estimation Results for Full Model without dropout from 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  column_spec(8, bold = T) %>% 
-  pack_rows("Independent", 2, 7) %>% 
-  pack_rows("Exchangeable", 8, 13) %>% 
-  pack_rows("AR1", 14, 19)
-
-# Results for Full Set of Parameter Estimates with Drop outs 
-res_cols <- c("Mean Estimate", "SD(Estimate)", "Mean Std. Error", "SD(Std. Error)", "Mean Bias", "Mean MSE")
-# 1. Full set of covariates
-full_results_do <- cbind(`True values` = true_par_full, 
-                         est.ind = colMeans(est_do[[1]]$independence, na.rm = TRUE),
-                      sd.ind = apply(est_do[[1]]$independence, 2, sd, na.rm = TRUE), 
-                      se.ind = colMeans(se_do[[1]]$independence, na.rm = TRUE),
-                      se.sd.ind = apply(se_do[[1]]$independence, 2, sd, na.rm = TRUE),
-                      bias.ind = colMeans(bias_do[[1]]$independence, na.rm = TRUE),
-                      mse.ind = colMeans(mse_do[[1]]$independence, na.rm = TRUE), 
-                      est.ex = colMeans(est_do[[1]]$exchangeable, na.rm = TRUE),
-                      sd.ex = apply(est_do[[1]]$exchangeable, 2, sd, na.rm = TRUE), 
-                      se.ex = colMeans(se_do[[1]]$exchangeable, na.rm = TRUE),
-                      se.sd.ex = apply(se_do[[1]]$exchangeable, 2, sd, na.rm = TRUE),
-                      bias.ex = colMeans(bias_do[[1]]$exchangeable, na.rm = TRUE),
-                      mse.ex = colMeans(mse_do[[1]]$exchangeable, na.rm = TRUE), 
-                      est.ar1 = colMeans(est_do[[1]]$ar1, na.rm = TRUE),
-                      sd.ar1 = apply(est_do[[1]]$ar1, 2, sd, na.rm = TRUE),
-                      se.ar1 = colMeans(se_do[[1]]$ar1, na.rm = TRUE),
-                      se.sd.ar1 = apply(se_do[[1]]$ar1, 2, sd, na.rm = TRUE),
-                      bias.ar1 = colMeans(bias_do[[1]]$ar1, na.rm = TRUE),
-                      mse.ar1 = colMeans(mse_do[[1]]$ar1, na.rm = TRUE)) %>% t()
-colnames(full_results_do) <- param_full
-rownames(full_results_do) <- c("True Value", rep(res_cols, 3))
-kableExtra::kable(full_results_do, escape = FALSE, digits = 3, 
-                  caption = "Estimation Results for Full Model with Drop outs from 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  column_spec(8, bold = T) %>% 
-  pack_rows("Independent", 2, 7) %>% 
-  pack_rows("Exchangeable", 8, 13) %>% 
-  pack_rows("AR1", 14, 19)
-
-
-# 2. Reduced Covariate set 
-reduced_result <- cbind(`True values` = true_par_red, 
-                        est.ind = colMeans(est_res[[2]]$independence, na.rm = TRUE),
-                        sd.ind = apply(est_res[[2]]$independence, 2, sd, na.rm = TRUE), 
-                        se.ind = colMeans(se_res[[2]]$independence, na.rm = TRUE),
-                        se.sd.ind = apply(se_res[[2]]$independence, 2, sd, na.rm = TRUE),
-                        bias.ind = colMeans(bias_res[[2]]$independence, na.rm = TRUE),
-                        mse.ind = colMeans(mse_res[[2]]$independence, na.rm = TRUE), 
-                        est.ex = colMeans(est_res[[2]]$exchangeable, na.rm = TRUE),
-                        sd.ex = apply(est_res[[2]]$exchangeable, 2, sd, na.rm = TRUE), 
-                        se.ex = colMeans(se_res[[2]]$exchangeable, na.rm = TRUE),
-                        se.sd.ex = apply(se_res[[2]]$exchangeable, 2, sd, na.rm = TRUE),
-                        bias.ex = colMeans(bias_res[[2]]$exchangeable, na.rm = TRUE),
-                        mse.ex = colMeans(mse_res[[2]]$exchangeable, na.rm = TRUE), 
-                        est.ar1 = colMeans(est_res[[2]]$ar1, na.rm = TRUE),
-                        sd.ar1 = apply(est_res[[2]]$ar1, 2, sd, na.rm = TRUE),
-                        se.ar1 = colMeans(se_res[[2]]$AR1, na.rm = TRUE),
-                        se.sd.ar1 = apply(se_res[[2]]$AR1, 2, sd, na.rm = TRUE),
-                        bias.ar1 = colMeans(bias_res[[2]]$ar1, na.rm = TRUE),
-                        mse.ar1 = colMeans(mse_res[[2]]$ar1, na.rm = TRUE)) %>% t()
-colnames(reduced_result) <- red_param
-rownames(reduced_result) <- c("True Value", rep(res_cols, 3))
-kableExtra::kable(reduced_result, escape = FALSE, digits = 3, 
-                  caption = "Estimate Results for Reduced Model without dropouts from 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  column_spec(5, bold = T) %>% 
-  pack_rows("Independent", 2, 7) %>% 
-  pack_rows("Exchangeable", 8, 13) %>% 
-  pack_rows("AR1", 14, 19)
-
-# Reduced model with drop outs 
-reduced_result_do <- cbind(`True values` = true_par_red, 
-                           est.ind = colMeans(est_do[[2]]$independence, na.rm = TRUE),
-                        sd.ind = apply(est_do[[2]]$independence, 2, sd, na.rm = TRUE), 
-                        se.ind = colMeans(se_do[[2]]$independence, na.rm = TRUE),
-                        se.sd.ind = apply(se_do[[2]]$independence, 2, sd, na.rm = TRUE),
-                        bias.ind = colMeans(bias_do[[2]]$independence, na.rm = TRUE),
-                        mse.ind = colMeans(mse_do[[2]]$independence, na.rm = TRUE), 
-                        est.ex = colMeans(est_do[[2]]$exchangeable, na.rm = TRUE),
-                        sd.ex = apply(est_do[[2]]$exchangeable, 2, sd, na.rm = TRUE), 
-                        se.ex = colMeans(se_do[[2]]$exchangeable, na.rm = TRUE),
-                        se.sd.ex = apply(se_do[[2]]$exchangeable, 2, sd, na.rm = TRUE),
-                        bias.ex = colMeans(bias_do[[2]]$exchangeable, na.rm = TRUE),
-                        mse.ex = colMeans(mse_do[[2]]$exchangeable, na.rm = TRUE), 
-                        est.ar1 = colMeans(est_do[[2]]$ar1, na.rm = TRUE),
-                        sd.ar1 = apply(est_do[[2]]$ar1, 2, sd, na.rm = TRUE),
-                        se.ar1 = colMeans(se_do[[2]]$ar1, na.rm = TRUE),
-                        se.sd.ar1 = apply(se_do[[2]]$ar1, 2, sd, na.rm = TRUE),
-                        bias.ar1 = colMeans(bias_do[[2]]$ar1, na.rm = TRUE),
-                        mse.ar1 = colMeans(mse_do[[2]]$ar1, na.rm = TRUE)) %>% t()
-colnames(reduced_result_do) <- red_param
-rownames(reduced_result_do) <- c("True Value", rep(res_cols, 3))
-kableExtra::kable(reduced_result_do, escape = FALSE, digits = 3, 
-                  caption = "Estimate Results for Reduced Model with dropout from 1000 Simulations") %>%
-  kable_styling(full_width = F, position = "center") %>% 
-  column_spec(5, bold = T) %>% 
-  pack_rows("Independent", 2, 7) %>% 
-  pack_rows("Exchangeable", 8, 13) %>% 
-  pack_rows("AR1", 14, 19)
-
+save(fullmod_res, redmod_res,fullmod_resdo, redmod_resdo, N_dropouts,
+     file = "~/Documents/GEE-Practicum/Outputs/raw_res.rds")
