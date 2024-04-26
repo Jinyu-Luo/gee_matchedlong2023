@@ -212,14 +212,14 @@ for (s in 1:N.sim) {
     
     ### Propensity Score Matching ------------------------------------
     match_function <- function(dropped = TRUE){
-      if (dropped){ data = dropped3} else {data = simlist}
+      if (dropped){data = dropped3} else {data = simlist}
       base_dat <- data %>% filter(visit == 1)
       ps_model <- glm(bav ~ age + male + bsa, family = binomial, data = base_dat)
       pps_match <- pairmatch(ps_model, data = base_dat)
       matched_df <- data.frame(base_dat, matched = pps_match, check.rows = TRUE) %>% 
         filter(!is.na(matched))
       Npatients <- nrow(matched_df)
-      matched_long <- simlist %>% filter(id %in% matched_df$id) %>% 
+      matched_long <- data %>% filter(id %in% matched_df$id) %>% 
         left_join(matched_df %>% select(id, matched), by = "id") 
       return(list(N = Npatients, data = matched_long))
     }
@@ -252,54 +252,25 @@ for (s in 1:N.sim) {
       # When there is drop out
       # (1) Full covariate set 
       gee_full_do <- gee.output(type = "full", dat = dropouts$data, corstr = str, N = dropouts$N)
-      fullmod_resdo[[m]]$Estimation[s,] <- gee_full$Estimates[,"estimate"]
-      fullmod_resdo[[m]]$SE[s,] <- gee_full$Estimates[,"se"]
-      fullmod_resdo[[m]]$Bias[s,] <- gee_full$Estimates[,"bias"]
-      fullmod_resdo[[m]]$MSE[s,] <- gee_full$Estimates[,"mse"]
-      fullmod_resdo[[m]]$Coverage[s,] <- gee_full$Cov.Prob
+      fullmod_resdo[[m]]$Estimation[s,] <- gee_full_do$Estimates[,"estimate"]
+      fullmod_resdo[[m]]$SE[s,] <- gee_full_do$Estimates[,"se"]
+      fullmod_resdo[[m]]$Bias[s,] <- gee_full_do$Estimates[,"bias"]
+      fullmod_resdo[[m]]$MSE[s,] <- gee_full_do$Estimates[,"mse"]
+      fullmod_resdo[[m]]$Coverage[s,] <- gee_full_do$Cov.Prob
       
       # (2) Reduced covariate set 
       gee_red_do <- gee.output(type = "reduced", dat = dropouts$data, corstr = str, N = dropouts$N)
-      redmod_resdo[[m]]$Estimation[s,] <- gee_red$Estimates[,"estimate"]
-      redmod_resdo[[m]]$SE[s,] <- gee_red$Estimates[,"se"]
-      redmod_resdo[[m]]$Bias[s,] <- gee_red$Estimates[,"bias"]
-      redmod_resdo[[m]]$MSE[s,]<- gee_red$Estimates[,"mse"]
-      redmod_resdo[[m]]$Coverage[s,]<- gee_red$Cov.Prob
+      redmod_resdo[[m]]$Estimation[s,] <- gee_red_do$Estimates[,"estimate"]
+      redmod_resdo[[m]]$SE[s,] <- gee_red_do$Estimates[,"se"]
+      redmod_resdo[[m]]$Bias[s,] <- gee_red_do$Estimates[,"bias"]
+      redmod_resdo[[m]]$MSE[s,]<- gee_red_do$Estimates[,"mse"]
+      redmod_resdo[[m]]$Coverage[s,]<- gee_red_do$Cov.Prob
     }
   }, error = function(e){
     cat("Error in iteration", s, ": ", e$message, "\n")
   })
   print(s)
 }
-
-
-## Coverage Probability -----------------------------------------
-### 1. Full Model -----------------------------------------------
-full_cp <- rbind(
-  # Without dropouts 
-  colMeans(fullmod_res$independent$Coverage, na.rm = TRUE),
-  colMeans(fullmod_res$exchangeable$Coverage,  na.rm = TRUE),
-  colMeans(fullmod_res$ar1$Coverage,  na.rm = TRUE), 
-  # With dropouts
-  colMeans(fullmod_resdo$independent$Coverage, na.rm = TRUE),
-  colMeans(fullmod_resdo$exchangeable$Coverage, na.rm = TRUE),
-  colMeans(fullmod_resdo$ar1$Coverage, na.rm = TRUE)) 
-colnames(full_cp) <- rep(param_full, 2)
-rownames(full_cp) <- rep(c("Independent", "Exchangeable", "AR1"), 2)
-
-
-### 2. Reduced Model ---------------------------------------------
-red_cp <- rbind(
-  # Without dropouts
-  colMeans(redmod_res$independent$Coverage, na.rm = TRUE),
-  colMeans(redmod_res$exchangeable$Coverage, na.rm = TRUE),
-  colMeans(redmod_res$ar1$Coverage,  na.rm = TRUE), 
-  # With dropouts 
-  colMeans(redmod_resdo$independent$Coverage, na.rm = TRUE),
-  colMeans(redmod_resdo$exchangeable$Coverage, na.rm = TRUE),
-  colMeans(redmod_resdo$ar1$Coverage, na.rm = TRUE)) 
-colnames(red_cp) <- rep(red_param, 2)
-rownames(red_cp) <- rep(c("Independent", "Exchangeable", "AR1"), 2)
 
 save(fullmod_res, redmod_res,fullmod_resdo, redmod_resdo, N_dropouts,
      file = "~/Documents/GEE-Practicum/Outputs/raw_res.rds")

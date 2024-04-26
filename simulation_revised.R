@@ -1,3 +1,8 @@
+# title: Simulation for Cardiovascular Data
+# author: Jinyu Luo
+# date: "2024-04-24"
+
+# Required R packages
 library(CorBin)
 library(optmatch)
 library(tidyverse)
@@ -9,9 +14,11 @@ library(simsurv)
 library(kableExtra)
 library(survival)
 
-# Initialize Global Variables
-simnum <- 1050 # the total number of simulation
-N <- 500       # the total number of patients for each simulation 
+##---------------------------------------------------------------
+##                       Global Variables                      --
+##---------------------------------------------------------------
+N.sim <- 1050  # the total number of simulation
+N <- 500       # the total number of patients in each simulation 
 maxT <- 5      # maximum number of visit 
 pid <- rep(1:N, each = maxT) # vector of patient IDs
 rho <- 0.1
@@ -100,13 +107,15 @@ for (i in 1:2) {
   bias_res[[i]] <- create_matrices(simnum, p1)
   mse_res[[i]] <- create_matrices(simnum, p1)
   coverage[[i]] <- create_matrices(simnum, p2)
-  
+
   est_do[[i]] <- create_matrices(simnum, p1)
   se_do[[i]] <- create_matrices(simnum, p1)
   bias_do[[i]] <- create_matrices(simnum, p1)
   mse_do[[i]] <- create_matrices(simnum, p1)
   coverage_do[[i]] <- create_matrices(simnum, p2)
 }
+
+
 
 names(est_res) <- mod_types
 names(se_res) <- mod_types
@@ -274,6 +283,22 @@ for (s in 1:simnum) {
   print(s)
 }
 
+# Indicator of convergence 
+# Full Model 
+threshold_value <- 10
+ind_conv_full <- which(sapply(se_res[[1]][[1]], function(x) x > threshold_value))
+ind_conv_red <- which(sapply(se_res[[2]][[1]], function(x) x > threshold_value))
+ex_conv_full <- which(sapply(se_res[[1]][[2]], function(x) x > threshold_value))
+ex_conv_red <- which(sapply(se_res[[2]][[2]], function(x) x > threshold_value))
+ar1_conv_full <- which(sapply(se_res[[1]][[3]], function(x) x > threshold_value))
+ar1_conv_red <- which(sapply(se_res[[2]][[3]], function(x) x > threshold_value))
+
+non_converged <- list(full = list(ind_conv_full, ex_conv_full, ar1_conv_full), 
+                      red = list(ind_conv_red, ex_conv_red, ar1_conv_red))
+
+est_res$full$exchangeable <- est_res$full$exchangeable[-ex_conv_full, ]
+est_res$reduced$exchangeable <- est_res$reduced$exchangeable[-ex_conv_red, ]
+
 # Table for coverage probabilities from full covariates 
 full_cp <- rbind(colMeans(coverage[[1]]$independence, na.rm = TRUE),
                  colMeans(coverage[[1]]$exchangeable, na.rm = TRUE),
@@ -345,6 +370,8 @@ kableExtra::kable(full_results, escape = FALSE, digits = 3,
   pack_rows("Independent", 2, 7) %>% 
   pack_rows("Exchangeable", 8, 13) %>% 
   pack_rows("AR1", 14, 19)
+
+
 
 # Results for Full Set of Parameter Estimates with Drop outs 
 res_cols <- c("Mean Estimate", "SD(Estimate)", "Mean Std. Error", "SD(Std. Error)", "Mean Bias", "Mean MSE")
