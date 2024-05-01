@@ -519,6 +519,76 @@ How to construct the time-to-event data for survival analysis using the real dat
 * Check the proportion of outcomes before drop outs. The proportion of people drop outs who experienced the outcome should be higher than the proportion of people who did not experience the outcome.  
 * rows are visits, and columns are outcome proportion.  
 
+\newpage 
+
+**Exam Week** 
+
+2024.04.17
+
+## Current progress 
+
+* Created a presentation outline.  
+* Tried to simulate death separate from the dropout process, but results are not plausible.  
+
+## Meeting Summary 
+
+* Fixed errors in coding.  
+* Simulation:  
+    + At each visit, use the `simsurv` function to compute the probability of death.  
+    + Simulate dropouts using the full data.  
+    + Death should be considered as a part of dropouts, so there is no need to simulate death separately. 
+* Went over the presentation structure:  
+    + There should be a result section that presents the true parameter coverage probability, bias, and MSE for the main effects and interaction effect.  
+* Discussed potential questions that might be asked at the Q&A section.   
+    + Why you are comparing across different correlation structures?  
+        - GEE is famous for its robustness in modelling the correlation structure. Results are robust even if the correlation structure is mis-specified. However, this relies on large-sample theory, so we want to see how different correlation structure performs on small sample data. 
+    + Is there a reason to believe that different correlation structures are going to give different results in GEE? 
+      - When the sample size (the number of patients) is large, there should not be large variability in in estimates and efficiency across different working correlation structures.  
+* Confirmed meeting schedules during the summer. 
+
+## Next Step 
+
+* Simulate the full data so that everyone has 5 visits with 5 outcomes measured at each visit.  
+* Finish the presentation slides 
+
+\newpage 
+
+2024.04.24
+
+## Current progress 
+
+* Successfully simulated the full data with dropouts for both adjusted and unadjusted model.  
+* Coverage probabilities all reached over 90%.  
+* Extremely large estimates were found in results based on dropout data.  
+* The estimation results across different working correlation structures are consistent regardless of whether or not having dropouts.  
+
+## Meeting Summary 
+
+* Reviewed the presentation content.  
+* Found the issue of extremely large estimate: non-convergence in some simulation.  
+
+## Next Step 
+
+* Solve the issue of non-convergence.  
+
+
+\newpage 
+
+2024.05.01
+
+* Addressed the issue of non-convergence in simulation.  
+* Estimates from the full data had comparable MSE and Bias, both at around 0.05.  
+* Estimates from data with dropouts showed high mean MSE but low mean Bias.  
+* Performed analysis on the simulated data.  
+* Created a poster draft.  
+* Fitted QLS with real data.  
+
+## Meeting Summary 
+
+## Next Step 
+
+
+
 
 
 

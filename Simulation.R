@@ -33,7 +33,7 @@ gee_coef <- c(b0=-3.815, bav=-1.938, visit=0.114, age=-0.036,
 param_full <- c("Intercept","BAV","Visit", "Age", "Male", "BSA","BAV:Visit")
 
 # Reduced model 
-red_gee_coef <- c(gee_coef[1:3], gee_coef[7])
+red_gee_coef <- c(b0=-2.050, bav=-1.183, visit=0.058, bav_visit=0.324)
 red_param <- c("Intercept", "BAV", "Visit",  "BAV:Visit")
 
 # 4. Coefficients for dropouts (Survival outcome)
