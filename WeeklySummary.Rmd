@@ -587,7 +587,32 @@ How to construct the time-to-event data for survival analysis using the real dat
 
 ## Next Step 
 
+$$
+\begin{bmatrix}
+1 & 0 & 0 & \cdots & 0\\
+0 & 1 & 0 & \cdots & 0\\
+\vdots & \vdots & \vdots &\vdots & \vdots\\
+0 & 0 & 0 & \cdots & 1
+\end{bmatrix}
 
+\begin{bmatrix}
+1 & \alpha & \alpha &\cdots & \alpha\\
+\alpha & 1 & \alpha &\cdots & \alpha\\
+\vdots & \vdots & \vdots &\vdots & \vdots\\
+\alpha & \alpha & \alpha &\cdots & 1
+\end{bmatrix}
+
+\begin{bmatrix}
+1 & \alpha & \alpha^2 &\cdots & \alpha^{n-1}\\
+\alpha & 1 & \alpha &\cdots & \alpha^{n-2}\\
+\vdots & \vdots & \vdots  &\vdots & \vdots\\
+\alpha^{n-1} & \alpha^{n-2} & \alpha^{n-3}  &\cdots & 1
+\end{bmatrix}
+$$
+
+$$
+\text{Pr}(\text{BAV}=1|\text{Age, Sex, BSA}) = \text{logit}^{-1}(\gamma_0 + \gamma_1 \text{Age}_l+\gamma_2\text{Sex}_l+\gamma_3 \text{BSA}_l)
+$$
 
 
 
