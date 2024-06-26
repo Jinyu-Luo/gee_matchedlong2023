@@ -120,6 +120,12 @@ for(s in 1:simnum){
                             corstr = "ind",
                             scale.fix = TRUE))
   
+  ################################################
+  ### need to include
+  ### - adjusted models (age, male, bsa)
+  ### - qls
+  ################################################
+  
   ar1.est <- out.ar1$coefficients[4,1]
   ar1.se <- out.ar1$coefficients[4,2]
   ar1.corr <- out.ar1$corr[1,1]
