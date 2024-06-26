@@ -6,6 +6,7 @@ library(tidyverse)
 library(optmatch)
 library(geepack)
 
+# sample size for full data
 N <- 500
 nvisit <- 6
 
@@ -15,7 +16,7 @@ bsa <- rnorm(N, mean = 2, sd = 0.3)
 
 ### simulate BAV from logitBAV = g0 + g1*age + g2*male + g3*bsa
 
-g0 <- -0.25
+g0 <- 2 # range from -2 to 2
 g1 <- -0.1
 g2 <- 1.25
 g3 <- 3
@@ -47,7 +48,7 @@ prY <- expbeta / (1 + expbeta)
 Yi <- list()
 for(i in 1:N){
   prYi <- prY[which(id == i)]
-  Yi[[i]] <- t(cBern(1, p = prYi, rho = rho, type = "DCP"))
+  Yi[[i]] <- t(cBern(1, p = prYi, rho = 0.6, type = "DCP"))
 }
 Y <- do.call("rbind", Yi)
 fulldata <- data.frame(id = id, visit = visit, bav = BAVlong, root = Y, age = agelong, male = malelong, bsa = bsalong)
@@ -55,7 +56,8 @@ fulldata <- data.frame(id = id, visit = visit, bav = BAVlong, root = Y, age = ag
 # check
 summary(geeglm(root ~ visit + bav + visit * bav, data = fulldata,
                id = id, family = binomial("logit"),
-               corstr = "ar1"))
+               corstr = "ar1",
+               scale.fix = TRUE))
 
 
 # simulate drop out at visit j based on Y_{j-1}
@@ -71,7 +73,7 @@ for(j in 1:5){
     dplyr::select(-eventtime, -status) 
 }
 
-# delete observations if j > vdrop
+# delete observations if j < vdrop
 
 visdata <- visdata |>
   dplyr::filter(visit < vdrop)
@@ -79,7 +81,8 @@ visdata <- visdata |>
 # check
 summary(geeglm(root ~ visit + bav + visit * bav, data = visdata,
                id = id, family = binomial("logit"),
-               corstr = "ar1"))
+               corstr = "ar1",
+               scale.fix = TRUE))
 
 # match patients based on baseline data
 
@@ -99,5 +102,6 @@ finaldata <- visdata |>
 
 summary(geeglm(root ~ visit + bav + visit * bav, data = finaldata,
                id = id, family = binomial("logit"),
-               corstr = "ar1"))
+               corstr = "ar1",
+               scale.fix = TRUE))
   
