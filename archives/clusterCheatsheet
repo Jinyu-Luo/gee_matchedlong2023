@@ -1,0 +1,445 @@
+
+(base) Luos-MacBook-Pro:Practicum_GEE luojinyu$ ssh -Y jinyuluo@niagara.scinet.utoronto.ca
+
+Enter passphrase for key '/Users/luojinyu/.ssh/id_ed25519': 
+
+(jinyuluo@niagara.scinet.utoronto.ca) Duo two-factor login for jinyuluo
+
+Enter a passcode or select one of the following options:
+
+ 1. Duo Push to iMac (iOS)
+
+Passcode or option (1-1): 1
+Warning: No xauth data; using fake authentication data for X11 forwarding.
+Success. Logging you in...
+===============================================================================
+SciNet welcomes you to the NIAGARA supercomputer.
+
+This is a Niagara login node. Use this node to develop and compile code,
+to run short tests, and to submit computations to the scheduler.
+
+Remember that /scratch is never backed-up.
+
+Documentation: https://docs.scinet.utoronto.ca/index.php/Niagara_Quickstart
+Support:       support@scinet.utoronto.ca or niagara@tech.alliancecan.ca
+===============================================================================
+
+Welcome jinyuluo, your access to this system has been logged.
+If you are not jinyuluo, please disconnect immediately.
+
+jinyuluo@nia-login06:~$ cd "/home/a/amitani/jinyuluo/Jinyu's"
+jinyuluo@nia-login06:~/Jinyu's Simulation$ cd /home/a/amitani/jinyuluo/
+jinyuluo@nia-login06:~$ module spider r
+
+
+----------------------------------------------------------------------------------------
+  r:
+----------------------------------------------------------------------------------------
+    Description:
+      R is a language and environment for statistical computing and graphics
+
+     Versions:
+        r/3.5.3
+        r/3.6.1
+        r/3.6.3
+        r/4.0.3
+        r/4.1.2
+        r/4.2.2-batteries-included
+     Other possible modules matches:
+        .singularity  antlr  apptainer  arm-forge  armadillo  arpack-ng  cairo  ...
+
+----------------------------------------------------------------------------------------
+  To find other possible module matches execute:
+
+      $ module -r spider '.*r.*'
+
+----------------------------------------------------------------------------------------
+  For detailed information about a specific "r" package (including how to load the modules) use the module's full name.
+  Note that names that have a trailing (E) are extensions provided by other modules.
+lines 1-25
+  For example:
+lines 2-26
+
+lines 3-27
+     $ module spider r/4.2.2-batteries-included
+lines 4-28
+----------------------------------------------------------------------------------------
+lines 5-29
+
+lines 6-30
+ 
+lines 7-31
+
+lines 8-32
+jinyuluo@nia-login06:cd "/scratch/a/amitani/jinyuluo/"
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ module load gcc/8.3.0 r/4.2.2-batteries-included
+jinyuluo@nia-login06:~$ R
+
+R version 4.2.2 (2022-10-31) -- "Innocent and Trusting"
+Copyright (C) 2022 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> install.packages("dplyr")
+Warning in install.packages("dplyr") :
+  'lib = "/gpfs/fs1/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/library"' is not writable
+Would you like to use a personal library instead? (yes/No/cancel) yes
+Would you like to create a personal library
+‘/gpfs/fs1/home/a/amitani/jinyuluo/R/x86_64-pc-linux-gnu-library/4.2’
+to install packages into? (yes/No/cancel) yes
+also installing the dependencies ‘pillar’, ‘rlang’, ‘tibble’, ‘vctrs’
+
+trying URL 'https://cran.r-project.org/src/contrib/pillar_1.9.0.tar.gz'
+Content type 'application/x-gzip' length 444528 bytes (434 KB)
+==================================================
+downloaded 434 KB
+
+trying URL 'https://cran.r-project.org/src/contrib/rlang_1.1.4.tar.gz'
+Content type 'application/x-gzip' length 767041 bytes (749 KB)
+==================================================
+downloaded 749 KB
+
+trying URL 'https://cran.r-project.org/src/contrib/tibble_3.2.1.tar.gz'
+Content type 'application/x-gzip' length 565982 bytes (552 KB)
+==================================================
+downloaded 552 KB
+
+trying URL 'https://cran.r-project.org/src/contrib/vctrs_0.6.5.tar.gz'
+Content type 'application/x-gzip' length 969066 bytes (946 KB)
+==================================================
+downloaded 946 KB
+
+trying URL 'https://cran.r-project.org/src/contrib/dplyr_1.1.4.tar.gz'
+Content type 'application/x-gzip' length 1207521 bytes (1.2 MB)
+==================================================
+downloaded 1.2 MB
+
+* installing *source* package ‘rlang’ ...
+** package ‘rlang’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang/  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c capture.c -o capture.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang/  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c internal.c -o internal.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang/  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c rlang.c -o rlang.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang/  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c version.c -o version.o
+gcc -shared -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -fopenmp -Wl,-rpath,/scinet/niagara/software/2019b/opt/base/gcc/8.3.0/lib64 -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pixman/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/tiff/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/cairo/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/libxml2/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pcre2/lib -o rlang.so capture.o internal.o rlang.o version.o -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -lR
+installing to /gpfs/fs1/home/a/amitani/jinyuluo/R/x86_64-pc-linux-gnu-library/4.2/00LOCK-rlang/00new/rlang/libs
+** R
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (rlang)
+* installing *source* package ‘vctrs’ ...
+** package ‘vctrs’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c altrep-lazy-character.c -o altrep-lazy-character.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c altrep-rle.c -o altrep-rle.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c altrep.c -o altrep.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c arg-counter.c -o arg-counter.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c arg.c -o arg.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c assert.c -o assert.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c bind.c -o bind.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c c-unchop.c -o c-unchop.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c c.c -o c.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c callables.c -o callables.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c cast-bare.c -o cast-bare.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c cast-dispatch.c -o cast-dispatch.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c cast.c -o cast.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c compare.c -o compare.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c complete.c -o complete.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c conditions.c -o conditions.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c dictionary.c -o dictionary.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c dim.c -o dim.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c empty.c -o empty.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c equal.c -o equal.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c expand.c -o expand.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c fields.c -o fields.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c fill.c -o fill.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c globals.c -o globals.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c group.c -o group.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c growable.c -o growable.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c hash.c -o hash.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c init.c -o init.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c interval.c -o interval.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c match-joint.c -o match-joint.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c match.c -o match.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c missing.c -o missing.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c names.c -o names.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c order-collate.c -o order-collate.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c order-groups.c -o order-groups.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c order-sortedness.c -o order-sortedness.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c order-truelength.c -o order-truelength.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c order.c -o order.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c poly-op.c -o poly-op.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c proxy-restore.c -o proxy-restore.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c proxy.c -o proxy.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c ptype-common.c -o ptype-common.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c ptype.c -o ptype.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c ptype2-dispatch.c -o ptype2-dispatch.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c ptype2.c -o ptype2.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c rank.c -o rank.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c rep.c -o rep.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c rlang-dev.c -o rlang-dev.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c rlang.c -o rlang.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c runs.c -o runs.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c set.c -o set.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c shape.c -o shape.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c size-common.c -o size-common.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c size.c -o size.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice-array.c -o slice-array.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice-assign-array.c -o slice-assign-array.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice-assign.c -o slice-assign.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice-chop.c -o slice-chop.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice-interleave.c -o slice-interleave.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c slice.c -o slice.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c split.c -o split.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c subscript-loc.c -o subscript-loc.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c subscript.c -o subscript.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c translate.c -o translate.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-data-frame.c -o type-data-frame.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-date-time.c -o type-date-time.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-factor.c -o type-factor.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-info.c -o type-info.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-integer64.c -o type-integer64.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c type-tibble.c -o type-tibble.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c typeof2-s3.c -o typeof2-s3.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c typeof2.c -o typeof2.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c unspecified.c -o unspecified.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c utils-dispatch.c -o utils-dispatch.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c utils.c -o utils.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c vctrs-core.c -o vctrs-core.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG -I./rlang  -I/usr/local/include  -fvisibility=hidden -fpic  -O2 -ftree-vectorize -march=native  -c version.c -o version.o
+gcc -shared -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -fopenmp -Wl,-rpath,/scinet/niagara/software/2019b/opt/base/gcc/8.3.0/lib64 -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pixman/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/tiff/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/cairo/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/libxml2/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pcre2/lib -o vctrs.so altrep-lazy-character.o altrep-rle.o altrep.o arg-counter.o arg.o assert.o bind.o c-unchop.o c.o callables.o cast-bare.o cast-dispatch.o cast.o compare.o complete.o conditions.o dictionary.o dim.o empty.o equal.o expand.o fields.o fill.o globals.o group.o growable.o hash.o init.o interval.o match-joint.o match.o missing.o names.o order-collate.o order-groups.o order-sortedness.o order-truelength.o order.o poly-op.o proxy-restore.o proxy.o ptype-common.o ptype.o ptype2-dispatch.o ptype2.o rank.o rep.o rlang-dev.o rlang.o runs.o set.o shape.o size-common.o size.o slice-array.o slice-assign-array.o slice-assign.o slice-chop.o slice-interleave.o slice.o split.o subscript-loc.o subscript.o translate.o type-data-frame.o type-date-time.o type-factor.o type-info.o type-integer64.o type-tibble.o typeof2-s3.o typeof2.o unspecified.o utils-dispatch.o utils.o vctrs-core.o version.o -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -lR
+installing to /gpfs/fs1/home/a/amitani/jinyuluo/R/x86_64-pc-linux-gnu-library/4.2/00LOCK-vctrs/00new/vctrs/libs
+** R
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (vctrs)
+* installing *source* package ‘pillar’ ...
+** package ‘pillar’ successfully unpacked and MD5 sums checked
+** using staged installation
+** R
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (pillar)
+* installing *source* package ‘tibble’ ...
+** package ‘tibble’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c attributes.c -o attributes.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c coerce.c -o coerce.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c init.c -o init.o
+gcc -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c matrixToDataFrame.c -o matrixToDataFrame.o
+gcc -shared -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -fopenmp -Wl,-rpath,/scinet/niagara/software/2019b/opt/base/gcc/8.3.0/lib64 -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pixman/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/tiff/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/cairo/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/libxml2/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pcre2/lib -o tibble.so attributes.o coerce.o init.o matrixToDataFrame.o -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -lR
+installing to /gpfs/fs1/home/a/amitani/jinyuluo/R/x86_64-pc-linux-gnu-library/4.2/00LOCK-tibble/00new/tibble/libs
+** R
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (tibble)
+* installing *source* package ‘dplyr’ ...
+** package ‘dplyr’ successfully unpacked and MD5 sums checked
+** using staged installation
+** libs
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c chop.cpp -o chop.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c filter.cpp -o filter.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c funs.cpp -o funs.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c group_by.cpp -o group_by.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c group_data.cpp -o group_data.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c imports.cpp -o imports.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c init.cpp -o init.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c mask.cpp -o mask.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c mutate.cpp -o mutate.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c reconstruct.cpp -o reconstruct.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c slice.cpp -o slice.o
+g++ -std=gnu++14 -I"/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/include" -DNDEBUG   -I/usr/local/include   -fpic  -O2 -ftree-vectorize -march=native  -c summarise.cpp -o summarise.o
+g++ -std=gnu++14 -shared -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -fopenmp -Wl,-rpath,/scinet/niagara/software/2019b/opt/base/gcc/8.3.0/lib64 -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pixman/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/tiff/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/cairo/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/libxml2/lib -Wl,-rpath,/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/requirements/pcre2/lib -o dplyr.so chop.o filter.o funs.o group_by.o group_data.o imports.o init.o mask.o mutate.o reconstruct.o slice.o summarise.o -L/scinet/niagara/software/2019b/opt/gcc-8.3.0/r/4.2.2-batteries-included/lib64/R/lib -lR
+installing to /gpfs/fs1/home/a/amitani/jinyuluo/R/x86_64-pc-linux-gnu-library/4.2/00LOCK-dplyr/00new/dplyr/libs
+** R
+** data
+*** moving datasets to lazyload DB
+** inst
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+*** copying figures
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded from temporary location
+** checking absolute paths in shared objects and dynamic libraries
+** testing if installed package can be loaded from final location
+** testing if installed package keeps a record of temporary installation path
+* DONE (dplyr)
+
+The downloaded source packages are in
+	‘/tmp/Rtmpjijggk/downloaded_packages’
+> q()
+Save workspace image? [y/n/c]: y
+jinyuluo@nia-login06:~$ nano MyFirstJob.sh
+
+
+
+jinyuluo@nia-login06:~$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:~$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:~$ sbatch MyFirstJob.sh
+SBATCH ERROR: 
+ Job output requested to be written to file job_output_"MyFirstJob"_%j.out in
+ the directory /gpfs/fs1/home/a/amitani/jinyuluo/ which is read-only on the
+ compute nodes. (MyFirstJob.sh, line #6)
+SBATCH ERROR: 
+ Walltime must be at least 15 minutes (except on the debug partition)
+ (MyFirstJob.sh, line #4)
+SBATCH: 2 errors were found.
+SBATCH: Job not submitted because of these errors.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+jinyuluo@nia-login06:~$ nano
+
+jinyuluo@nia-login06:~$ sbatch MyFirstJob.sh
+SBATCH ERROR: 
+ Job output requested to be written to file job_output_MyFirstJob_%j.out in the
+ directory /gpfs/fs1/home/a/amitani/jinyuluo/ which is read-only on the compute
+ nodes. (MyFirstJob.sh, line #6)
+SBATCH ERROR: 
+ Walltime must be at least 15 minutes (except on the debug partition)
+ (MyFirstJob.sh, line #4)
+SBATCH: 2 errors were found.
+SBATCH: Job not submitted because of these errors.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+jinyuluo@nia-login06:~$ cd "
+jinyuluo@nia-login06:~/Jinyu's Simulation$ cd "/home/a/amitani/jinyuluo/Jinyu's Simulation/" 
+sbanano
+
+jinyuluo@nia-login06:~/Jinyu's Simulation$ nano MyFirstJob.sh
+
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=2
+#SBATCH --time=00:15:00
+#SBATCH --job-name=MyFirstJob
+#SBATCH --output=job_output_%x_%j.out
+module load gcc/8.3.0 r/4.2.2-batteries-included
+Rscript "MyFirstTry.R"
+
+jinyuluo@nia-login06:~/Jinyu's Simulation$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:~/Jinyu's Simulation$ sbatch MyFirstJob.sh
+SBATCH ERROR: 
+ Job output requested to be written to file job_output_MyFirstJob_%j.out in the
+ directory /gpfs/fs1/home/a/amitani/jinyuluo/Jinyu's Simulation/ which is
+ read-only on the compute nodes. (MyFirstJob.sh, line #6)
+SBATCH ERROR: 
+ Walltime must be at least 15 minutes (except on the debug partition)
+ (MyFirstJob.sh, line #4)
+SBATCH: 2 errors were found.
+SBATCH: Job not submitted because of these errors.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+jinyuluo@nia-login06:~/Jinyu's Simulation$ nano
+
+jinyuluo@nia-login06:~/Jinyu's Simulation$ cd /scratch/a/amitani/jinyuluo/
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sbatch MyFirstJob.sh
+SBATCH WARNING: 
+ You have requested the default amount of time, which is only 15 minutes.
+SBATCH: 1 warning was found.
+SBATCH: Job submission will be attempted despite warnings.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+Submitted batch job 13081947
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+       13081947        jinyuluo    def-amitani     MyFirstJob  CG      14:58 compute     1   80 nia0287 (NonZeroExitCode)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sbatch MyFirstJob.sh
+SBATCH WARNING: 
+ You have requested the default amount of time, which is only 15 minutes.
+SBATCH: 1 warning was found.
+SBATCH: Job submission will be attempted despite warnings.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+Submitted batch job 13081950
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+       13081950        jinyuluo    def-amitani     MyFirstJob  CF      15:00 compute     1   80 nia0622 (None)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+       13081950        jinyuluo    def-amitani     MyFirstJob  CG      14:58 compute     1   80 nia0622 (NonZeroExitCode)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sbatch MyFirstJob.sh
+SBATCH WARNING: 
+ You have requested the default amount of time, which is only 15 minutes.
+SBATCH: 1 warning was found.
+SBATCH: Job submission will be attempted despite warnings.
+SBATCH: For more info see https://docs.alliancecan.ca/wiki/Niagara_Quickstart
+Submitted batch job 13081953
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+       13081953        jinyuluo    def-amitani     MyFirstJob  CF      15:00 compute     1   80 nia1160 (None)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ sq
+          JOBID            USER        ACCOUNT           NAME  ST  TIME_LEFT PARTITION NODES CPUS NODELIST (REASON)
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano
+
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ nano MyFirstJob.sh
+
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
+jinyuluo@nia-login06:/scratch/a/amitani/jinyuluo$ 
