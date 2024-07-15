@@ -20,9 +20,9 @@ maxT <- 6
 rho <- 0.3
 alpha_ci <- 0.05
 
-true_coefs <- full_ar1$coefficients$Estimate
-names(true_coefs) <- c("g0", "bav", "visit", "age", "male", "bsa", "bav_visit")
-corr_alpha <- full_ar1$corr$Estimate
+true_coefs <- red_ar1$coefficients$Estimate
+names(true_coefs) <- c("g0", "bav", "visit", "bav_visit")
+corr_alpha <- red_ar1$corr$Estimate
 surv_coefs <- surv_coefs[,-4]
 rownames(surv_coefs)[4] <- "male"
 
@@ -45,8 +45,9 @@ patient_profile <- function(){
     # Simulate binary outcome 
     vst <- 1:maxT
     logit_y <- true_coefs[1] + true_coefs[2]*bav + true_coefs[3]*vst +
-      true_coefs[4]*age + true_coefs[5]*male + true_coefs[6]*bsa + 
-      true_coefs[7]*bav*vst
+      true_coefs[4]*bav*vst
+      # true_coefs[4]*age + true_coefs[5]*male + true_coefs[6]*bsa + 
+      
     prob_y <- exp(logit_y) / (1+exp(logit_y)) 
     y <- t(cBern(n = 1, p = prob_y, rho = rho, type = "DCP"))
     

@@ -107,7 +107,7 @@ alpha_stg1_ar1 <- function(mdat, Z, Qinv){
 
 
 alpha_stg2_ar1 <- function(alpha0){
-  alpha <- as.numeric( 2 * alpha0 / ( 1 + alpha0 ^ 2 ) )
+  alpha <- as.numeric( 2 * alpha0 / ( 1 + alpha0^2 ) )
   return(alpha)
 }
 
@@ -206,12 +206,14 @@ tau_stg1 <- function(mdat, maxT, Z, corstr, alpha0){
     
     Z_i1 <- Z[mdat$clusterID == i & mdat$cluster.var == 1]
     matZ_i1 <- matrix(Z_i1, nrow = t_i1)
+    
     Z_i2 <- Z[mdat$clusterID == i & mdat$cluster.var == 2]
     matZ_i2 <- matrix(Z_i2, nrow = t_i2)
-    a_1 <- a_1 + t(matZ_i1) %*% Rinv1 %*% matZ_i1 + t(matZ_i2) %*% Rinv2 %*% matZ_i2
-    
+
     if (maxT > t_i1) {matZ_i1 <- c(matZ_i1, rep(0, maxT - t_i1))}
-    if (maxT > t_i2) {matZ_i2 <- c(matZ_i2, rep(0, maxT - t_i2))}
+    if (maxT > t_i2) {matZ_i2 <- c(matZ_i2, rep(0, maxT - t_i2))}    
+    
+    a_1 <- a_1 + t(matZ_i1) %*% Rinv1 %*% matZ_i1 + t(matZ_i2) %*% Rinv2 %*% matZ_i2
     a_2 <- a_2 + t(matZ_i1) %*% Rinv %*% matZ_i2
     
     Fa <- Fa + a_1
@@ -240,7 +242,7 @@ ar1_cor <- function(rho,n) {
   rho <- as.numeric(rho)
   exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
                     (1:n - 1))
-  rho^exponent
+  alpha0^exponent
 }
 
 Sigma <- function(data,tau, alpha, corstr, time.var){
@@ -351,7 +353,7 @@ qls <- function(formula, data, corstr, maxT, time.var){
   
   while(max(abs(bdiff)) > .00000001){
     betahat <- beta_hat(formula=formula,data=data, time.var=time.var, 
-                        corstr=corstr, tau=sqtau0, alpha=alpha0)
+                        corstr=corstr, tau=tau0, alpha=alpha0)
     beta1 <- as.vector(betahat)
     if (all(!is.na(betahat))){bdiff <- beta1 - beta0} #***
     
@@ -454,6 +456,13 @@ get_qls_results <- function(df, formula, corstr, adjusted) {
   return(result)
 }
 
+# temp <- matched_long %>% rename(male = sex, id = pid) %>% 
+#   mutate(clusterID = as.integer(pairID), 
+#          cluster.var = ifelse(bav == 0, 1, 2), 
+#          order = row_number()) %>% 
+#   arrange(clusterID) %>% relocate(c(clusterID,cluster.var, order), .after = id) %>% 
+#   select(id, clusterID, cluster.var, order, age, male, bav, bsa, y, visit)
+# 
 
 # QLS Fit ----------------------------------------------------------------------
 qls_df <- sim_df %>% select(sim_id, matched_data) %>% 
@@ -467,11 +476,6 @@ qls_df <- sim_df %>% select(sim_id, matched_data) %>%
                               relocate(c(clusterID, cluster.var, order), .after = id)), 
          n_pairs = map_int(matched_data, ~ n_distinct(.x$clusterID)))
 
-# temp <- qls_df[[2]][[1]]
-# temp_res <- get_qls_results(temp,
-#                             model_specs$ar1_mdl_full$formula,
-#                             model_specs$ar1_mdl_full$corstr,
-#                             model_specs$ar1_mdl_full$adjusted)
 
 # Parallel processing using foreach
 qls_results <- foreach(i = seq_len(nrow(qls_df)), .packages = c('tidyverse', 'geepack', 'parallel', 'survival', 'simsurv')) %dopar% {

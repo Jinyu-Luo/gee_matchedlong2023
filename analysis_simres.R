@@ -220,7 +220,7 @@ print(paste(1000-nrow(qls_sim_results), "simulation(s) with extreme S.E. are rem
 print(paste("Simulation removed:", qls_extreme_se$sim_id))
 
 
-# 3. Mean GEE Fit 
+# 3. Mean QLS Fit 
 # (1) Unadjusted Models 
 meanest_qls_unadj <- true_set %>% rename(True = coefficient) %>% 
   filter(!(term %in% c("age", "male", "bsa"))) %>% 

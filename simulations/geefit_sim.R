@@ -74,6 +74,7 @@ get_gee_results <- function(df, formula, corstr, adjusted) {
   result <- data.frame(term = rownames(est), 
                        estimate = est[, "Estimate"], 
                        std_error = est[, "Std.err"], 
+                       adj_std_error = adj_se,
                        lower = lower, upper = upper, 
                        adj_lower = adj_lower, adj_upper = adj_upper,
                        convergence =TRUE, 
