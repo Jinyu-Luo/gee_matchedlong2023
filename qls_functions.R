@@ -24,10 +24,12 @@ tau_stg1 <- function(mdat, maxT, Z, corstr, alpha0){
     a_1 <- a_2 <- 0
     t_i1 <- nlevels(as.factor(mdat[mdat$clusterID == i & mdat$cluster.var==1,]$visit))
     t_i2 <- nlevels(as.factor(mdat[mdat$clusterID == i & mdat$cluster.var==2,]$visit))
-    if (corstr == "independence") {Rinv1 <- solve(diag(t_i1))} 
+    if (corstr == "independence") {
+      Rinv1 <- solve(diag(t_i1))
+      Rinv2 <- solve(diag(t_i2))
+    } 
     if (corstr == "ar1") {Rinv1 <- solve(ar1_cormat(alpha0, t_i1))} 
     if (corstr == "exchangeable") {Rinv1 <- solve(exch_cormat(alpha0, t_i1))}
-    if (corstr == "independence") {Rinv2 <- solve(diag(t_i2))} 
     if (corstr == "ar1") {Rinv2 <- solve(ar1_cormat(alpha0, t_i2))} 
     if (corstr == "exchangeable") {Rinv2 <- solve(exch_cormat(alpha0, t_i2))}
     Rinv <- solve(exch_cormat(alpha0, maxT))
@@ -208,27 +210,28 @@ estalpha2_exch <- function(alpha0, mdat){
 Sigma <- function(data,tau, alpha, corstr, time.var){
   Sigma_list <- list()
   for (i in unique(data$clusterID)) {
-    Qi <- exch_cormat(tau, 2)
+    Qi <- exch_cormat(tau, 2) # within-pair correlation matrix 
     ti1 <- nlevels(as.factor(data[data$clusterID == i & data$cluster.var==1,]$visit))
     ti2 <- nlevels(as.factor(data[data$clusterID == i & data$cluster.var==2,]$visit))
     ni <- ti1+ti2
-    if (ti1 >= ti2)
-    {
-      if (corstr == "independence") {Ri <- diag(ti1)}
-      if (corstr == "ar1") {Ri <- ar1_cormat(alpha, ti1)}
-      if (corstr == "exchangeable") {Ri <- exch_cormat(alpha, ti1)}
-      Fi <- kronecker(Qi,Ri)
-      Sigma_i <- Fi[1:ni, 1:ni]
-      Sigma_list <- c(Sigma_list, list(Sigma_i))
-    }
-    else {
-      if (corstr == "independence") {Ri <- diag(ti2)}
-      if (corstr == "ar1") {Ri <- ar1_cormat(alpha, ti2)}
-      if (corstr == "exchangeable") {Ri <- exch_cormat(alpha, ti2)}
-      Fi <- kronecker(Qi,Ri)
-      Sigma_i <- Fi[1:ni, 1:ni]
-      Sigma_list <- c(Sigma_list, list(Sigma_i))
-    }
+    
+    max_ti <- max(ti1, ti2)
+    
+    # Create within-subject correlation matrix (R)
+    if (corstr == "independence") {
+      Ri <- diag(max_ti)
+      } else if (corstr == "ar1") {
+        Ri <- ar1_cormat(alpha, max_ti)
+      } else if (corstr == "exchangeable") {
+        Ri <- exch_cormat(alpha, max_ti)
+      } else {
+        stop("Unknown correlation structure")
+      }
+    
+    # Calculate Fi 
+    Fi <- kronecker(Qi, Ri)
+    Sigma_i <- Fi[1:ni, 1:ni]
+    Sigma_list <- c(Sigma_list, list(Sigma_i))
   }
   Sigma_list
 }
@@ -237,9 +240,10 @@ Sigma <- function(data,tau, alpha, corstr, time.var){
 beta_hat <- function(formula,data, time.var, corstr, tau, alpha) {
   X <- model.matrix(object=formula, data = data) #design matrix
   y <- as.matrix(data$y) #response variable
-  Sigma_list <- list()
-  Xt_Sigma_inv_X <- list()
-  Xt_Sigma_inv_y <- list()
+  # Xt_Sigma_inv_X <- list()
+  # Xt_Sigma_inv_y <- list()
+  Xt_Sigma_inv_X <- matrix(0, nrow = ncol(X), ncol = ncol(X))
+  Xt_Sigma_inv_y <- matrix(0, nrow = ncol(X), ncol = 1)
   S <- Sigma(data=data, tau=tau, alpha=alpha, corstr=corstr, time.var=time.var)
   for (i in 1:length(S)) {
     ti1 <- nlevels(as.factor(data[data$clusterID == i & data$cluster.var==1,]$visit))
@@ -257,12 +261,15 @@ beta_hat <- function(formula,data, time.var, corstr, tau, alpha) {
                   as.matrix(y[data$clusterID==i & data$cluster.var==1]))
     }
     Sigma_inv <- solve(S[[i]])
-    Xt_Sigma_inv_X_i <- t(Xi) %*% Sigma_inv %*% Xi
-    Xt_Sigma_inv_X[[i]] <- Xt_Sigma_inv_X_i
-    Xt_Sigma_inv_y_i <- t(Xi) %*% Sigma_inv %*% yi
-    Xt_Sigma_inv_y[[i]] <- Xt_Sigma_inv_y_i
+    Xt_Sigma_inv_X <- Xt_Sigma_inv_X + t(Xi) %*% Sigma_inv %*% Xi
+    Xt_Sigma_inv_y <- Xt_Sigma_inv_y + t(Xi) %*% Sigma_inv %*% yi
+    # Xt_Sigma_inv_X_i <- t(Xi) %*% Sigma_inv %*% Xi
+    # Xt_Sigma_inv_X[[i]] <- Xt_Sigma_inv_X_i
+    # Xt_Sigma_inv_y_i <- t(Xi) %*% Sigma_inv %*% yi
+    # Xt_Sigma_inv_y[[i]] <- Xt_Sigma_inv_y_i
   }
-  return(solve(Reduce("+", Xt_Sigma_inv_X)) %*% Reduce("+",Xt_Sigma_inv_y))
+  beta_hat <- solve(Xt_Sigma_inv_X) %*% Xt_Sigma_inv_y
+  return(beta_hat)
 }
 
 # 11. Function for sandwich estimator 
@@ -274,11 +281,14 @@ sandwich <- function(formula,data,beta_hat,alpha, corstr){
   for (i in unique(data$clusterID)) {
     Xi <- X[data$clusterID==i,]
     yi <- y[data$clusterID==i]
-    Zi <- yi - (Xi %*% as.matrix(beta_hat))
+    Xbetai <- Xi %*% as.matrix(beta_hat)
+    mui <- exp(Xbetai)/(1+exp(Xbetai))
+    hi <- mui*(1-mui)
+    Zi <- (yi - mui)/sqrt(hi)
     ti1 <- nlevels(as.factor(data[data$clusterID == i & data$cluster.var==1,]$visit))
     ti2 <- nlevels(as.factor(data[data$clusterID == i & data$cluster.var==2,]$visit))
     ni <- ti1 + ti2
-    Ai <- diag(ni) ^ (1/2)
+    Ai <- diag(sqrt(as.vector(hi)))
     if (corstr == "independence") {Ri <- diag(ni)}
     if (corstr == "ar1") {Ri <- ar1_cormat(alpha, ni)}
     if (corstr == "exchangeable") {Ri <- exch_cormat(alpha, ni)}
@@ -299,7 +309,6 @@ sandwich <- function(formula,data,beta_hat,alpha, corstr){
 # 12. The main QLS function 
 qls <- function(formula, data, corstr, maxT, time.var){
   iter <- 0
-  bdiff <- c(1,1,1,1)
   alpha0  <- 0.1 # initial alpha estimate
   
   # use independent GEE to get initial beta estimates 
@@ -312,6 +321,7 @@ qls <- function(formula, data, corstr, maxT, time.var){
   
   # compute initial tau estimate
   tau0 <- tau_stg1(mdat=data, maxT=maxT, Z = Z0, corstr = corstr,alpha0=alpha0) 
+  bdiff <- rep(1, length(coef(init_mod)))
   
   while(max(abs(bdiff)) > .00000001){
     betahat <- beta_hat(formula=formula,data=data, time.var=time.var, 
@@ -319,10 +329,12 @@ qls <- function(formula, data, corstr, maxT, time.var){
     beta1 <- as.vector(betahat)
     if (all(!is.na(betahat))){bdiff <- beta1 - beta0} #***
     
+    XBeta <- model.matrix(object=formula, data = data) %*% as.matrix(betahat)
+    mui <- exp(XBeta) /(1+exp(XBeta))
+    hi <- mui*(1-mui)
     # update tau0
-    Z1 <- as.matrix(data$y) - 
-      model.matrix(object=formula, data = data) %*% as.matrix(betahat)
-    
+    Z1 <- (as.matrix(data$y) - mui)/sqrt(hi)
+
     tau00 <- tau_stg1(mdat=data, maxT=maxT, Z = Z1, corstr = corstr,alpha0=alpha0) 
     # update alpha0 (initial alpha0 for the next iteration)
     if (!is.na(tau00)) {tau0 <- tau00}

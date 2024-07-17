@@ -34,13 +34,31 @@ evaluate_fits <- function(df, true_set) {
     group_by(term) %>%
     summarize(mean_estimate = mean(estimate, na.rm = TRUE), 
               est_std = sd(estimate, na.rm=TRUE), 
-              mean_std = mean(std_error, na.rm=TRUE), 
-              mean_adj_std = mean(adj_std_error, na.rm = TRUE)) %>% 
+              mean_se = mean(std_error, na.rm=TRUE), 
+              mean_adj_se = mean(adj_std_error, na.rm = TRUE)) %>% 
     left_join(true_set, by = "term") %>% 
-    mutate(bias = mean_estimate - coefficient, 
-           rel_bias = bias/abs(coefficient), 
+    mutate(mean_bias = mean_estimate - coefficient, 
+           mean_rel_bias = bias/abs(coefficient)*100, 
            mse = est_std^2+bias^2) %>% 
-    select(term, coefficient, mean_estimate, est_std, mean_std, mean_adj_std, bias, rel_bias, mse)
+    select(term, coefficient, mean_estimate, est_std, mean_se, mean_adj_se, mean_bias, mean_rel_bias, mse)
+}
+
+# Function to calculate relative bias for each simulation 
+cal_rel_bias <- function(df, true_set){
+ df %>% 
+    map_dfr(~.x %>% select(term, estimate)) %>%
+    left_join(true_set, by = "term") %>% 
+    group_by(term) %>% 
+    mutate(bias = estimate - coefficient, 
+           rel_bias = bias/abs(coefficient), 
+           sim = row_number()) %>% 
+   ungroup() %>% na.omit() %>% 
+   select(sim, term, rel_bias) %>% 
+   pivot_wider(names_from = term, values_from = rel_bias) %>% 
+   rename(b0 = `(Intercept)`, 
+          b1 = bav, 
+          b2 = visit, 
+          b3 = `bav:visit`)
 }
 
 # 3. Function to calculate mean rho and rho_se for AR1 and Exchangeable 
@@ -53,6 +71,14 @@ calculate_mean_rho <- function(df) {
            rel_bias = bias/0.3, 
            mse = sd_rho^2+bias^2)
 }
+
+# Function to extract tau from QLS estimation 
+pull_tau <- function(df){
+  df %>%
+    map_dfr(~ .x %>% select(tau) %>% distinct())  %>% 
+    pull(tau)
+}
+
 
 # 4. Function for calculating convergence 
 calculate_convergence <- function(fits_df){
@@ -124,6 +150,7 @@ generate_plot <- function(term_data) {
           strip.text = element_text(color = "white"), 
           legend.position="bottom")
 }
+
 
 # GEE --------------------------------------------------------------------------
 # gee_convergence_df <- calculate_convergence(gee_fits_df)
@@ -218,7 +245,6 @@ generate_plot <- function(term_data) {
 
 
 # full_mdl_df <- rbind(bav_full, visit_full, bav_visit_full, age_df, male_df, bsa_df)
-
 
 # red_summary <- red_mdl_df %>%
 #   mutate(term = case_when(term == "bav" ~ "BAV",

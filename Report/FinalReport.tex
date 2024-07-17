@@ -160,7 +160,7 @@
 \hypersetup{
   pdftitle={Modeling Longitudinal Binary Outcomes in a Small Matched-Pair Sample with Application to Cardiovascular Data: A Simulation Study},
   pdfauthor={Jinyu Luo; Chun-Po Steve Fan; Sudipta Saha; Aya Mitani},
-  pdfkeywords={template, demo},
+  pdfkeywords={GEE, QLS, longitudinal},
   colorlinks=true,
   linkcolor={blue},
   filecolor={Maroon},
@@ -185,33 +185,40 @@ Toronto\\\href{mailto:aya.mitani@utoronto.ca}{aya.mitani@utoronto.ca}}
 \begin{document}
 \maketitle
 \begin{abstract}
-Background: This study aimed to address the challenge of modelling small
-sample matched-pair longitudinal data in cardiovascular research. The
+This study aimed to address the challenge of modeling small sample
+matched-pair longitudinal data in cardiovascular research. The
 independent working correlation structure in Generalized Estimating
-Equations (GEE), a robust method widely used to model endogenous
-follow-up data, relies on large-sample theory. Prior research noted
+Equations (GEE), a robust method widely used for modeling endogenous
+follow-up data, relies on large-sample theory. Prior research has noted
 significant constraints due to small sample sizes for continuous
-outcomes. Objectives: We evaluated the validity of the working
-independent correlation structure in GEE, specifically focusing on
-binary outcomes, through a simulation study. Methods: Initially, real
-hospital data were fitted, assuming a working exchangeable correlation
-structure to estimate the true values for simulation parameters. The
-simulations were designed to mimic the dropout process in the real-world
-scenario where previous survival outcomes and associated covariates
-influence the longitudinal outcomes. The simulated data involves
-hospital cohorts with longitudinal outcomes across two exposure groups,
-so cohorts were matched using propensity scores based on baseline
-characteristics to eliminate potential confounding effects in
-demographic and clinical characteristics. Due to the small sample size,
-standard errors were adjusted by degrees of freedom to prevent
-underestimation by the sandwich estimator. The simulated data was then
-analyzed using three different correlation structures in GEE:
-independent, exchangeable, and autoregressive (AR1). Results: The
-independent working correlation structure in GEEs consistently provides
-the highest coverage probabilities for true parameter coefficients after
-adjusting for standard errors. Conclusion: Proper specification of the
-correlation structure is important for the robust analysis of small
-sample longitudinal data.
+outcomes. We evaluated the performance and validity of the GEE method
+and the two-stage quasi-least squares (QLS) approach in analyzing small
+matched-pair longitudinal binary data, particularly focusing on the
+interaction effect between bicuspid aortic valve (BAV) and time on
+aortic root size post-surgery. Hospital cohorts with longitudinal
+outcomes across two exposure groups were matched using propensity scores
+based on baseline characteristics to eliminate potential confounding
+effects, which is followed by GEE fit assuming that working correlation
+structure is AR1 to get a set of regression coefficients for simulation
+parameters. Simulations were designed to mimic real-world dropout
+processes, where previous survival outcomes and associated covariates
+influence longitudinal outcomes. Standard errors were adjusted by
+degrees of freedom to prevent underestimation by the sandwich estimator.
+Results: The QLS method demonstrated superior performance, with mean
+estimates closer to the true coefficients and narrower confidence
+intervals than GEE, while GEE provided more accurate estimation for the
+interaction effect but exhibited higher variability in estimates. Both
+methods struggled to capture the effect of time. Including confounding
+covariates did not significantly impact performance. QLS provided more
+consistent estimates across different correlation structures but with
+higher bias. Conclusion: Proper specification of the correlation
+structure is crucial for the robust analysis of small sample
+longitudinal data. For studies with small sample sizes and complex
+correlation structures, QLS may offer a more reliable alternative by
+providing consistent estimates with lower variability. These findings
+underscore the importance of methodological considerations in
+longitudinal data analysis and offer guidance for selecting appropriate
+analytical approaches.
 \end{abstract}
 
 
@@ -263,8 +270,9 @@ interest are matched on important confounding factors such as age, sex,
 and calendar time and compared for the incidence of outcomes
 \citep{Iwagami2022}. In such a scenario, two distinct correlations
 exist: the correlation between units within the matched pair and the
-correlation between the temporal observations on the same patient. The
-study investigators collected participant-level demographics, health
+correlation between the temporal observations on the same patient.
+
+The study investigators collected participant-level demographics, health
 outcomes, and each participant's follow-up imaging data after the
 replacement of the aortic valve (AVR) and ascending aorta (RAA) from
 January 1900 to December 2010. This cohort consists of 406 patients, 244
@@ -299,47 +307,60 @@ This report focuses on matched longitudinal binary data with covariate
 endogeneity and informative dropouts. We aim to explore the validity of
 GEE estimates for small sample matched-pair binary outcomes and compare
 the estimation results with the two-stage quasi-least squares (QLS)
-method \citep{Mitani2019}. In section 2, we described the issue with the
-correlation structure and the construction of two-stage QLS method in
-more detail. The simulation study design is presented in section 3. In
-section 4, exploratory data analysis and model fitting results on the
-motivational data and simulated data are presented. Finally, we conclude
-this reports with a discussion in section 5.
+method \citep{Mitani2019}. In section 2, notations and assumptions are
+first presented, followed by a description of the issue with the
+correlation structure within the GEE framework, the construction of the
+two-stage QLS method, and the pre-processing of the motivational data.
+The simulation study design is presented in section 3. Section 4
+presents an analysis of the motivational data and simulation results.
+Finally, we conclude this report with a discussion in section 5.
 
 \section{Methods}\label{methods}
 
+\subsection{Notation and Assumptions}\label{notation-and-assumptions}
+
 Consider a longitudinal matched data set in which subjects are grouped
 into pairs, and each subject contributes repeated observations of unique
-aortic root diameter. Let \(Y_{ijk}\) be the binary outcome measurement
-of the \(k^{th}\) visit on the \(j^{th}\) subject from the \(i^{th}\)
-pair, where \(k = 1,...,t_{ij}, j = 1,2\) and \(i = 1,..., N\). Here,
-\(t_{ij}\) is the total number of visit for the \(j^{th}\) subject from
-the \(i^{th}\) pair. Let \(X_{ijk}\) be the \(p\times 1\) vector of
-covariates for the outcome \(Y_{ijk}\) of the \(k^{th}\) visit of the
-\(j^{th}\) subject from the \(i^{th}\) pair. In our case, \(X_{ijk}\)
-includes BAV (exposure), \emph{time}, and the interaction between BAV
-and \emph{time}. Because different patients may have different follow-up
-intervals, we define \emph{time} as the number of visits.
+aortic root diameter. Let
+\(\boldsymbol{Y}'_{ij} = (Y_{ij1}, Y_{ij2}, ..., Y_{ijt_{ij}})\) be a
+vector of measurements for subject \(j\) in matched pair \(i\) at times
+\(t_{ij1}, t_{ij2}, ..., t_{ijT}\), where
+\(t_{ij1} < t_{ij2} < \cdots < t_{ijT}\); \(i = 1,..., m\);
+\(j = 1, 2\); \(k = 1,...,T\). Associated with each \(Y_{ijk}\) is a
+vector of covariates
+\(\boldsymbol{X}'_{ijk} = (X_{ijk1}, X_{ijk2}, X_{ijk3})\) corresponding
+to BAV (exposure), \emph{time}, and the interaction between BAV and
+\emph{time}. Note that BAV is the exposure variable which is diagnosed
+before this study and does not change by time. Additionally, since
+different patients may have different follow-up intervals, we define
+\emph{time} as the number of visits. The outcome \(Y_{ijk}\) have mean
+and variance \[
+E(Y_{ijk} | X_{ijk}) = \mu_{ijk} \quad \text{and} \quad Var(Y_{ijk}) = \mu_{ijk}(1-\mu_{ijk}) = h(\mu_{ijk})
+\]
 
-Given that the outcome \(Y_{ijk}\) is binary, the marginal expectation
-for the \(k^{th}\) visit on the \(j^{th}\) subject from the \(i^{th}\)
-pair is \begin{equation}
-\mu_{ijk} = E(Y_{ijk}|X_{ijk}). \label{eq:marginExpecatiton}
-\end{equation} We use a logit link function to relate the marginal
-expectation \(\mu_{ijk}\) to the linear predictor. The logit link
-function is defined as: \[
+Our analysis goal is to examine the effect of these covariates on the
+marginal mean of the binary outcome through
+\(g^{-1}(\boldsymbol{X}_{ijk}'\boldsymbol{\beta})\), where
+\(\boldsymbol{\beta} = (\beta_0, \beta_1, \beta_2,\beta_3)\) are unknown
+regression coefficients and \(g(\cdot)\) is the invertible link function
+which is defined as \[
 \begin{aligned}
-\text{logit}(\mu_{ijk}) &= \log(\frac{\mu_{ijk}}{1-\mu_{ijk}})= g(\mu_{ijk}) \\
-&= \beta_0 + \beta_1 \times \text{BAV}_{ij} + \beta_2 \times \text{Visit}_{ijk}+\beta_3 (\text{BAV}_{ij}\times \text{Visit}_{ijk})\\
-& = X_{ij}^T\boldsymbol{\beta}
+g(\mu_{ijk}) &= \log(\frac{\mu_{ijk}}{1-\mu_{ijk}}) \\
+&= \beta_0 + \beta_1\cdot \text{BAV}_{ijk} + \beta_2 \cdot \text{Time}_{ijk} + \beta_3\cdot (\text{BAV}_{ijk} \times \text{Time}_{ijk})\\
+&= X_{ij}'\boldsymbol{\beta}.
 \end{aligned}
-\] where \(\boldsymbol{\beta} = (\beta_0, \beta_1, \beta_2, \beta_3)^T\)
-is the set of regression coefficients to be estimated (Note: The
-exposure variable, BAV, will not change with time, so its subscript only
-varied for \(i\) and \(j\)). Then, the variance can be expressed as:
-\begin{equation}
-\text{Var}(Y_{ijk}) = \mu_{ijk}(1-\mu_{ijk}) = h(\mu_{ijk}) \label{eq:marginVariance}
-\end{equation}
+\]
+
+We assume that observations from different matched pairs are independent
+but are correlated within the same pair. The variance matrix of
+\(\boldsymbol{Y}_i' = (Y_{i1}'. Y_{i2}')\) is given by \[
+\Sigma_i = A_i^{1/2}(\beta) F_i(\Gamma) A_i^{1/2} (\beta) 
+\] where \(F_i(\Gamma)\) is the positive definite working correlation
+matrix of the vector of outcome for pair \(i\), \(\Gamma\) is a vector
+of unknown correlation parameters, and \begin{align}
+A_i(\beta) &= \text{diag}\left\{A_{i1}(\beta), A_{i2}(\beta)\right\} \label{eq: Aibeta}\\
+A_{ij}(\beta) & = \text{diag}\left\{h(\mu_{ij1}), h(\mu_{ij2}),...,h(\mu_{ijT})\right\} \label{eq: Aij}.
+\end{align}
 
 \subsection{Generalized estimating equations
 (GEE)}\label{generalized-estimating-equations-gee}
@@ -376,19 +397,12 @@ exchangeable working correlation assumes that the correlation between
 any pair of repeated measurements are constant at \(\alpha\), whereas
 the autoregressive order one (AR1) working correlation structure assumes
 correlation decreases exponentially with the time lag between measures.
+
 GEE approach accounts for overdispersion or underdispersion by
 correcting the variance using a dispersion parameter \[
-\text{Var}(Y_{ijk})^* = \phi\text{Var}(Y_{ijk}) = \phi h(\mu_ijk)
-\]
-
-The marginal expectation, \(\mu_{ij}\) can be expressed as
-\(\mu_{ij} = \left[g^{-1}(X_{ij1}^T \boldsymbol{\beta}), ..., g^{-1}(X_{ijt_{ij}}^T \boldsymbol{\beta})\right]^T\),
-then we define \(A_{ij} = diag\{h(\mu_{ij1}),...h(\mu_{ijt_{ij}})\}\).
-The working covariance matrix for subject \(j^{th}\) from the \(i^{th}\)
-pair is \(\Sigma_i = A_i^{1/2}R(\alpha)A_i^{1/2}\). Let \(\phi\) be the
-dispersion parameter, then \(\Sigma_i \phi\) is the covariance working
-matrix. Since our outcome is binary, the dispersion parameter \(\phi\)
-equals to 1.
+\text{Var}(Y_{ijk})^* = \phi\text{Var}(Y_{ijk}) = \phi h(\mu_{ijk})
+\] Since our outcome is binary, the dispersion parameter \(\phi\) equals
+to 1.
 
 The iterative process starts with initial guesses for the regression
 coefficients \(\boldsymbol{\beta}^{(0)}\) and the correlation parameters
@@ -412,19 +426,20 @@ updated correlation parameters.
 \subsubsection{Update the Regression
 Coefficients}\label{update-the-regression-coefficients}
 
-For each subject, we compute the variance matrix using the current
-estimates of the marginal means: \begin{equation}
-\Sigma_i(\alpha) = A_i^{1/2}R(\alpha)A_i^{1/2} \label{eq:geeCovMat}
-\end{equation} where \(A_i^{1/2}\) is a diagonal matrix with the
-variances \(\mu_{ijk}^{(m)} (1-\mu_{ijk}^{(m)})\) on the diagonal. Then,
-the score function and the information matrix can be calculated using
-the current estimates \citep{Zeger1988}: \begin{align}
-\boldsymbol{U}(\boldsymbol{\beta}) &= \sum_{i=1}^N D_i^T \Sigma_i^{-1}(\alpha) (Y_i - \mu_i) \label{eq:geeScoreEqs}\\
-I(\boldsymbol{\beta}) &= \sum_{i=1}^N D_i^T\Sigma_i^{-1}(\alpha)D_i \label{eq:geeInfoMat}
-\end{align} where
-\(D_i = \frac{\partial\mu_i}{\partial \boldsymbol{\beta}}\). The new set
-of regression coefficients are obtained by solving the score function,
-which are then used to calculate the new marginal means.
+The problem with GEE approach is that it does not account for the
+correlation between subjects within the same matched pair, so the
+variance matrix is simplified to \begin{equation}
+\Sigma_i(\alpha) = A_i^{1/2}(\beta)R(\alpha)A_i^{1/2}(\beta) \label{eq:geeCovMat}
+\end{equation} where \(A_i^{1/2}\) is defined in \eqref{eq: Aibeta}.
+Then, the score function and the information matrix can be calculated
+using the current estimates \citep{Zeger1988}: \begin{align}
+\boldsymbol{S}(\boldsymbol{\beta}) &= \sum_{i=1}^m D_i^T \Sigma_i^{-1}(\alpha) (Y_i - \mu_i) \label{eq:geeScoreEqs}\\
+I(\boldsymbol{\beta}) &= \sum_{i=1}^m D_i^T\Sigma_i^{-1}(\alpha)D_i \label{eq:geeInfoMat}
+\end{align} where \begin{equation}
+D_i = \frac{\partial \boldsymbol{U}_i}{\partial \boldsymbol{\beta}} = \frac{\exp(\boldsymbol{X}_i\boldsymbol{\beta})}{1+\exp(\boldsymbol{X}_i \boldsymbol{\beta})}. \label{eq:Di}
+\end{equation} The new set of regression coefficients are obtained by
+solving the score function, which are then used to calculate the new
+marginal means.
 
 The final estimates of the regression coefficients
 \(\boldsymbol{\beta}\) can be obtained by repeat the above process until
@@ -438,8 +453,8 @@ However, it has been shown that the sandwich estimator tends to
 underestimate standard errors (SEs) when the size sample data is small
 \citep{Mitani2019}. To overcome this issue, we can adjust the sandwich
 estimator by degrees of freedom \citep{dfcorrect}: \begin{equation}
-\Sigma_{DF} = (\frac{N}{N-p})\Sigma \label{eq:geeSigmaDF}
-\end{equation} where \(N\) represents the number of patients, \(p\) is
+\Sigma_{DF} = (\frac{2m}{2m-p})\Sigma \label{eq:geeSigmaDF}
+\end{equation} where \(2m\) represents the number of patients, \(p\) is
 the number of regression parameters.
 
 \subsection{Quasi-least squares (QLS)}\label{quasi-least-squares-qls}
@@ -464,120 +479,118 @@ QLS approach ensures robust and efficient estimates of the regression
 parameters while appropriately accounting for the correlation within the
 data.
 
-In our context, the goal is to fit a logistic regression model to
-describe the relationship between the covariates and the binary outcome
-of whether the aortic root diameter exceeds a specified threshold:
-\begin{equation}
-\text{logit}[\text{Pr}(Y_{ijk} = 1)] = X_{ijk}^T \boldsymbol{\beta} = \mu_{ijk} \label{eq:qlsMarginExpectation}
-\end{equation} where \(Y_{ijk}\) is the binary outcome for the
-\(k^{th}\) visit of the \(j^{th}\) subject from the \(i^{th}\) pair,
-\(X_{ijk}\) is the vector of covariates, and \(\boldsymbol{\beta}\) is
-the vector of regression coefficients. The dependence between the binary
-response will be incorporated in the working correlation matrix.
+This study adopted the method proposed by \citet{Shults2002} which
+specified the working correlation structure by incorporating both
+intravisit and intrapair correlations using equicorrelated matrices and
+the Kronecker product. Let the working correlation parameter
+\(\Gamma' = (\boldsymbol{\tau}', \boldsymbol{\alpha}')\) where
+\(\boldsymbol{\tau}' = (\tau_1, ..., \tau_m)\) account for the
+correlation between subjects for each matched pairs and
+\(\boldsymbol{\alpha}' = (\alpha_1, \alpha_2)\) is the vector of
+correlation coefficients for longitudinal measurements within the a
+subject in a pair. In this study, we assume that the intra-pair
+correlations are consistent across different pairs, that is,
+\(\tau_1 = \tau_2 = ... = \tau_m = \tau\). Let
+\(R_i(\boldsymbol{\alpha}) = \{r^i_{jk}(\boldsymbol{\alpha})\}\) be a
+\(T \times T\) intravisit working correlation matrix for outcomes
+collected on subjects \(j\) from pair \(i\) and \(Q_i(\tau)\) be a
+\(2 \times 2\) equicorrelated working correlation matrix with all
+off-diagonal elements equal to \(\tau_i\). We assume that
+\(F_i(\Gamma)\) is the Kronecker product of \(Q_i(\tau)\) and
+\(R_i(\boldsymbol{\alpha})\), denoting as
+\(Q_i(\tau)\otimes R_i(\boldsymbol{\alpha})\).
 
-Using matrix notation, we group each of the response vectors of the
-\(j^{th}\) unit from the \(i^{th}\) pair as
-\(\boldsymbol{Y}^T_{ij} = (\boldsymbol{Y}^T_{ij1}, ..., \boldsymbol{Y}^T_{ijt_{ij}})\).
-Similarly, let \(\boldsymbol{u}_{ij} = E(\boldsymbol{Y}_{ij})\), where
-\(\boldsymbol{u}^T_{ij} = (\boldsymbol{u}^T_{ij1}, ..., \boldsymbol{u}^T_{ijt_{ij}})\)
-and
-\(\boldsymbol{u}^T_{ijk} = (\boldsymbol{u}^T_{ijk0}, \boldsymbol{u}^T_{ijk1})\)
-representing the outcome for TAV and BAV, respectively. For each pair
-\(i\), define the complete data matrix for the \(j^{th}\) subject as \[
-X_{ij} = (\boldsymbol{1}_{t_{ij}} \otimes 1, X_{0ij} \otimes 1)
-\] where \(X_{0ij}\) indicates that this matrix contains the baseline
-covariates for the \(j^{th}\) subject in the \(i^{th}\) pair and
-\(\otimes\) represents the Kronecker product \citep{parson2006}. Define
-\(A_{ij}\) and \(\Sigma_{ij}\) in the same way as the GEE approach, and
-let
-\(\boldsymbol{Z}_{ij}^T = (\boldsymbol{Y}_{ij} - \mu_{ij})^T A_{ij}^{1/2}\).
-Then, the generalized sum of squares is defined as \citep{Mitani2019}:
-\begin{equation}
-Q_W(\alpha, \beta) = \sum_{i=1}^N\frac{1}{2}\left(\frac{1}{t_{i1}}Z^T_{i1}\Sigma_{i1}^{-1} Z_{i1} + \frac{1}{t_{i2}}Z^T_{i2}\Sigma_{i2}^{-1} Z_{i2}\right) = 0 \label{eq:qlsGSS}
-\end{equation}
+Let \(z_{ijk}\) be the standardized residual for the \(k\)-th visit on
+the \(j\)-th subject from the \(i\)-th pair, written as \[
+z_{ijk} = \frac{Y_{ijk} - \mu_{ijk}}{\sqrt{h(\mu_{ijk})}}.
+\] Let \(Z_{ij}'\) be a vector of standardized residuals and \(U_{ij}'\)
+be a vector of mean values of longitudinal outcomes for the \(j\)-th
+subject form the \(i\)-th pair, then
+\(Z_i'(\beta) = (Z_{i1}', Z_{i2}')\) is a vector of all standardized
+residuals and \(\boldsymbol{U}_i' = (U_{i1}', U_{i2}')\) is a vector of
+all expected outcomes within \(i\)-th pair. Now, the generalized error
+sum of squares is expressed as \[
+Q(\boldsymbol{\beta}, \boldsymbol{\Gamma}) = \sum_{i=1}^m Z_i'(\beta)F_i^{-1}(\Gamma) Z_i(\beta)
+\]
 
-\subsubsection{\texorpdfstring{Specification of
-\(\Sigma_{ij}\)}{Specification of \textbackslash Sigma\_\{ij\}}}\label{specification-of-sigma_ij}
+\subsubsection{\texorpdfstring{Estimation of
+\(\beta\)}{Estimation of \textbackslash beta}}\label{estimation-of-beta}
 
-The working correlation is specified using the approach proposed by
-\citet{parson2006}. Let \(\Sigma_i(\Gamma)\) be the working correlation
-matrix of the outcome vector for the \(i^{th}\) pair with the working
-correlation parameter \(\Gamma^T = (\tau^T, \alpha^T)\) where \(\tau\)
-represents the correlation within matched pairs and \(\alpha\) denotes
-the correlation between longitudinal measurements. The working
-correlation matrix can be specified as \begin{equation}
-\Sigma_i = C_i(\tau) \otimes R_i(\alpha) \label{eq:qlsCovMat}
-\end{equation} where \[
-C_i(\tau) = 
+The estimating equation for \(\boldsymbol{\beta}\) can be obtained by
+taking the partial derivative of
+\(Q(\boldsymbol{\beta}, \boldsymbol{\Gamma})\) with respect to
+\(\boldsymbol{\beta}\) and setting it equal to 0: \[
+\begin{aligned}
+\frac{\partial Q(\boldsymbol{\beta}, \boldsymbol{\Gamma})}{\partial \boldsymbol{\beta}} &= 2 \sum_{i=1}^m \boldsymbol{D}_i'(\boldsymbol{\beta})F_i^{-1}(\boldsymbol{\Gamma})\boldsymbol{Z}_i(\boldsymbol{\beta})\\
+&= 2\sum_{i=1}^m \boldsymbol{D}_i'(\boldsymbol{\beta})F_i^{-1}(\boldsymbol{\Gamma})\left(\frac{\boldsymbol{Y}_i - \boldsymbol{U}_i}{\sqrt{h(\boldsymbol{U}_i)}}\right)
+\end{aligned}
+\] Then, we have \begin{equation}
+\sum_{i=1}^m \boldsymbol{D}_i'(\boldsymbol{\beta})F_i^{-1}(\boldsymbol{\Gamma})\left(\frac{\boldsymbol{Y}_i - \boldsymbol{U}_i}{\sqrt{h(\boldsymbol{U}_i)}}\right) = 0, \label{eq:qlsdQdb}
+\end{equation} where \(\boldsymbol{D}_i\) is defined in \eqref{eq:Di}.
+
+\subsubsection{\texorpdfstring{Estimation of
+\(\Gamma\)}{Estimation of \textbackslash Gamma}}\label{estimation-of-gamma}
+
+The partial derivative of \(Q(\boldsymbol{\beta}, \boldsymbol{\Gamma})\)
+with respect to \(\boldsymbol{\Gamma}\) can be divided into two parts:
+taking partial derivative with respect to \(\tau\) and \(\alpha\)
+separately. Since the stage one estimation is is asymptotically biased
+\citep{CHAGANTY1999145}, the estimation for \(\tau\) and \(\alpha\)
+involves two stages for each.
+
+\textbf{Stage One Estimators}
+
+As defined earlier, \[
+Q_i(\tau) = 
 \begin{bmatrix}
-1 & \tau \\
+1 & \tau\\
 \tau & 1
-\end{bmatrix}; 
-\quad 
-R_i(\alpha) = 
-\begin{bmatrix}
-1 & \alpha & \alpha^2 & \alpha^3\\
-\alpha & 1 & \alpha & \alpha^2\\
-\alpha^2 & \alpha & 1 & \alpha\\
-\alpha^3 & \alpha^2 & \alpha & 1
 \end{bmatrix}
-\] assuming the total number of visit \(t_{ij} = 4\) and the working
-correlation structure is AR1.
-
-\subsubsection{\texorpdfstring{Estimation of \(\beta\) and
-\(\alpha\)}{Estimation of \textbackslash beta and \textbackslash alpha}}\label{estimation-of-beta-and-alpha}
-
-Taking the partial derivative of \(Q_W(\alpha, \boldsymbol{\beta})\)
-\eqref{eq:qlsGSS} with respect to \(\boldsymbol{\beta}\) and setting it
-equal to 0, the score function is \begin{equation}
-S(\boldsymbol{\beta}) = \sum_{i=1}^N \frac{1}{2} \left(\frac{1}{t_{i1}}\boldsymbol{D}_{i1}^T \boldsymbol{W}_{i1}^{-1}(\boldsymbol{Y}_{i1} - \boldsymbol{\mu}_{i1}) + \frac{1}{t_{i2}}\boldsymbol{D}_{i2}^T \boldsymbol{W}_{i2}^{-1}(\boldsymbol{Y}_{i2} - \boldsymbol{\mu}_{i2})\right) = 0  \label{eq:qlsScore}
-\end{equation} where
-\(\boldsymbol{D}_{ij} = \partial \boldsymbol{\mu}_{ij} / \partial \beta\)
-and
-\(\boldsymbol{W}_{ij} = A_{ij}^{1/2} Sigma_{ij}(\alpha) A_{ij}^{1/2}\).
-With the correct specification of the working correlation
-\(Sigma_{ij}\), we can interpret the marginalization as the binary
-outcomes of aortic root diameter measurements over time for each subject
-within a matched pair. This approach allows us to model the effects of
-covariates while accounting for within-pair correlations and
-longitudinal dependencies.
-
-The estimation of \(\alpha\) involves two stages. The first stage
-estimates \(\alpha\) by taking the partial derivative of
-\(Q_W(\alpha, \beta)\) with respect to \(\alpha\) and setting it equal
-to 0: \begin{equation}
-\sum_{i=1}^N \frac{1}{2} \left(\frac{1}{t_{i1}}\boldsymbol{Z}_{i1}^T\frac{\partial \Sigma_{i1}^{-1}}{\partial \alpha}\boldsymbol{Z}_{i1} + \frac{1}{t_{i2}}\boldsymbol{Z}_{i2}^T \frac{\partial \Sigma_{i2}^{-1}}{\partial \alpha}\boldsymbol{Z}_{i2}\right) = 0  \label{eq:stage1alpha}
-\end{equation} Since the stage one estimator for \(\alpha\) is
-asymptotically biased \citep{CHAGANTY1999145}, a consistent estimator
-can be obtained through the second stage by solving the following
-equation for \(\alpha\): \begin{equation}
-\sum_{i=1}^N \frac{1}{2} \left[\frac{1}{t_{i1}}\text{trace}\left(\frac{\partial \Sigma_{i1}^{-1} (\hat{\alpha}_0)}{\partial \hat{\alpha}_0}\Sigma_{i1}(\alpha)+\frac{\partial \Sigma_{i2}^{-1} (\hat{\alpha}_0)}{\partial \hat{\alpha}_0}\Sigma_{i2}(\alpha)\right)\right] \label{eq:stage2alpha}
-\end{equation} where \(\hat{\alpha}_0\) is the solution to equation
-\eqref{eq:stage1alpha}. The estimator for \(\boldsymbol{\beta}\) and
-\(\alpha\) are obtained by choosing a starting value for
-\(\boldsymbol{\beta}\) from fitting a GLM assuming independence between
-observations and iterating through equations \eqref{eq:qlsScore},
-\eqref{eq:stage1alpha}, and \eqref{eq:stage2alpha}.
-
-\subsection{AR1 working correlation
-structure}\label{ar1-working-correlation-structure}
+\implies 
+Q_i^{-1}(\tau) = \frac{1}{1-\tau^2}
+\begin{bmatrix}
+1 & -\tau\\
+-\tau & 1
+\end{bmatrix}
+\] Let \(q_1 = \frac{1}{1-\tau^2}\) and
+\(q_2 = \frac{-\tau}{1-\tau^2}\), then we can obtain the first stage
+estimator for \(\tau\) by \begin{align}
+\frac{\partial}{\partial \tau}& \left\{
+\sum_{i=1}^m 
+\begin{pmatrix}
+Z_{i1} & Z_{i2}
+\end{pmatrix} 
+\left[\begin{pmatrix}
+q_1 & q_2\\
+q_2 & q_1
+\end{pmatrix} 
+\otimes R_i^{-1}(\alpha)\right] 
+\begin{pmatrix}
+Z_{i1}\\ Z_{i2}
+\end{pmatrix} \right\} = 0 \\
+\sum_{i=1}^m &  \frac{\partial}{\partial \tau}\left[q_1(Z_{i1}R_i^{-1}Z_{i1}+Z_{i2}R_i^{-1}Z_{i2}) + 2q_2(Z_{i1}R_i^{-1}Z_{i2})\right]= 0 \label{eq:tau1}
+\end{align} Let \(a_1 = (Z_{i1}R_i^{-1}Z_{i1}+Z_{i2}R_i^{-1}Z_{i2})\)
+and \(a2 = (Z_{i1}R_i^{-1}Z_{i2})\), the stage one estimator for
+\(\tau\) can be obtained by solving the equation \eqref{eq:tau1}: \[
+\hat{\tau}_0 = \frac{a_1 - \sqrt{a_1^2 - 4a_2^2}}{2a_2}
+\]
 
 Given that all the subjects from the motivational study underwent the
 aortic root replacement surgery, it is reasonable to believe that the
 correlation of longitudinal measurements is decreasing as time passes.
 Therefore, AR1 is assumed to be the true working correlation structure.
-Then, a closed-form solution for equation \eqref{eq:stage1alpha} can be
-obtained by solving the following formula: \begin{equation}
+Then, a closed-form solution for stage one \(\alpha\) is:
+\begin{equation}
 \hat{\alpha}_0 = \frac{F_a + \sqrt{(F_1+F_b)(F_a-F_b)}}{F_b} \label{eq:ar1alpha1}
 \end{equation} where \[
-F_a = \sum_{i=1}^N \frac{1}{2} \sum_{j=1}^2 \frac{1}{t_{ij}}\left[\sum_{k=1}^{t_{ij}} Z_{ijk}^T C_i^{-1} Z_{ijk} + \sum_{k=1}^{t_{ij}-1}Z_{ijk}^T C_i^{-1} Z_{ijk}\right]
+F_a = \sum_{i=1}^N \frac{1}{2} \sum_{j=1}^2 \frac{1}{t_{ij}}\left[\sum_{k=1}^{t_{ij}} Z_{ijk}^T C_i^{-1} Z_{ijk} + \sum_{k=2}^{t_{ij}-1}Z_{ijk}^T C_i^{-1} Z_{ijk}\right]
 \] and
 \(F_b = 2\sum_{i=1}^N \frac{1}{2}\sum_{j=1}^2\frac{1}{t_{ij}}\sum_{k=1}^{t_{ij}-1} Z_{ijk}^T C_i^{-1} Z_{ijk+1}\).
-The stage two estimator for \(\alpha\) can be obtained by solving the
-equation \eqref{eq:stage1alpha} \citep{Mitani2019}: \begin{equation}
+The closed form solution for the stage two estimator of \(\alpha\) is
+given by \citep{Mitani2019}: \begin{equation}
 \hat{\alpha} = \frac{2\hat{\alpha}_0}{1+\hat{\alpha}_0^2} \label{eq:ar1alpha2}
-\end{equation}. Detailes of the derivations for equation
-\eqref{eq:ar1alpha1} and \eqref{eq:ar1alpha2} are shown in the Appendix.
+\end{equation}. Details of the derivations for equation
+\eqref{eq:ar1alpha1}is shown in the Appendix A.
 
 \subsection{Modeling Motivational
 Data}\label{modeling-motivational-data}
@@ -721,21 +734,21 @@ Method & Parameter & Estimate & SE & SE-DF & Estimate & SE & SE-DF & Estimate & 
 \cmidrule{2-11}
  & $\beta_2$ (Visit) & -0.052 & 0.155 & 0.163 & -0.042 & 0.154 & 0.162 & -0.063 & 0.171 & 0.179\\
 \cmidrule{2-11}
- & $\beta_4$ (Visit $\times$ BAV & 0.195 & 0.183 & 0.192 & 0.192 & 0.182 & 0.191 & 0.224 & 0.191 & 0.200\\
+ & $\beta_4$ (Visit $\times$ BAV) & 0.195 & 0.183 & 0.192 & 0.192 & 0.182 & 0.191 & 0.224 & 0.191 & 0.200\\
 \cmidrule{2-11}
 \multirow[t]{-5}{*}{\raggedright\arraybackslash \textbf{GEE}} & $\alpha$ &  &  &  & 0.093 & 0.111 &  & 0.081 & 0.063 & \\
 \cmidrule{1-11}
- & $\beta_0$ (Intercept) & 0.108 & 0.083 & 0.088 & 0.105 & 0.081 & 0.085 & 0.113 & 0.080 & 0.084\\
+ & $\beta_0$ (Intercept) & 0.115 & 0.536 & 0.563 & 0.096 & 0.503 & 0.527 & 0.130 & 0.482 & 0.505\\
 \cmidrule{2-11}
- & $\beta_1$ (BAV) & -0.082 & 0.100 & 0.104 & -0.080 & 0.099 & 0.104 & -0.091 & 0.099 & 0.104\\
+ & $\beta_1$ (BAV) & -0.084 & 0.469 & 0.492 & -0.071 & 0.482 & 0.505 & -0.108 & 0.401 & 0.420\\
 \cmidrule{2-11}
- & $\beta_2$ (Visit) & 0.012 & 0.027 & 0.028 & 0.012 & 0.026 & 0.027 & 0.007 & 0.026 & 0.027\\
+ & $\beta_2$ (Visit) & 0.011 & 0.163 & 0.171 & 0.011 & 0.124 & 0.130 & -0.005 & 0.106 & 0.111\\
 \cmidrule{2-11}
- & $\beta_4$ (Visit $\times$ BAV & 0.009 & 0.030 & 0.031 & 0.010 & 0.030 & 0.032 & 0.016 & 0.030 & 0.032\\
+ & $\beta_4$ (Visit $\times$ BAV) & 0.003 & 0.189 & 0.198 & 0.007 & 0.202 & 0.212 & 0.026 & 0.125 & 0.131\\
 \cmidrule{2-11}
- & $\alpha$ &  &  &  & 0.102 &  &  & 0.130 &  & \\
+ & $\alpha$ &  &  &  & 0.535 &  &  & 0.556 &  & \\
 \cmidrule{2-11}
-\multirow[t]{-6}{*}{\raggedright\arraybackslash \textbf{QLS}} & $\tau$ & -0.003 &  &  & 0.000 &  &  & 0.000 &  & \\
+\multirow[t]{-6}{*}{\raggedright\arraybackslash \textbf{QLS}} & $\tau$ & 0.494 &  &  & 0.307 &  &  & 0.354 &  & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -745,15 +758,303 @@ Method & Parameter & Estimate & SE & SE-DF & Estimate & SE & SE-DF & Estimate & 
 All 1000 simulations converged for both GEE and QLS fits. Each
 simulation was checked for extreme values. Seventy-one simulations
 showed extremely large standard errors when fitted with GEE, while only
-one simulation (the 477th) exhibited an extreme standard error using the
-QLS approach. These problematic simulations were removed from further
+nine simulations exhibited extreme standard errors using the QLS
+approach. These problematic simulations were removed from further
 analysis.
 
-Table 2 presents the true coefficient coverage probabilities for GEE and
-QLS fits. Surprisingly, the coverage probability for the intercept,
-visit, and the interaction effect between BAV and visit under the QLS
-framework is near zero, while the coverage probabilities using GEE
-achieved at least 80\%, except for the visit effect.
+Figure 1 shows the average regression coefficient estimates from 1000
+simulations for the GEE (left three columns) and QLS (right three
+columns) methods. The estimates are presented for three covariates: BAV,
+Visit, and their interaction (BAV × Visit). Each dot represents the mean
+estimate across simulations, with colours indicating different working
+correlation structures: AR1 (red), Exchangeable (blue), and Independence
+(green). The panel labels indicate that the 95\% confidence intervals in
+the first row are based on empirical standard errors, whereas the second
+row uses standard errors corrected by degrees of freedom. The black
+dashed line marks the true coefficient values used in the simulations.
+In general, QLS shows smaller variability in estimates compared to GEE,
+and both methods fail to capture the true coefficient for the effect of
+Visit regardless of the adjustment for standard errors. The mean
+estimates for the effect of BAV using QLS are more accurate and have
+less variability, while the mean estimates for the interaction effect
+using the GEE approach are closer to the true value, although they show
+greater variability. More details about accurate true parameter coverage
+probabilities can be found in the Appendix B.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-3-1.pdf}
+
+}
+
+\caption{Comparison of Estimation Results From 1000 Simulation}
+
+\end{figure}%
+
+Relative bias of estimates for the effect of BAV across different
+working correlation structures (AR1, Exchangeable, Independence) using
+the GEE and QLS methods, with and without including confounding
+covariates are presented in Figure 2. The left panel shows the GEE
+method, which exhibits higher variability in \(\beta_1\) estimates
+particularly with confounding covariates, where more extreme outliers
+are observed. In contrast, the QLS method, shown on the right, maintains
+consistently low variability around zero, irrespective of the
+correlation structure or confounding covariate inclusion.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-4-1.pdf}
+
+}
+
+\caption{Relative bias of estimations for the effect of BAV using GEE
+and QLS with independence, AR1, and exchangeable working correlation
+structures.}
+
+\end{figure}%
+
+Figure 3 shows the plot of the relative bias of estimates for the
+interaction effect between BAV and time. With the same layout as Figure
+2, the GEE method still exhibits moderate variability with median values
+around zero. In contrast, the QLS method shows low variability but
+exhibits a negative relative bias, with estimates skewed below zero,
+irrespective of including confounding covariates.
+
+\begin{figure}[H]
+
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-5-1.pdf}
+
+}
+
+\caption{Relative bias of estimations for the interaction effect of BAV
+and time using GEE and QLS with independence, AR1, and exchangeable
+working correlation structures.}
+
+\end{figure}%
+
+The comparison of the mean estimation for correlations \(\alpha\) among
+longitudinal measurements between GEE and QLS methods is shown in Table
+2. Given that the true intravisit correlation is set to be 0.3, the GEE
+method shows lower bias in the estimates of \(\alpha\), with a mean
+value of 0.166, and it shows the closest value when the specification
+working correlation is consistent with the true working correlation
+structure. However, when the working correlation is specified to be
+exchangeable, the GEE approach tends to underestimate the intravisit
+correlation at around 0.1. In contrast, the QLS method provides more
+consistent estimates across different covariate sets and working
+correlations, at around 0.7, though with generally higher bias.
+
+\begin{table}[H]
+\centering\centering
+\caption{\footnotesize Comparison of mean estimation for the correlation among longitudinal measurements using GEE and QLS methods, with and without adjustment for age, sex, and BSA.}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{>{}llrrrrr}
+\toprule
+\multicolumn{2}{c}{ } & \multicolumn{2}{c}{GEE} & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{QLS} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){6-7}
+Working Correlation & Covariate Set & Mean Estimate & Bias & True Value & Mean Estimate & Bias\\
+\midrule
+ & No & 0.246 & -0.054 & 0.3 & 0.727 & 0.427\\
+\cmidrule{2-7}
+\multirow[t]{-2}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{AR1}} & Yes & 0.196 & -0.104 & 0.3 & 0.725 & 0.425\\
+\cmidrule{1-7}
+ & No & 0.130 & -0.170 & 0.3 & 0.561 & 0.261\\
+\cmidrule{2-7}
+\multirow[t]{-2}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Exchangeable}} & Yes & 0.095 & -0.205 & 0.3 & 0.725 & 0.425\\
+\bottomrule
+\multicolumn{7}{l}{\rule{0pt}{1em}\textsuperscript{*} Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates}\\
+\end{tabular}}
+\end{table}
+
+Table 3 presents the estimation of correlations (\(\tau\)) between
+subjects in matched pairs using the QLS approach, across the three
+different working correlations and covariate sets (with and without
+confounder adjustment). In general, including confounding covariates
+consistently have higher estimation irrespective of the specified
+working correlation, although the difference is ignorable. When the
+working correlation is specified correctly (AR1) and without including
+confounding covariates, the estimation are the lowest at 0.361 with a
+standard deviation of 0.137. With exchangeable working correlation, the
+mean estimation is around 0.390 with a SD of 0.111. Finally, the mean
+\(\tau\) is estimated to be 0.486 with a SD of 0.095 when the working
+correlation is specified to be independence. Figure 4 visualized the
+estimation for \(\tau\).
+
+\begin{table}[H]
+\centering\centering
+\caption{\footnotesize Estimation of correlations between subjects in matched pairs using QLS approach.}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{>{}llrr}
+\toprule
+Working Correlation & Covariate Set & Mean $\tau$ & SD $\tau$\\
+\midrule
+ & No & 0.361 & 0.137\\
+\cmidrule{2-4}
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{AR1}} & Yes & 0.362 & 0.137\\
+\cmidrule{1-4}
+ & No & 0.389 & 0.111\\
+\cmidrule{2-4}
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{Exchangeable}} & Yes & 0.390 & 0.111\\
+\cmidrule{1-4}
+ & No & 0.485 & 0.095\\
+\cmidrule{2-4}
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{Independence}} & Yes & 0.487 & 0.094\\
+\bottomrule
+\multicolumn{4}{l}{\rule{0pt}{1em}\textsuperscript{*} Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates}\\
+\end{tabular}}
+\end{table}
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\textwidth,height=\textheight]{FinalReport_files/figure-pdf/unnamed-chunk-8-1.pdf}
+
+}
+
+\caption{Estimation of intra-pair correlation using QLS approach across
+three different working correlation structures for both with and without
+inclusion of confounding covariates.}
+
+\end{figure}%
+
+\section{Discusssion}\label{discusssion}
+
+In this paper, we assessed the performance and validity of the
+Generalized Estimating Equations (GEE) method and the two-stage
+quasi-least squares (QLS) approach in analyzing small matched-pair
+longitudinal binary data, particularly focusing on the effect of
+bicuspid aortic valve (BAV) on aortic root size post-surgery. We
+analyzed a cohort of patients from the Peter Munk Cardiac Center and
+performed extensive simulations to compare these methods under different
+working correlation structures. Our findings revealed no significant
+difference in performance across different specified working
+correlations, nor between the estimation results from the empirical
+sandwich estimator and the corrected ones.
+
+In our simulation study, the QLS method demonstrates superior
+performance, with mean estimates closer to the true coefficients and
+narrower confidence intervals than GEE. Moreover, GEE tends to
+underestimate the intravisit correlation parameter (\(\alpha\)) with low
+bias only when the working correlation is specified correctly. In
+contrast, QLS provided more consistent estimates of \(\alpha\) across
+different working correlation specifications, although biases are much
+higher than those based on the GEE approach. Both methods failed to
+capture the effect of time. Additionally, including confounding
+covariates did not present large differences in performance. The
+findings highlight the importance of choosing an appropriate correlation
+structure in GEE analyses. For studies with small sample sizes and
+complex correlation structures, QLS may offer a more reliable
+alternative by providing consistent estimates with lower variability.
+
+This study has several limitations. The small sample size of our
+motivational data and the assumption of AR1 as the true correlation
+structure may limit the generalizability of our findings. However, these
+limitations also present exciting opportunities for future research to
+explore alternative correlation structures and extend the QLS method to
+accommodate more complex data scenarios. The informative dropout process
+modeled in our simulations may not fully capture real-world
+complexities, but it also motivates further investigations to refine GEE
+and QLS approaches for handling informative dropouts and covariate
+endogeneity in longitudinal studies.
+
+In conclusion, our comparative analysis of GEE and QLS methods provides
+valuable insights into their performance in analyzing longitudinal
+binary data. While GEE showed better ability to capture the correlation
+among repeated measurements, QLS demonstrated lower variability and
+consistent parameter estimates across different correlation structures.
+These robust findings underscore the importance of methodological
+considerations in longitudinal data analysis and offer confident
+guidance for researchers in selecting appropriate analytical approaches
+for their studies.
+
+\newpage
+
+\section{Appendix A}\label{appendix-a}
+
+\subsection{\texorpdfstring{Estimation for Stage One
+\(\alpha\)}{Estimation for Stage One \textbackslash alpha}}\label{estimation-for-stage-one-alpha}
+
+Since the maximum number repeated measurement within the same subject is
+restricted to 6, we take \(t_{ij} = 4\) as an example for simplicity.
+The intravisit correlation structure is \[
+R_i(\alpha) = 
+\begin{bmatrix}
+1 & \alpha & \alpha^2 & \alpha^3\\
+\alpha & 1 & \alpha & \alpha^2\\
+\alpha^2 & \alpha & 1 & \alpha\\
+\alpha^3 & \alpha^2 & \alpha & 1
+\end{bmatrix}
+\] The partial derivative of covariance matrix with respect to
+\(\alpha\) is \[
+\frac{\partial F_i^{-1}(\alpha)}{\partial \alpha} = \frac{\partial{R_i^{-1}(\alpha)}}{\partial \alpha} \otimes Q_i^{-1}(\tau)
+\] because \(Q^{-1}_i(\tau)\) does not contain \(\alpha\). \[
+\frac{\partial{R_i^{-1}(\alpha)}}{\partial \alpha} = -R_i^{-1}(\alpha) \frac{\partial R_i(\alpha)}{\partial \alpha} R_i^{-1}(\alpha)
+\]
+
+\[
+\frac{\partial R_i(\alpha)}{\partial \alpha}= 
+\begin{bmatrix}
+0 & 1 & 2\alpha & 3\alpha^2\\
+1 & 0 & 1 & 2\alpha\\
+2\alpha & 1 & 0 & 1\\
+3\alpha^2 & 2\alpha & 1 & 0
+\end{bmatrix}
+\] Therefore, \[
+\frac{\partial{R_i^{-1}(\alpha)}}{\partial \alpha}= 
+\frac{1}{(1-\alpha^2)^2}
+\begin{bmatrix}
+2\alpha & -(1+\alpha^2) & 0 & 0\\
+-(1+\alpha^2) & 4\alpha & -(1+\alpha^2) & 0\\
+0 & -(1+\alpha^2) & 4\alpha & -(1+\alpha^2)\\
+0 & 0 & -(1+\alpha^2) & 0
+\end{bmatrix}
+\] \[
+\frac{\partial{R_i^{-1}(\alpha)}}{\partial \alpha}\otimes Q_i^{-1} = 
+\frac{1}{(1-\alpha^2)^2}
+\begin{bmatrix}
+2\alpha Q_i^{-1} & -(1+\alpha^2) Q_i^{-1} & 0 & 0\\
+-(1+\alpha^2) Q_i^{-1} & 4\alpha Q_i^{-1} & -(1+\alpha^2) Q_i^{-1} & 0\\
+0 & -(1+\alpha^2) Q_i^{-1} & 4\alpha Q_i^{-1} & -(1+\alpha^2) Q_i^{-1}\\
+0 & 0 & -(1+\alpha^2) Q_i^{-1} & 2\alpha Q_i^{-1}
+\end{bmatrix}
+\] Hence, \[
+\begin{aligned}
+\frac{\partial Q(\beta, \Gamma)}{\partial \alpha} &= 
+\sum_{i=1}^m \sum_{j=1}^2 
+\begin{pmatrix}
+Z_{i1} & Z_{i2} & Z_{i3} & Z_{i4} 
+\end{pmatrix}
+\frac{\partial{R_i^{-1}(\alpha)}}{\partial \alpha}\otimes Q_i^{-1}
+\begin{pmatrix}
+Z_{i1} \\ Z_{i2} \\ Z_{i3} \\ Z_{i4} 
+\end{pmatrix}\\
+&= \frac{1}{(1-\alpha^2)^2} \sum_{i=1}^m \sum_{j=1}^2 
+\Big\{2\alpha \Big(Z_{ij1}Q_i^{-1}Z_{ij1} + 2Z_{ij2}Q_i^{-1}Z_{ij2}+  2Z_{ij3}Q_i^{-1}Z_{ij3}+Z_{ij4}Q_i^{-1}Z_{ij4}\Big)\\
+& \quad \quad \quad \quad \quad\quad 2(1+\alpha^2)\cdot 
+\Big(Z_{ij1}Q_i^{-1}Z_{ij2}+Z_{ij2}Q_i^{-1}Z_{ij3}+Z_{ij3}Q_i^{-1}Z_{ij4}\Big)
+\Big\}\\
+&= \sum_{i=1}^m \sum_{j=1}^2 \left\{\alpha 
+\left(\sum_{k=1}^{t_{ij}} Z_{ijk}'Q_i^{-1} Z_{ijk} + \sum_{k=2}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1} Z_{ijk}\right) - (1+\alpha^2)\left(\sum_{k=1}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1}Z_{ijk+1}\right) \right\}
+\end{aligned}
+\] Let
+\(S_1 = \sum_{k=1}^{t_{ij}} Z_{ijk}'Q_i^{-1} Z_{ijk} + \sum_{k=2}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1} Z_{ijk}\)
+and \(S_2 = \sum_{k=1}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1}Z_{ijk+1}\), then \[
+\begin{aligned}
+\frac{\partial Q(\beta, \Gamma)}{\partial \alpha} &= \sum_{i=1}^m \sum_{j=1}^2 \big(\alpha S_1 - (1+\alpha^2) S_2\big) \\
+&= \sum_{i=1}^m \sum_{j=1}^2\big(\alpha S_1 - S_2-\alpha^2S_2\big) = 0\\
+& \sum_{i=1}^m \sum_{j=1}^2\big(\alpha^2 S_2 -\alpha S_1 + S_2\big) = 0\\
+\hat{\alpha}_0 &= \sum_{i=1}^m \sum_{j=1}^2\frac{S_1+\sqrt{S_1^2+4S_2^2}}{2S_2}
+\end{aligned}
+\]
+
+\newpage
+
+\section{Appendix B}\label{appendix-b}
+
+\subsection{Coverage Probability}\label{coverage-probability}
 
 \begin{table}[!h]
 \centering\centering
@@ -767,125 +1068,25 @@ achieved at least 80\%, except for the visit effect.
 \cmidrule(l{3pt}r{3pt}){2-5} \cmidrule(l{3pt}r{3pt}){6-9}
 Term & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE\\
 \midrule
-(Intercept) & 0.879 & 0.888 & 0.909 & 0.913 & 0.000 & 0.000 & 0.000 & 0.000\\
-bav & 0.816 & 0.829 & 0.821 & 0.828 & 0.894 & 0.903 & 0.898 & 0.902\\
-bav:visit & 0.861 & 0.865 & 0.861 & 0.863 & 0.010 & 0.011 & 0.011 & 0.013\\
+(Intercept) & 0.879 & 0.888 & 0.909 & 0.913 & 1.000 & 1.000 & 0.001 & 0.001\\
+bav & 0.816 & 0.829 & 0.821 & 0.828 & 1.000 & 1.000 & 1.000 & 1.000\\
+bav:visit & 0.861 & 0.865 & 0.861 & 0.863 & 1.000 & 1.000 & 1.000 & 1.000\\
 visit & 0.107 & 0.108 & 0.087 & 0.088 & 0.000 & 0.000 & 0.000 & 0.000\\
-(Intercept) & 0.876 & 0.892 & 0.918 & 0.920 & 0.001 & 0.001 & 0.000 & 0.000\\
+(Intercept) & 0.876 & 0.892 & 0.918 & 0.920 & 0.974 & 0.976 & 0.000 & 0.000\\
 \addlinespace
-bav & 0.820 & 0.832 & 0.830 & 0.835 & 0.896 & 0.904 & 0.894 & 0.898\\
-bav:visit & 0.870 & 0.878 & 0.889 & 0.891 & 0.005 & 0.007 & 0.010 & 0.010\\
+bav & 0.820 & 0.832 & 0.830 & 0.835 & 1.000 & 1.000 & 1.000 & 1.000\\
+bav:visit & 0.870 & 0.878 & 0.889 & 0.891 & 0.984 & 0.984 & 0.980 & 0.981\\
 visit & 0.108 & 0.111 & 0.087 & 0.088 & 0.000 & 0.000 & 0.000 & 0.000\\
-(Intercept) & 0.879 & 0.890 & 0.907 & 0.910 & 0.003 & 0.003 & 0.000 & 0.000\\
-bav & 0.811 & 0.823 & 0.821 & 0.823 & 0.892 & 0.896 & 0.900 & 0.902\\
+(Intercept) & 0.879 & 0.890 & 0.907 & 0.910 & 0.935 & 0.939 & 0.001 & 0.001\\
+bav & 0.811 & 0.823 & 0.821 & 0.823 & 1.000 & 1.000 & 1.000 & 1.000\\
 \addlinespace
-bav:visit & 0.860 & 0.864 & 0.869 & 0.871 & 0.009 & 0.011 & 0.009 & 0.010\\
+bav:visit & 0.860 & 0.864 & 0.869 & 0.871 & 0.916 & 0.920 & 0.910 & 0.913\\
 visit & 0.112 & 0.122 & 0.100 & 0.104 & 0.000 & 0.000 & 0.000 & 0.000\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-Figure 1 compares the mean estimates of the GEE and QLS methods across
-three correlation structures (Independence, AR1, Exchangeable) from 1000
-simulations without adjusting for age, sex, and BSA. The mean estimation
-result from models that were adjusted for aforementioned confounding
-covariates are very similar to results in figure 1, so it won't display
-in the report. Adjusted and unadjusted denote whether the 95\%
-confidence interval has been adjusted by degrees of freedom, calculated
-as the number of subjects divided by the difference between the number
-of subjects and the number of parameter coefficients. The black dashed
-line represents the true coefficients for each term. Generally, the
-correction of the sandwich estimator does not influence the estimation
-results, as there is no significant difference between the adjusted and
-unadjusted plots. Both methods failed to capture the feature that the
-number of visits is negatively associated with a positive outcome.
-
-The first row presents the mean estimation results using the GEE
-approach. The mean estimate for the interaction effect (BAV × Visit) is
-almost the same as the true value, while the 95\% confidence intervals
-fail to capture the true value of the number of visits. Although the
-true coefficient for BAV is higher than the mean estimate, it is
-captured within the 95\% confidence interval. The second row presents
-the mean estimation results using the QLS approach. All the confidence
-intervals are much smaller than those from the GEE method. The QLS
-approach fails to capture the true regression coefficient for the
-interaction effect and the number of visits, but the mean estimate of
-BAV is very close to the true value.
-
-\begin{figure}[H]
-
-{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-5-1.pdf}
-
-}
-
-\caption{Comparison of Estimation Results From 1000 Simulation}
-
-\end{figure}%
-
-Table 3 compares the mean estimation of the correlation among
-longitudinal measurements using GEE and QLS methods, both adjusted and
-unadjusted for age, sex, and BSA. Without adjusting for confounding
-covariates, the mean estimate of the correlation using GEE approach with
-AR1 working correlation is 0.196 with a relative bias of -0.345, while
-QLS provides a closer estimate (0.247) with a smaller relative bias of
--0.176. For the exchangeable correlation, GEE's mean estimate is highly
-biased, while QLS remains robust. Adjusting for confounders improves the
-estimates for both methods under AR1, with QLS showing more accurate and
-less biased estimates with lower MSE. However, when the working
-correlation is misspecified as exchangeable, both methods yield biased
-estimates.
-
-\begin{table}[!h]
-\centering\centering
-\caption{\footnotesize Comparison of mean estimation for the correlation among longitudinal measurements using GEE and QLS methods, with and without adjustment for age, sex, and BSA.}
-\centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{>{}lllrrrrrr}
-\toprule
- & Correlation & Marginal Model & True Value & rho Estimate & SD & Bias & Relative Bias & MSE\\
-\midrule
- &  & GEE & 0.3 & 0.196 & 0.161 & -0.104 & -0.345 & 0.036\\
-\cmidrule{3-9}
- & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & QLS & 0.3 & 0.247 & 0.196 & -0.053 & -0.176 & 0.041\\
-\cmidrule{2-9}
- &  & GEE & 0.3 & 0.095 & 0.118 & -0.205 & -0.685 & 0.056\\
-\cmidrule{3-9}
-\multirow[t]{-4}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Unadjusted}} & \multirow[t]{-2}{*}{\raggedright\arraybackslash Exchangeable} & QLS & 0.3 & 0.247 & 0.196 & -0.053 & -0.176 & 0.041\\
-\cmidrule{1-9}
- &  & GEE & 0.3 & 0.246 & 0.161 & -0.054 & -0.182 & 0.029\\
-\cmidrule{3-9}
- & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & QLS & 0.3 & 0.271 & 0.193 & -0.029 & -0.098 & 0.038\\
-\cmidrule{2-9}
- &  & GEE & 0.3 & 0.130 & 0.119 & -0.170 & -0.568 & 0.043\\
-\cmidrule{3-9}
-\multirow[t]{-4}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Adjusted}} & \multirow[t]{-2}{*}{\raggedright\arraybackslash Exchangeable} & QLS & 0.3 & 0.123 & 0.103 & -0.177 & -0.590 & 0.042\\
-\bottomrule
-\multicolumn{9}{l}{\rule{0pt}{1em}\textsuperscript{*} Adjustments were made during the model fitting by include or exclude age, sex, and BSA}\\
-\end{tabular}}
-\end{table}
-
-Table 3 displays the mean estimation for model fits with adjustment for
-confounding variables.
-
-\section{Discusssion}\label{discusssion}
-
-\subsection{Code chunk}\label{sec-chunks}
-
-But you can set \texttt{echo} option to \texttt{true} locally in the
-chunk
-
-\subsection{Text color}\label{sec-summary}
-
-Our format makes applying color on inline text possible using the
-\texttt{{[}content{]}\{color=\textless{}name\textgreater{}\}} syntax.
-Let's see an example.
-
-Here we are using a special feature of our format which is the coloring
-because \textcolor{mypink}{pink is a \textbf{nice} color}.
-
-This is possible thanks to the Lua Filter included in the custom
-extension format.
+\newpage
 
 
   \bibliography{bibliography.bib}
