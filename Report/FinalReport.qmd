@@ -735,90 +735,83 @@ coverage_gee_adj %>% cbind(coverage_gee_unadj %>% select(-term)) %>%
   add_header_above(c(" " = 1, "GEE" = 4, "QLS" = 4))
 ```
 
-```{r, eval=FALSE}
+### Simulation Results
+
+```{r}
 adj_ar1 <- data.frame(corstr = rep("AR1", 14),
            type = c(rep("GEE", 7), rep("QLS", 7))) %>% 
   cbind(evaluate_fits(gee_sim_results$ar1_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$ar1_mdl_full, true_set))) %>% 
+  na.omit() %>% 
   relocate(coefficient, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
-                          term == "visit" ~ "Visit", 
-                          term == "age" ~ "Age", 
-                          term == "bsa" ~ "BSA", 
-                          term == "male" ~ "Male")) 
+                          term == "visit" ~ "Visit")) %>% 
+  select(-mean_bias, -mean_rel_bias)
 
 names(adj_ar1)[1] <- paste0(names(adj_ar1)[1], footnote_marker_symbol(1))
-names(adj_ar1)[6] <- paste0(names(adj_ar1)[6], footnote_marker_symbol(1))
-names(adj_ar1)[9] <- paste0(names(adj_ar1)[9], footnote_marker_symbol(1))
 
 kable(adj_ar1, format = "latex", booktabs = TRUE, digits = 3, escape = F,
-      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Estimate", 
-                    "SD", "Bias", "Relative Bias", "MSE")) %>%
+      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Est", 
+                    "SD Est", "Mean SE", "Mean SE-DF", "Mean MSE")) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"), 
                 font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
    column_spec(1, bold = T) %>%
   collapse_rows(columns = 1:2, valign = "top") %>% 
-  footnote(symbol = "Correlation Structure, Standard Deviation and Mean Squared Error",
-           symbol_title = "Corstr, SD, MSE: ",
+  footnote(symbol = "Correlation Structure",
+           symbol_title = "Corstr: ",
            footnote_as_chunk = T)
 ```
 
 
-```{r,eval=FALSE}
+```{r}
 adj_exch <- data.frame(corstr = rep("Exchangeable", 14),
            type = c(rep("GEE", 7), rep("QLS", 7))) %>% 
   cbind(evaluate_fits(gee_sim_results$exch_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$exch_mdl_full, true_set))) %>% 
+  na.omit() %>% 
   relocate(coefficient, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
-                          term == "visit" ~ "Visit", 
-                          term == "age" ~ "Age", 
-                          term == "bsa" ~ "BSA", 
-                          term == "male" ~ "Male")) 
+                          term == "visit" ~ "Visit")) %>% 
+  select(-mean_bias, -mean_rel_bias)
 
 names(adj_exch)[1] <- paste0(names(adj_exch)[1], footnote_marker_symbol(1))
-names(adj_exch)[6] <- paste0(names(adj_exch)[6], footnote_marker_symbol(1))
-names(adj_exch)[9] <- paste0(names(adj_exch)[9], footnote_marker_symbol(1))
 
 kable(adj_exch, format = "latex", booktabs = TRUE, digits = 3, escape = F,
-      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Estimate", 
-                    "SD", "Bias", "Relative Bias", "MSE")) %>%
+      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Est", 
+                    "SD Est", "Mean SE", "Mean SE-DF", "Mean MSE")) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"), 
                 font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
    column_spec(1, bold = T) %>%
   collapse_rows(columns = 1:2, valign = "top") %>% 
-  footnote(symbol = "Correlation Structure, Standard Deviation and Mean Squared Error",
-           symbol_title = "Corstr, SD, MSE: ",
+  footnote(symbol = "Correlation Structure",
+           symbol_title = "Corstr:",
            footnote_as_chunk = T)
 ```
 
-```{r, eval=FALSE}
+```{r}
 adj_ind <- data.frame(corstr = rep("Independence", 14),
            type = c(rep("GEE", 7), rep("QLS", 7))) %>% 
   cbind(evaluate_fits(gee_sim_results$ind_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$ind_mdl_full, true_set))) %>% 
+  na.omit() %>% 
   relocate(coefficient, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
-                          term == "visit" ~ "Visit", 
-                          term == "age" ~ "Age", 
-                          term == "bsa" ~ "BSA", 
-                          term == "male" ~ "Male")) 
+                          term == "visit" ~ "Visit")) %>% 
+  select(-mean_bias, -mean_rel_bias)
 
 names(adj_ind)[1] <- paste0(names(adj_ind)[1], footnote_marker_symbol(1))
-names(adj_ind)[6] <- paste0(names(adj_ind)[6], footnote_marker_symbol(1))
-names(adj_ind)[9] <- paste0(names(adj_ind)[9], footnote_marker_symbol(1))
 
 kable(adj_ind, format = "latex", booktabs = TRUE, digits = 3, escape = F,
-      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Estimate", 
-                    "SD", "Bias", "Relative Bias", "MSE")) %>%
+      col.names = c("Corstr", "Type", "Term", "True Value", "Mean Est", 
+                    "SD Est", "Mean SE", "Mean SE-DF", "Mean MSE")) %>%
   kable_styling(latex_options = c("hold_position", "scale_down"), 
                 font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 

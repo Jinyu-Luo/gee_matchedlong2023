@@ -38,9 +38,9 @@ evaluate_fits <- function(df, true_set) {
               mean_adj_se = mean(adj_std_error, na.rm = TRUE)) %>% 
     left_join(true_set, by = "term") %>% 
     mutate(mean_bias = mean_estimate - coefficient, 
-           mean_rel_bias = bias/abs(coefficient)*100, 
-           mse = est_std^2+bias^2) %>% 
-    select(term, coefficient, mean_estimate, est_std, mean_se, mean_adj_se, mean_bias, mean_rel_bias, mse)
+           mean_rel_bias = mean_bias/abs(coefficient)*100, 
+           mean_mse = est_std^2+mean_bias^2) %>% 
+    select(term, coefficient, mean_estimate, est_std, mean_se, mean_adj_se, mean_bias, mean_rel_bias, mean_mse)
 }
 
 # Function to calculate relative bias for each simulation 

@@ -1086,6 +1086,116 @@ visit & 0.112 & 0.122 & 0.100 & 0.104 & 0.000 & 0.000 & 0.000 & 0.000\\
 \end{tabular}}
 \end{table}
 
+\subsection{Simulation Results}\label{simulation-results-1}
+
+\begin{table}[!h]
+\centering\centering\begingroup\fontsize{8}{10}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{}llllrrrrrr}
+\toprule
+  & Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
+\midrule
+\textbf{1} &  & GEE & Intercept & -1.784 & -2.116 & 4.173 & 2.827 & 2.887 & 17.528\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{3} &  & GEE & BAV & -0.042 & -1.595 & 7.357 & 1.255 & 1.281 & 56.538\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{4} &  & GEE & BAV:Visit & 0.192 & 0.149 & 2.163 & 0.390 & 0.398 & 4.682\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{7} &  & GEE & Visit & -1.077 & -0.019 & 2.138 & 0.256 & 0.261 & 5.691\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{8} &  & QLS & Intercept & -1.784 & 0.128 & 0.315 & 2.012 & 2.055 & 3.755\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{10} &  & QLS & BAV & -0.042 & -0.093 & 0.117 & 0.509 & 0.520 & 0.016\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{11} &  & QLS & BAV:Visit & 0.192 & 0.017 & 0.042 & 0.192 & 0.196 & 0.032\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{14} & \multirow[t]{-8}{*}{\raggedright\arraybackslash AR1} & QLS & Visit & -1.077 & -0.005 & 0.031 & 0.138 & 0.141 & 1.151\\
+\bottomrule
+\multicolumn{10}{l}{\rule{0pt}{1em}\textit{Corstr: } \textsuperscript{*} Correlation Structure}\\
+\end{tabular}}
+\endgroup{}
+\end{table}
+
+\begin{table}[!h]
+\centering\centering\begingroup\fontsize{8}{10}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{}llllrrrrrr}
+\toprule
+  & Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
+\midrule
+\textbf{1} &  & GEE & Intercept & -1.784 & -2.113 & 4.219 & 2.843 & 2.903 & 17.907\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{3} &  & GEE & BAV & -0.042 & -1.586 & 7.526 & 1.262 & 1.288 & 59.021\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{4} &  & GEE & BAV:Visit & 0.192 & 0.147 & 2.268 & 0.394 & 0.403 & 5.148\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{7} &  & GEE & Visit & -1.077 & -0.027 & 2.177 & 0.258 & 0.263 & 5.840\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{8} &  & QLS & Intercept & -1.784 & 0.127 & 0.314 & 1.701 & 1.738 & 3.749\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{10} &  & QLS & BAV & -0.042 & -0.094 & 0.116 & 0.438 & 0.447 & 0.016\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{11} &  & QLS & BAV:Visit & 0.192 & 0.018 & 0.042 & 0.155 & 0.159 & 0.032\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{14} & \multirow[t]{-8}{*}{\raggedright\arraybackslash Exchangeable} & QLS & Visit & -1.077 & -0.007 & 0.032 & 0.111 & 0.114 & 1.146\\
+\bottomrule
+\multicolumn{10}{l}{\rule{0pt}{1em}\textit{Corstr:} \textsuperscript{*} Correlation Structure}\\
+\end{tabular}}
+\endgroup{}
+\end{table}
+
+\begin{table}[!h]
+\centering\centering\begingroup\fontsize{8}{10}\selectfont
+
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\begin{tabular}{>{}llllrrrrrr}
+\toprule
+  & Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
+\midrule
+\textbf{1} &  & GEE & Intercept & -1.784 & -2.062 & 4.207 & 2.823 & 2.883 & 17.778\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{3} &  & GEE & BAV & -0.042 & -1.583 & 7.450 & 1.255 & 1.281 & 57.873\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{4} &  & GEE & BAV:Visit & 0.192 & 0.145 & 2.209 & 0.385 & 0.393 & 4.882\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{7} &  & GEE & Visit & -1.077 & -0.023 & 2.174 & 0.253 & 0.259 & 5.837\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{8} &  & QLS & Intercept & -1.784 & 0.131 & 0.318 & 2.753 & 2.812 & 3.769\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{10} &  & QLS & BAV & -0.042 & -0.094 & 0.114 & 0.524 & 0.535 & 0.016\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{11} &  & QLS & BAV:Visit & 0.192 & 0.017 & 0.039 & 0.246 & 0.251 & 0.032\\
+\cmidrule{1-1}
+\cmidrule{3-10}
+\textbf{14} & \multirow[t]{-8}{*}{\raggedright\arraybackslash Independence} & QLS & Visit & -1.077 & -0.005 & 0.029 & 0.172 & 0.175 & 1.150\\
+\bottomrule
+\multicolumn{10}{l}{\rule{0pt}{1em}\textit{Corstr, SD, MSE: } \textsuperscript{*} Correlation Structure, Standard Deviation and Mean Squared Error}\\
+\end{tabular}}
+\endgroup{}
+\end{table}
+
 \newpage
 
 

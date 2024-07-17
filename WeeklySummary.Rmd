@@ -615,5 +615,19 @@ $$
 $$
 
 
-
+$$
+C_i(\tau) = 
+\begin{bmatrix}
+1 & \tau \\
+\tau & 1
+\end{bmatrix}; 
+\quad 
+R_i(\alpha) = 
+\begin{bmatrix}
+1 & \alpha & \alpha^2 & \alpha^3\\
+\alpha & 1 & \alpha & \alpha^2\\
+\alpha^2 & \alpha & 1 & \alpha\\
+\alpha^3 & \alpha^2 & \alpha & 1
+\end{bmatrix}
+$$
 
