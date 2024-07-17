@@ -750,6 +750,7 @@ adj_ar1 <- data.frame(corstr = rep("AR1", 14),
                           term == "visit" ~ "Visit")) %>% 
   select(-mean_bias, -mean_rel_bias)
 
+rownames(adj_ar1) <- NULL
 names(adj_ar1)[1] <- paste0(names(adj_ar1)[1], footnote_marker_symbol(1))
 
 kable(adj_ar1, format = "latex", booktabs = TRUE, digits = 3, escape = F,
@@ -779,6 +780,7 @@ adj_exch <- data.frame(corstr = rep("Exchangeable", 14),
                           term == "visit" ~ "Visit")) %>% 
   select(-mean_bias, -mean_rel_bias)
 
+rownames(adj_exch) <- NULL
 names(adj_exch)[1] <- paste0(names(adj_exch)[1], footnote_marker_symbol(1))
 
 kable(adj_exch, format = "latex", booktabs = TRUE, digits = 3, escape = F,
@@ -807,6 +809,7 @@ adj_ind <- data.frame(corstr = rep("Independence", 14),
                           term == "visit" ~ "Visit")) %>% 
   select(-mean_bias, -mean_rel_bias)
 
+rownames(adj_ind) <- NULL
 names(adj_ind)[1] <- paste0(names(adj_ind)[1], footnote_marker_symbol(1))
 
 kable(adj_ind, format = "latex", booktabs = TRUE, digits = 3, escape = F,
