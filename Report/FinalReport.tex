@@ -699,14 +699,19 @@ of aortic root diameter in BAV patients using data from the Peter Munk
 Cardiac Center. Within each method, parameter estimates are stable
 across correlation structures, showing minor variations. The GEE method
 estimates for \(\beta_1\) (BAV) range from -1.093 to -1.117, while QLS
-estimates range from -0.080 to -0.091. For \(\beta_2\) (Visit), GEE
-estimates range from -0.052 to -0.063, and QLS estimates range from
-0.007 to 0.012. The interaction term \(\beta_4\) shows a positive effect
-across both methods, with GEE estimates ranging from 0.192 to 0.224 and
-QLS estimates ranging from 0.009 to 0.016. The correlation parameter
-\(\alpha\) are all around 1 regardless of methods and correlation
-structures. Notably, the estimation for \(\tau\) is around zero in QLS,
-indicating minimal within-pair correlation.
+estimates range from -0.108 to -0.071. For \(\beta_2\) (Visit), GEE
+estimates range from -0.063 to -0.042, and QLS estimates range from
+-0.005 to 0.011. The interaction term \(\beta_4\) shows a positive
+effect across both methods, with GEE estimates ranging from 0.192 to
+0.224 and QLS estimates ranging from 0.003 to 0.026. The correlation
+parameter \(\alpha\) are all around 0.01 and 0.55 for GEE and QLS,
+respectively. Specifying the working correlation to be independence is
+actually assuming that there is no correlation among repeated
+measurements, the QLS approach estimated the intra-pair correlation to
+be 0.494 which is higher than estimates using the other two working
+correlations. The intra-pair correlation is smallest when the specified
+working correlation is consistent with the true working correlation at
+around 0.307.
 
 Across methods, there are notable differences in parameter estimates
 within the same correlation structure. GEE consistently shows stronger

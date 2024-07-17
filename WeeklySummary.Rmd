@@ -574,7 +574,7 @@ How to construct the time-to-event data for survival analysis using the real dat
 
 \newpage 
 
-2024.05.01
+2024.05.08
 
 * Addressed the issue of non-convergence in simulation.  
 * Estimates from the full data had comparable MSE and Bias, both at around 0.05.  
@@ -583,51 +583,588 @@ How to construct the time-to-event data for survival analysis using the real dat
 * Created a poster draft.  
 * Fitted QLS with real data.  
 
+
 ## Meeting Summary 
+
+* Figured out the math part of QLS correlation estimation.  
+
+Continuous outcome: $D_i = X$, which is represented by `Sigma_inv_xi`.  
+
+Binary outcome: $D_i$ is the derivative of the link function $$g^{-1} (\beta
+) = \frac{e^{X\beta}}{1+e^{X\beta}}$$
+
+### Steve's Suggestions on Research Day
+
+* Increase the sample size to compare and see how small does the sandwich estimator can maintain a robust estimation.  
+* Plot the estimation results to visualize the differences.  
+* Simulate large sample correct first.  
+* Document the successfully matched pair and performance for each simulation.  
+* Calculate the tolerance of bias. 
+
 
 ## Next Step 
 
-$$
-\begin{bmatrix}
-1 & 0 & 0 & \cdots & 0\\
-0 & 1 & 0 & \cdots & 0\\
-\vdots & \vdots & \vdots &\vdots & \vdots\\
-0 & 0 & 0 & \cdots & 1
-\end{bmatrix}
+Modify Peiyu's function so that the QLS estimation is suitable for binary outcomes. 
 
-\begin{bmatrix}
-1 & \alpha & \alpha &\cdots & \alpha\\
-\alpha & 1 & \alpha &\cdots & \alpha\\
-\vdots & \vdots & \vdots &\vdots & \vdots\\
-\alpha & \alpha & \alpha &\cdots & 1
-\end{bmatrix}
-
-\begin{bmatrix}
-1 & \alpha & \alpha^2 &\cdots & \alpha^{n-1}\\
-\alpha & 1 & \alpha &\cdots & \alpha^{n-2}\\
-\vdots & \vdots & \vdots  &\vdots & \vdots\\
-\alpha^{n-1} & \alpha^{n-2} & \alpha^{n-3}  &\cdots & 1
-\end{bmatrix}
-$$
 
 $$
 \text{Pr}(\text{BAV}=1|\text{Age, Sex, BSA}) = \text{logit}^{-1}(\gamma_0 + \gamma_1 \text{Age}_l+\gamma_2\text{Sex}_l+\gamma_3 \text{BSA}_l)
 $$
 
+\newpage 
+
+2024.05.15
+
+## Progress
+
+* Finished the math work for QLS correlation estimation.  
+* Modified R code so that the generalized error sum of squares is calculated for binary data.  
+* Had issue in QLS fit mainly due to the difference in correlation estimations between continuous outcomes and binary outcomes.  
+* Had difficulty in understanding Peiyu's code.  
+
+## Meeting Summary
+
+In Peiyu's code, 
+* $Q_i$ is the correlation between pairs.  
+* $R_i$ is the correlation between time points.  
+* $F_i$ represents the full correlation matrix for everyone.  
+* The function `Sigma` subseting for matched pair, so it returns a list of all $F_i$ for each pair.  
+* $t_{i1}$ is the number of visit of the 1st subject in pair i.  
+* $t_{i2}$ is the number of visit of the 1st subject in pair i.  
+* `Qinv` is the inverse of correlation matrix.  
+* Replace line 48 and 49 by line 375-378  in function `movCWGEEgen`.  
+* Ignore line 28 to 29.  
+* Our cluster unit is patient.  
+* In line 37, `Y_var` is all outcomes of the data.  
+* Modify `y <- as.matrix(Y_var[mdat$cluster == i])` and `x <- x_dat <- as.matrix(X_mat[data$cluster_id==i,])[, -1]`.  
+* In function line movCWGEEgen,  Dmatrix in line 40 to 42 is the 
+
+## Next step 
+
+* Check CWGEE package developed by Aya.  
+* Apply function `movCWGEEgen` on the data, but use independent working correlation first to see what's going on.  
+* Add the sigma into the equation like both are independent. Basically both $\tau$ and $\alpha$ equal to 1. 
+
+\newpage 
+
+2024.05.29 
+
+## Progress
+
+Successfully fitted data with QLS estimation.  
+
+## TO ASK: 
+
+Why the dimention of $R_i(\alpha)$ depends on the subject who had more measurement?  
+
+## Meeting summary 
+
+Answer to the question:
+
+For example, let's say the i-th pair include one subject with 4 measurements and another with 2 measurements, then 
 
 $$
-C_i(\tau) = 
+Y_i= \begin{bmatrix} y_{i11} \\ y_{i12} \\ y_{i13} \\ y_{i14} \\ y_{i21} \\ y_{i22} \\ \end{bmatrix}, \; 
+Corr(Y_{ijk}) = 
 \begin{bmatrix}
-1 & \tau \\
-\tau & 1
-\end{bmatrix}; 
-\quad 
+1 & \alpha & \alpha^2 & \alpha^3 & \tau & \tau \alpha\\ 
+\alpha & 1 & \alpha & \alpha^2 & \tau\alpha & \tau\\ 
+\alpha^2 &\alpha & 1 & \alpha & \tau\alpha^2 & \tau\alpha\\ 
+\alpha^3 & \alpha^2 & \alpha & 1 & \tau\alpha^3 & \tau\alpha^2\\ 
+\tau & \tau\alpha & \tau\alpha^2 & \tau\alpha^3 & 1 & \alpha \\ 
+\tau\alpha & \tau & \tau\alpha & \tau\alpha^2 & \alpha & 1 \\ \end{bmatrix}
+$$
+
+## Next Step 
+
+* Use Steve's simulation process to fit 2 sets of models:  
+
+1. Covariates including age, sex, and BSA.  
+2. Covariates without age, sex, and BSA.  
+
+* Fit Simulated Cohort data using GEE and QLS.  
+* Compare results.  
+
+\newpage 
+
+2024.06.05 Meeting Canceled due to SSC Conference.
+
+# Breakdown of Steve's Code
+
+## Summary 
+
+1. Set up  
+2. Calculate the mean root size at each visit    
+3. Dropouts simulation  
+4. Generate Patient profile dataframe  
+5. Simulation and model fitting  
+6. Results Aggregation and Bias Calculation  
+
+### Issue 
+
+* There is no matching process.  
+* Exposure groups are assigned by proportion instead of logistic regression.  
+
+### Key Points 
+
+* Steve assumed the true correlation structure to be AR1 with $alpha = 1$.  
+* In fitting with GEE, `wave=factor(time)` is added to the function `geeglm`. By Google, the wave argument is used to specify the within-group time points or repeated measures for each subject. This is particularly useful when dealing with longitudinal data where multiple measurements are taken over time for each subject. Do we need to add this during modeling? 
+
+## Implementation 
+
+```{r}
+library(mvtnorm)
+library(nlme)
+library(simsurv)
+library(geepack)
+library(kableExtra)
+library(ggplot2)
+library(tidyverse)
+
+# Setup ------------------------------------------------------------------------
+n <- 100
+n_bav <- 40
+n_tav <- 60
+timepoint <- 0:5
+
+# Setup for Longitudinal outcome calculation -----------------------------------
+## AR(1) correlation matrix
+ar1_coef <- 0.6
+sigma <- 0.5
+sigma_mat <- diag(sigma, length(timepoint))
+sigma_mat
+```
+At each time point, the standard deviation of the outcome is 0.5. 
+
+```{r}
+corr_mat <- corAR1(ar1_coef, form = ~ 1 | patid) %>% 
+    Initialize(data = data.frame(patid = 1, time = timepoint)) %>% 
+    corMatrix()
+corr_mat
+```
+`corr_mat` corresponds to $R_i(\alpha)$. 
+$$
 R_i(\alpha) = 
 \begin{bmatrix}
-1 & \alpha & \alpha^2 & \alpha^3\\
-\alpha & 1 & \alpha & \alpha^2\\
-\alpha^2 & \alpha & 1 & \alpha\\
-\alpha^3 & \alpha^2 & \alpha & 1
+1 & 0.6 & 0.36 & 0.216 & 0.1296 & 0.07776\\
+0.6 & 1 & 0.6 & 0.36 & 0.216 & 0.1296\\
+0.36 & 0.6 & 1 & 0.6 & 0.36 & 0.216\\
+0.216 & 0.36 & 0.6 & 1 & 0.6 & 0.36\\
+0.1296 & 0.216 & 0.36 & 0.6 & 1 & 0.6\\
+0.07776 & 0.1296 & 0.216 & 0.36 &0.6 & 1
 \end{bmatrix}
 $$
+
+
+```{r}
+sigma_mat <- sigma_mat %*% corr_mat %*% sigma_mat
+sigma_mat
+```
+$$
+\Sigma = 
+\begin{bmatrix}
+0.25000 & 0.1500 & 0.090 & 0.054 & 0.0324 & 0.01944\\
+0.15000 & 0.2500 & 0.150 & 0.090 & 0.0540 & 0.03240\\
+0.09000 & 0.1500 & 0.250 & 0.150 & 0.0900 & 0.05400\\
+0.05400 & 0.0900 & 0.150 & 0.250 & 0.1500 & 0.09000\\
+0.03240 & 0.0540 & 0.090 & 0.150 & 0.2500 & 0.15000\\
+0.01944 & 0.0324 & 0.054 & 0.090 & 0.1500 & 0.25000\\
+\end{bmatrix}
+$$
+
+
+```{r}
+## The mean outcomes at each visit. 
+marker_profile <- function(t, bav) {
+    ifelse(bav, 3.1, 3.2) +
+        ifelse(bav, 0.35, 0.225) * t +
+        ifelse(bav, -0.005, -0.01) * (t - 4.5)^2 
+}
+
+## Plot the outcomes with time 
+expand.grid(bav = c(T, F), time = timepoint) %>% 
+    mutate(marker = marker_profile(time, bav)) %>% 
+    arrange(bav, time) %>% 
+    ggplot(aes(time, marker, group = bav)) +
+    geom_point(aes(color = bav), size = 2) +
+    geom_line(aes(color = bav), show.legend = F) +
+    scale_color_brewer(palette = "Set1") +
+    scale_x_continuous("Time (years)") +
+    scale_y_continuous("True time profile") +
+    coord_cartesian(ylim = c(2.75, 5))
+```
+
+```{r}
+## Extract estimation coefficients 
+expand.grid(bav = c(T, F), time = seq(0, 5, by = 0.01)) %>% 
+    mutate(marker = marker_profile(time, bav)) %>% 
+    arrange(bav, time) %$% 
+    lm(marker ~ time * bav) %>% 
+    coef() %>% 
+    print(digits = 8)
+```
+
+```{r}
+# Dropout Simulations ----------------------------------------------------------
+## Exponential rate and hazard function:
+exp_rate <- -log(0.9)
+xtbeta_fun <- function(x) 0.25 * pmax(0, x - 2) - 0.25 * pmax(0, x-6)
+
+## Plot the value of X_i(t):
+expand.grid(time = seq(0, 8, by = 0.01)) %>% 
+    mutate(xbeta = xtbeta_fun(time)) %>% 
+    ggplot(aes(time, xbeta)) +
+    geom_line() +
+    scale_x_continuous("The value of X_i(t)") +
+    scale_y_continuous("Probability of dropout at each time point")
+```
+
+```{r}
+# Generate Patient profile dataframe -------------------------------------------
+## Data Simulation Function:
+simulate_data <- function(df_temp, sigma_mat, marker_profile, exp_rate, xtbeta_fun) {
+    sim_df <- df_temp
+    
+    sim_df$marker[sim_df$bav] <- as.vector(
+      t(rmvnorm(n_bav, mean = marker_profile(timepoint, T), sigma = sigma_mat)))
+    
+    sim_df$marker[!sim_df$bav] <- as.vector(
+      t(rmvnorm(n_tav, mean = marker_profile(timepoint, F), sigma = sigma_mat)))
+
+    sim_df <- sim_df %>% 
+        mutate(u = runif(nrow(.)),
+               t = -log(u)/(exp_rate * exp(xtbeta_fun(marker))),
+               die_1yr = (t < 1),
+               time_dth = ifelse(die_1yr, time + t, NA))
+
+    sim_df %>% 
+        group_by(patid) %>% 
+        mutate(time_dth = min(time_dth, na.rm = T),
+               time_dth = replace(time_dth, is.infinite(time_dth), NA)) %>% 
+        ungroup() %>% 
+        filter(is.na(time_dth) | time < time_dth)
+}
+
+sim_df_template<- expand.grid(patid = 1:n,
+                              time = timepoint) %>% 
+    mutate(bav = (patid <= n_bav)) %>% 
+    arrange(patid, time)
+
+# Simulation and model fitting -------------------------------------------------
+set.seed(0)
+sim_df <- expand_grid(sim_id = 1:1000) %>% 
+    mutate(data = map(sim_id, function(id) {
+        simulate_data(df_temp = sim_df_template,
+                      sigma_mat = sigma_mat,
+                      marker_profile = marker_profile,
+                      exp_rate = -log(0.5),
+                      xtbeta_fun = xtbeta_fun)
+    }))
+
+sim_df <- sim_df %>% 
+    mutate(ind_mdl = map(data, function(df) {
+        df %$% geeglm(marker ~ time * bav, wave = factor(time), 
+                      corstr = "independence", id = patid) %>% 
+            coef() %>% as.data.frame() %>% rownames_to_column("term")
+    }),
+    ar1_mdl = map(data, function(df) {
+        df %$% geeglm(marker ~ time * bav, wave = factor(time), 
+                      corstr = "ar1", id = patid) %>% 
+            coef() %>% as.data.frame() %>% rownames_to_column("term")
+    }),
+    exch_mdl = map(data, function(df) {
+        df %$% geeglm(marker ~ time * bav, wave = factor(time), 
+                      corstr = "exchangeable", id = patid) %>% 
+            coef() %>% as.data.frame() %>% rownames_to_column("term")
+    }))
+
+# Results Aggregation and Bias Calculation -------------------------------------
+sim_res <- bind_rows(
+    sim_df %>% select(sim_id, ind_mdl) %>% unnest(cols = c(ind_mdl)) %>% 
+        mutate(term = gsub("true", "", tolower(term), ignore.case = T),
+               term = gsub("(^[[:punct:]]|[[:punct:]]$)", "", term),
+               term = gsub("[[:punct:]]", "_", term)) %>% 
+        pivot_wider(id_cols = "sim_id", names_from = "term", values_from = ".") %>% 
+        mutate(corstr = "independence"),
+    sim_df %>% select(sim_id, ar1_mdl) %>% unnest(cols = c(ar1_mdl)) %>% 
+        mutate(term = gsub("true", "", tolower(term), ignore.case = T),
+               term = gsub("(^[[:punct:]]|[[:punct:]]$)", "", term),
+               term = gsub("[[:punct:]]", "_", term)) %>% 
+        pivot_wider(id_cols = "sim_id", names_from = "term", values_from = ".") %>% 
+        mutate(corstr = "ar1"),
+    sim_df %>% select(sim_id, exch_mdl) %>% unnest(cols = c(exch_mdl)) %>% 
+        mutate(term = gsub("true", "", tolower(term), ignore.case = T),
+               term = gsub("(^[[:punct:]]|[[:punct:]]$)", "", term),
+               term = gsub("[[:punct:]]", "_", term)) %>% 
+        pivot_wider(id_cols = "sim_id", names_from = "term", values_from = ".") %>% 
+        mutate(corstr = "exchangeable")
+)
+
+sim_res <- sim_res %>% 
+    group_by(corstr) %>% 
+    summarize_at(vars(intercept, time, bav, time_bav),
+                 list(avg = ~ mean(., na.rm = T),
+                      std = ~ sd(., na.rm = T))) %>% 
+    mutate(intercept_bias = intercept_avg - 3.039083333,
+           time_bias = time_avg - 0.265,
+           bav_bias = bav_avg - -0.019541667,
+           time_bav_bias = time_bav_avg - 0.105,
+           intercept_bias_rel = (intercept_avg - 3.039083333) / 3.039083333,
+           time_bias_rel = (time_avg - 0.265) / 0.265,
+           bav_bias_rel = (bav_avg - -0.019541667) / abs(-0.019541667),
+           time_bav_bias_rel = (time_bav_avg - 0.105) / 0.105,
+           intercept_mse = intercept_std^2 + intercept_bias^2,
+           time_mse = time_std^2 + time_bias^2,
+           bav_mse = bav_std^2 + bav_bias^2,
+           time_bav_mse = time_bav_std^2 + time_bav_bias^2) 
+```
+
+```{r}
+res_tbl <- sim_res %>% pivot_longer(cols = starts_with("intercept_"), 
+                         names_to = "Term", 
+                         names_prefix = "intercept_", 
+                         values_to = "Intercept", 
+                         values_drop_na = TRUE) %>%
+  select(corstr, Term, Intercept) %>% 
+  left_join(sim_res %>% select(-starts_with("time_bav_")) %>% 
+              pivot_longer(cols = starts_with("time_"), 
+                           names_to = "Term", 
+                           names_prefix = "time_", 
+                           values_to = "Time", 
+                           values_drop_na = TRUE) %>% 
+              select(corstr, Term, Time), 
+            by = c("corstr", "Term")) %>% 
+  left_join(sim_res %>% pivot_longer(cols = starts_with("bav_"), 
+                           names_to = "Term", 
+                           names_prefix = "bav_", 
+                           values_to = "BAV", 
+                           values_drop_na = TRUE) %>% 
+              select(corstr, Term, BAV), 
+            by = c("corstr", "Term")) %>% 
+  left_join(sim_res %>% pivot_longer(cols = starts_with("time_bav_"), 
+                           names_to = "Term", 
+                           names_prefix = "time_bav_", 
+                           values_to = "TimeBAV", 
+                           values_drop_na = TRUE) %>% 
+              select(corstr, Term, TimeBAV), 
+            by = c("corstr", "Term")) %>% 
+  rename(Ri = corstr) %>% 
+  mutate(Ri = ifelse(Ri == "ar1", "AR1", str_to_sentence(Ri)), 
+         Term = case_when(Term == "avg" ~ "Mean", 
+                          Term == "std" ~ "Standard Error", 
+                          Term == "bias" ~ "Bias", 
+                          TRUE ~ "Relative Bias"))
+
+res_tbl %>% 
+  kable(booktabs = TRUE, digits = 3) 
+```
+
+
+\newpage 
+
+# 2024.06.12 
+
+## Progress
+
+* Went through each steps in Steve's simulation process and summarized his steps in previous page. 
+* Re-modeled the dropout process using the real data by setting the time to event to be the total number of visit and the event to be whether or not the total number of visit is greater than 6. 
+
+$$
+\text{Total Number of Visit} = 
+\begin{cases}
+>= 6, & \text{the patient stayed in the study} \\
+\text{otherwise}, & \text{dropped out}
+\end{cases}
+$$
+
+The best set of coefficients for simulation comes from the model with bav, age, and sex. *Best* is defined to be the distribution of dropouts at each visit that is the closest to the distribution to the real data.   
+```
+# Call:
+#   phreg(formula = Surv(total_visit, event) ~ bav + age + sex, data = surv_data, 
+#         dist = "weibull", shape = 0)
+# 
+# Covariate          W.mean      Coef Exp(Coef)  se(Coef)    Wald p
+# bav                 0.781    -0.084     0.920     0.322     0.795 
+# age                64.696    -0.021     0.979     0.010     0.032 
+# sex                 0.701    -0.081     0.922     0.278     0.771 
+# 
+# log(scale)                    0.611               0.568     0.282 
+# log(shape)                    0.260               0.092     0.005 
+# 
+# Events                    74 
+# Total time at risk           421 
+# Max. log. likelihood      -197.49 
+# LR test statistic         4.47 
+# Degrees of freedom        3 
+# Overall p-value           0.214905
+```
+
+* Implemented Steve's code and re-documented his simulation results.  
+* Created a document of simulation process using Steve's method for binary outcome.  
+
+
+
+## TO DISCUSS 
+
+1. Steve assumed to be AR1 with correlation coefficient $\alpha = 0.6$. I think this is more reasonable than assume the true correlation structure to be exchangeable because the outcome is identified to be positive either the root size is greater than 45mm or the growth is greater than 5mm, meaning that the next measurement is more associated with the last measurement than the baseline measurement. Therefore, a decreasing correlation trend is expected instead of constant correlation.  
+2. **How to understand the matrix `sigma_mat`?** Based on the code, its calculation is just the normal matrix multiplication but not the Kronecker product between matrices.  
+3. The true set of GEE coefficients are determined by applying regular regression on longitudinal outcomes generated by the equations defined by Steve. **Why?**  
+* Based on the code, Steve first calculated the mean root size at each visit and then simulated longitudinal outcomes using multivariate normal distribution with the mean determined here.  
+4. Do we need to add `wave=factor(time)` during the GEE fitting process?  
+
+$$
+\text{Y (Root Size)} = 
+\begin{cases}
+\text{BAV}, & 3.1+0.35\times visit - 0.005 \times(t-4.5)^2\\
+\text{TAV}, & 3.2 + 0.225\times visit - 0.01 \times (t-4.5)^2
+\end{cases}
+$$
+
+5. Need to check the use of cBern. 
+```
+prob_y = c(0.08, 0.2, 0.1, 0.8, 0.88, 0.01)
+y = as.vector(cBern(n=1, p=prob_y, rho = 0.6, type = "DCP"))
+```
+Does these simulated y correlates to each other?
+
+6. The goal of this study for the final report. 
+
+
+## Meeting Summary 
+
+Meeting Canceled due to illness 
+
+# 2024.06.19
+
+Addressed issue with Git connection and updated the most recent simulation profile and meeting summary.  
+
+## Meeting Summary 
+
+* There is an issue with outcome simulation using cBern. The sample size should be 5 instead of 1. However, `prob_y` is a vector probabilities of size 5.  
+* Try `rho = rep(0.6, n)`.  
+* Make sure recover rho from the real data.  
+* The final report should focus on binary outcomes. 
+
+\newpage 
+
+# 2024.06.26  
+
+## TO DISCUSS 
+
+1. When simulate cohort data, shouldn't the GEE coefficients based on the GEE fit from the full data before matching?  
+2. The interaction effect between BAV and visit represent the effect of time on aortic root size for BAV patient. The interaction effect for TAV patients are all 0. 
+
+```
+    pid      age male      bsa bav visit bav_visit
+1     1 50.79746    0 1.863615   0     1         0
+2     1 50.79746    0 1.863615   0     2         0
+3     1 50.79746    0 1.863615   0     3         0
+4     1 50.79746    0 1.863615   0     4         0
+5     1 50.79746    0 1.863615   0     5         0
+6     2 65.12484    1 2.188313   0     1         0
+7     2 65.12484    1 2.188313   0     2         0
+8     2 65.12484    1 2.188313   0     3         0
+9     2 65.12484    1 2.188313   0     4         0
+10    2 65.12484    1 2.188313   0     5         0
+11    3 51.91616    0 2.160604   1     1         1
+12    3 51.91616    0 2.160604   1     2         2
+13    3 51.91616    0 2.160604   1     3         3
+14    3 51.91616    0 2.160604   1     4         4
+15    3 51.91616    0 2.160604   1     5         5
+16    4 61.64700    1 1.480619   1     1         1
+17    4 61.64700    1 1.480619   1     2         2
+18    4 61.64700    1 1.480619   1     3         3
+19    4 61.64700    1 1.480619   1     4         4
+20    4 61.64700    1 1.480619   1     5         5
+```
+
+### Outcome simulation 
+
+**Assumption**: AR1 correlation structure, i.e., the correlation between two observations decreases exponentially as the time lag between them increases. 
+
+The correlation $\rho$ between two observations $y_t$ and $y_{t+k}$ at times $t$ and times $t+k$ is 
+$$\rho = \alpha^k$$
+
+where $\alpha$ is the autocorrelation parameter, typically between -1 and 1.
+
+**Goal**: Model the binary outcomes such that the correlation between consecutive outcomes matches the desired AR1 correlation. 
+
+**Thoughts**: 
+
+1. Generate initial probabilities and outcomes:  
+  * For each subject, calculate the linear predictor for each time point.  
+  * Convert the linear predictor to probabilities using the logistic function.  
+
+2. Generate correlated binary outcomes:  
+  * For the first observation $y_1$, determine the outcome using logistic probability.  
+  * For subsequent observations $y_t (t>1)$, adjust the probability based on the previous outcome and the autocorrelation parameter $\alpha$. 
+  
+At the baseline measurement, 
+$$
+y_1 \sim Bernoulli (p_1)
+$$
+where $p_1$ is the probability of success at time 1 using the link function. 
+
+For subsequent measurements $t>1$, determine the corresponding probability 
+$$
+\tilde{p}_t = \alpha \times y_{t-1} + (1-\alpha)\times p_t
+$$
+
+Generate the outcome using the updated probability 
+$$
+y_t \sim Bernoulli (\tilde{p}_t)
+$$
+
+```{r}
+generate_ar1_binary <- function(prob, alpha) {
+  y <- numeric(maxT)
+  # Generate the initial outcome
+  y[1] <- rbinom(1, 1, prob[1])
+  # Generate subsequent outcomes
+  for (i in 2:maxT) {
+    # Adjust the probability based on the previous outcome
+    adjusted_prob <- alpha * y[i-1] + (1 - alpha) * prob[i]
+    # Generate the outcome
+    y[i] <- rbinom(1, 1, adjusted_prob)
+  }
+  return(y)
+}
+```
+
+
+**Reference**:  
+
+Emrich, L. J., & Piedmonte, M. R. (1991). A method for generating high-dimensional multivariate binary variates. The American Statistician, 45(4), 302-304.
+
+
+### Notes 
+
+* Check glm fit after data simulation.  
+* Check the fitted GEE correlation coefficient with the real value.  
+* Dropouts only depends on y.  
+
+
+\newpage 
+
+# 2024.07.03 
+
+
+\newpage 
+
+# 2024.07.17 
+
+## Progress
+* Finished the draft report.  
+* Corrected the bug in QLS implementation.  
+
+
+## TO ASK:  
+1. Content  
+    * In fitting the motivational data, 
+    * In simulation study, extreme SEs have been removed from the data that produced the current results. However, many simulation still exhibited very extreme relative bias. Do we need to increase the simulation number so that we can remove those simulations with extreme relative bias?  
+2. Format  
+
+
+
+
 
