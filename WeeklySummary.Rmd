@@ -1162,8 +1162,19 @@ Emrich, L. J., & Piedmonte, M. R. (1991). A method for generating high-dimension
 1. Content  
     * In fitting the motivational data, 
     * In simulation study, extreme SEs have been removed from the data that produced the current results. However, many simulation still exhibited very extreme relative bias. Do we need to increase the simulation number so that we can remove those simulations with extreme relative bias?  
+    * QLS method tend to have more biased estimates for the interaction effect but with much less variability. What does this imply? 
 2. Format  
 
+
+## Meeting summary
+
+* Need to report the number of non-converged simulations, number of outliers. 
+* Keep the simulation at 1000, but report out of 1000 how many did not converge.  
+* Fit GEE and QLS on the full data which does not include dropouts and matching.  
+* Once we make sure that the GEE and QLS estimates can covers the true estimates with the full data, then we can ensure that these method would work with data that has dropouts. Internal check. 
+* True value should always be in the front of the table.  
+* We look at the estimation for alpha only when the estimations for beta are unbiased. 
+* Add a horizontal line of 0 in relative bias plot.  
 
 
 
