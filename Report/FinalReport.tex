@@ -1118,28 +1118,28 @@ and \(S_2 = \sum_{k=1}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1}Z_{ijk+1}\), then \[
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lrrrrrrrr}
+\begin{tabular}[t]{lrrrrrrrrl}
 \toprule
-\multicolumn{1}{c}{ } & \multicolumn{4}{c}{GEE} & \multicolumn{4}{c}{QLS} \\
-\cmidrule(l{3pt}r{3pt}){2-5} \cmidrule(l{3pt}r{3pt}){6-9}
-\multicolumn{1}{c}{ } & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} \\
-\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9}
-Term & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE\\
+\multicolumn{2}{c}{ } & \multicolumn{4}{c}{GEE} & \multicolumn{4}{c}{QLS} \\
+\cmidrule(l{3pt}r{3pt}){3-6} \cmidrule(l{3pt}r{3pt}){7-10}
+\multicolumn{2}{c}{ } & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} \\
+\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){5-6} \cmidrule(l{3pt}r{3pt}){7-8} \cmidrule(l{3pt}r{3pt}){9-10}
+Corstr & Term & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE\\
 \midrule
-(Intercept) & 0.880 & 0.893 & 0.917 & 0.920 & 1.000 & 1.000 & 0.000 & 0.000\\
-bav & 0.903 & 0.909 & 0.906 & 0.909 & 0.534 & 0.564 & 0.527 & 0.547\\
-bav:visit & 0.853 & 0.857 & 0.856 & 0.859 & 1.000 & 1.000 & 1.000 & 1.000\\
-visit & 0.881 & 0.888 & 0.887 & 0.890 & 1.000 & 1.000 & 1.000 & 1.000\\
-(Intercept) & 0.881 & 0.891 & 0.922 & 0.925 & 0.968 & 0.970 & 0.001 & 0.001\\
+(Intercept) & 0.880 & 0.893 & 0.917 & 0.920 & 0.000 & 0.000 & 1.000 & 1.000 & Independence\\
+bav & 0.903 & 0.909 & 0.906 & 0.909 & 0.527 & 0.547 & 0.534 & 0.564 & Independence\\
+bav:visit & 0.853 & 0.857 & 0.856 & 0.859 & 1.000 & 1.000 & 1.000 & 1.000 & Independence\\
+visit & 0.881 & 0.888 & 0.887 & 0.890 & 1.000 & 1.000 & 1.000 & 1.000 & Independence\\
+(Intercept) & 0.881 & 0.891 & 0.922 & 0.925 & 0.001 & 0.001 & 0.968 & 0.970 & AR1\\
 \addlinespace
-bav & 0.911 & 0.918 & 0.913 & 0.917 & 0.492 & 0.517 & 0.484 & 0.497\\
-bav:visit & 0.867 & 0.876 & 0.879 & 0.883 & 0.981 & 0.983 & 0.979 & 0.979\\
-visit & 0.898 & 0.906 & 0.907 & 0.909 & 1.000 & 1.000 & 1.000 & 1.000\\
-(Intercept) & 0.882 & 0.892 & 0.914 & 0.915 & 0.936 & 0.940 & 0.000 & 0.000\\
-bav & 0.904 & 0.911 & 0.909 & 0.910 & 0.287 & 0.308 & 0.277 & 0.290\\
+bav & 0.911 & 0.918 & 0.913 & 0.917 & 0.484 & 0.497 & 0.492 & 0.517 & AR1\\
+bav:visit & 0.867 & 0.876 & 0.879 & 0.883 & 0.979 & 0.979 & 0.981 & 0.983 & AR1\\
+visit & 0.898 & 0.906 & 0.907 & 0.909 & 1.000 & 1.000 & 1.000 & 1.000 & AR1\\
+(Intercept) & 0.882 & 0.892 & 0.914 & 0.915 & 0.000 & 0.000 & 0.936 & 0.940 & Exchangeable\\
+bav & 0.904 & 0.911 & 0.909 & 0.910 & 0.277 & 0.290 & 0.287 & 0.308 & Exchangeable\\
 \addlinespace
-bav:visit & 0.856 & 0.862 & 0.866 & 0.870 & 0.906 & 0.917 & 0.899 & 0.903\\
-visit & 0.874 & 0.881 & 0.879 & 0.883 & 1.000 & 1.000 & 1.000 & 1.000\\
+bav:visit & 0.856 & 0.862 & 0.866 & 0.870 & 0.899 & 0.903 & 0.906 & 0.917 & Exchangeable\\
+visit & 0.874 & 0.881 & 0.879 & 0.883 & 1.000 & 1.000 & 1.000 & 1.000 & Exchangeable\\
 \bottomrule
 \end{tabular}}
 \end{table}

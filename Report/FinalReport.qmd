@@ -834,17 +834,18 @@ coverage_qls_adj <- calculate_coverage(qls_sim_results$ind_mdl_full, true_set) %
   rbind(calculate_coverage(qls_sim_results$exch_mdl_full, true_set)) %>%
   na.omit()
 
-coverage_gee_adj %>% cbind(coverage_gee_unadj %>% select(-term)) %>% 
-  cbind(coverage_qls_adj %>% select(-term)) %>% 
+coverage_gee_adj %>% cbind(coverage_gee_unadj %>% select(-term)) %>%
   cbind(coverage_qls_unadj %>% select(-term)) %>% 
+  cbind(coverage_qls_adj %>% select(-term)) %>% 
+  cbind(corstr = c(rep("Independence", 4), rep("AR1", 4), rep("Exchangeable", 4))) %>% 
   kable(format = "latex", booktabs = TRUE, digits = 3, escape = F, 
         caption = "\\footnotesize The Coverage Probability of Regression Coefficient Estimation from GEE and QLS.", 
-        col.names = c("Term", rep(c("Empirical SE", "DF-SE"),4))) %>% 
+        col.names = c("Corstr", "Term", rep(c("Empirical SE", "DF-SE"),4))) %>% 
   kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
-  add_header_above(c(" " = 1, "No Confounders" = 2, "With Confounders" = 2, 
+  add_header_above(c(" " = 2, "No Confounders" = 2, "With Confounders" = 2, 
                      "No Confounders" = 2, "With Confounders" = 2)) %>% 
-  add_header_above(c(" " = 1, "GEE" = 4, "QLS" = 4))
+  add_header_above(c(" " = 2, "GEE" = 4, "QLS" = 4))
 ```
 
 ### Simulation Results
