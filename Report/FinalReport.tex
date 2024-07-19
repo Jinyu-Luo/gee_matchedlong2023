@@ -675,7 +675,7 @@ to estimate the regression coefficients. We also applied GEE functions
 from existing R package \texttt{geepack} with the three working
 correlation structures \citep{Hojsgaard2006}.
 
-We simulated 1,000 data sets, each containing 250 subjects with up to 6
+We simulated 1,500 data sets, each containing 250 subjects with up to 6
 observations per subject, using the described simulation process. For
 each simulation and method, we computed the mean estimates, the mean
 standard errors, mean robust standard errors (MSEs), the standard
@@ -685,7 +685,7 @@ difference between the mean estimates and the respective true value,
 which was then divided by the true value to obtain the mean relative
 bias. The coverage probability was determined by calculating the
 proportion of the 95\% confidence intervals that included the respective
-true parameter values among the 1,000 fitting results.
+true parameter values among the 1,500 fitting results.
 
 \section{Results}\label{results}
 
@@ -696,22 +696,26 @@ Table 1 compares the estimates, standard errors (SE), and SE adjusted
 for degrees of freedom (SE-DF) for the GEE and QLS methods across
 different working correlation structures in modeling the binary outcome
 of aortic root diameter in BAV patients using data from the Peter Munk
-Cardiac Center. Within each method, parameter estimates are stable
-across correlation structures, showing minor variations. The GEE method
-estimates for \(\beta_1\) (BAV) range from -1.093 to -1.117, while QLS
-estimates range from -0.108 to -0.071. For \(\beta_2\) (Visit), GEE
-estimates range from -0.063 to -0.042, and QLS estimates range from
--0.005 to 0.011. The interaction term \(\beta_4\) shows a positive
-effect across both methods, with GEE estimates ranging from 0.192 to
-0.224 and QLS estimates ranging from 0.003 to 0.026. The correlation
-parameter \(\alpha\) are all around 0.01 and 0.55 for GEE and QLS,
-respectively. Specifying the working correlation to be independence is
-actually assuming that there is no correlation among repeated
-measurements, the QLS approach estimated the intra-pair correlation to
-be 0.494 which is higher than estimates using the other two working
-correlations. The intra-pair correlation is smallest when the specified
-working correlation is consistent with the true working correlation at
-around 0.307.
+Cardiac Center. A total of 22 matched pairs were successfully created
+using propensity score matching, resulting in a sample size of 44
+patients.
+
+Within each method, parameter estimates are stable across correlation
+structures, showing minor variations. The GEE method estimates for
+\(\beta_1\) (BAV) range from -1.093 to -1.117, while QLS estimates range
+from -0.108 to -0.071. For \(\beta_2\) (Visit), GEE estimates range from
+-0.063 to -0.042, and QLS estimates range from -0.005 to 0.011. The
+interaction term \(\beta_4\) shows a positive effect across both
+methods, with GEE estimates ranging from 0.192 to 0.224 and QLS
+estimates ranging from 0.003 to 0.026. The correlation parameter
+\(\alpha\) are all around 0.01 and 0.55 for GEE and QLS, respectively.
+Specifying the working correlation to be independence is actually
+assuming that there is no correlation among repeated measurements, the
+QLS approach estimated the intra-pair correlation to be 0.494 which is
+higher than estimates using the other two working correlations. The
+intra-pair correlation is smallest when the specified working
+correlation is consistent with the true working correlation at around
+0.307.
 
 Across methods, there are notable differences in parameter estimates
 within the same correlation structure. GEE consistently shows stronger
@@ -727,7 +731,7 @@ the QLS method indicates smaller effects.
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{6}{8}\selectfont
-\begin{tabular}[t]{>{}llrrrrrrrrr}
+\begin{tabular}[t]{llrrrrrrrrr}
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{1}{c}{ } & \multicolumn{3}{c}{Independence} & \multicolumn{3}{c}{AR1} & \multicolumn{3}{c}{Exchangeable} \\
 \cmidrule(l{3pt}r{3pt}){3-5} \cmidrule(l{3pt}r{3pt}){6-8} \cmidrule(l{3pt}r{3pt}){9-11}
@@ -741,7 +745,7 @@ Method & Parameter & Estimate & SE & SE-DF & Estimate & SE & SE-DF & Estimate & 
 \cmidrule{2-11}
  & $\beta_4$ (Visit $\times$ BAV) & 0.195 & 0.183 & 0.192 & 0.192 & 0.182 & 0.191 & 0.224 & 0.191 & 0.200\\
 \cmidrule{2-11}
-\multirow[t]{-5}{*}{\raggedright\arraybackslash \textbf{GEE}} & $\alpha$ &  &  &  & 0.093 & 0.111 &  & 0.081 & 0.063 & \\
+\multirow[t]{-5}{*}{\raggedright\arraybackslash GEE} & $\alpha$ &  &  &  & 0.093 & 0.111 &  & 0.081 & 0.063 & \\
 \cmidrule{1-11}
  & $\beta_0$ (Intercept) & 0.115 & 0.536 & 0.563 & 0.096 & 0.503 & 0.527 & 0.130 & 0.482 & 0.505\\
 \cmidrule{2-11}
@@ -753,7 +757,7 @@ Method & Parameter & Estimate & SE & SE-DF & Estimate & SE & SE-DF & Estimate & 
 \cmidrule{2-11}
  & $\alpha$ &  &  &  & 0.535 &  &  & 0.556 &  & \\
 \cmidrule{2-11}
-\multirow[t]{-6}{*}{\raggedright\arraybackslash \textbf{QLS}} & $\tau$ & 0.494 &  &  & 0.307 &  &  & 0.354 &  & \\
+\multirow[t]{-6}{*}{\raggedright\arraybackslash QLS} & $\tau$ & 0.494 &  &  & 0.307 &  &  & 0.354 &  & \\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -765,50 +769,85 @@ simulation was checked for extreme values. Seventy-one simulations
 showed extremely large standard errors when fitted with GEE, while only
 nine simulations exhibited extreme standard errors using the QLS
 approach. These problematic simulations were removed from further
-analysis.
+analysis. Table 2 summarizes the baseline information and propensity
+matching results for the simulated cohort. On average, 23 out of 45
+subjects had BAV, with a standard deviation (SD) of 4.577. The mean age
+was 55.378 years (SD: 2.098), and the average Body Surface Area (BSA)
+was 1.796 \(m^2\) (SD: 0.060). Subjects had an average of 3 visits (SD:
+0.499). The mean number of matched pairs was 23.
+
+\begingroup\fontsize{8}{10}\selectfont
+
+\begin{longtable}[t]{>{}lrr}
+\caption{\footnotesize Summary of Average Statistics Across 1500 Simulations}\\
+\toprule
+Term & Mean & SD\\
+\midrule
+\textbf{No.BAV} & 23.000 & 4.577\\
+\textbf{Age} & 55.378 & 2.098\\
+\textbf{BSA} & 1.796 & 0.060\\
+\textbf{No.Total Visit} & 3.000 & 0.499\\
+\textbf{No. Pairs} & 23.000 & 4.577\\
+\addlinespace
+\textbf{No.Subjects} & 45.000 & 9.154\\
+\bottomrule
+\end{longtable}
+\endgroup{}
 
 Figure 1 shows the average regression coefficient estimates from 1000
 simulations for the GEE (left three columns) and QLS (right three
-columns) methods. The estimates are presented for three covariates: BAV,
-Visit, and their interaction (BAV × Visit). Each dot represents the mean
-estimate across simulations, with colours indicating different working
-correlation structures: AR1 (red), Exchangeable (blue), and Independence
-(green). The panel labels indicate that the 95\% confidence intervals in
-the first row are based on empirical standard errors, whereas the second
-row uses standard errors corrected by degrees of freedom. The black
-dashed line marks the true coefficient values used in the simulations.
-In general, QLS shows smaller variability in estimates compared to GEE,
-and both methods fail to capture the true coefficient for the effect of
-Visit regardless of the adjustment for standard errors. The mean
-estimates for the effect of BAV using QLS are more accurate and have
-less variability, while the mean estimates for the interaction effect
-using the GEE approach are closer to the true value, although they show
-greater variability. More details about accurate true parameter coverage
-probabilities can be found in the Appendix B.
+columns) methods. Each panel represents different coefficient estimates,
+with empirical standard errors (SE) displayed in the top row and SE-DF
+(Standard Error adjusted for degrees of freedom) in the bottom row. The
+mean estimates are denoted by points, and the vertical bars represent
+the confidence intervals. Different working correlation structures---AR1
+(red), Exchangeable (blue), and Independence (green)---are compared,
+with the true value for each coefficient indicated by the dashed
+horizontal line at 0.
+
+In general, the mean estimates from the GEE method are more accurate
+compared to those from the QLS method, which tend to be biased. Both
+methods show difficulties in capturing the true coefficient for the
+effect of BAV. Specifically, the GEE method exhibits considerable
+variability in its estimates, while the QLS method consistently fails to
+capture the true value. The mean estimates for BAV using GEE are spread
+widely, indicating a lack of precision. In contrast, the QLS estimates,
+although more consistent, are systematically biased away from the true
+value. Additionally, there is no significant difference in the range of
+95\% confidence intervals between empirical SE and SE corrected by
+degrees of freedom, suggesting that the adjustment for degrees of
+freedom does not substantially impact the precision of the estimates.
+Additionally, the the 95\% confidence intervals derived from the
+exchangeable correlation structure are consistently smaller than those
+from other structures within the QLS method.
 
 \begin{figure}[H]
 
-{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-3-1.pdf}
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-6-1.pdf}
 
 }
 
-\caption{Comparison of Estimation Results From 1000 Simulation}
+\caption{Comparison of Estimation Results From 1,500 Simulation}
 
 \end{figure}%
 
-Relative bias of estimates for the effect of BAV across different
+The relative bias of estimates for the effect of BAV across different
 working correlation structures (AR1, Exchangeable, Independence) using
 the GEE and QLS methods, with and without including confounding
-covariates are presented in Figure 2. The left panel shows the GEE
-method, which exhibits higher variability in \(\beta_1\) estimates
-particularly with confounding covariates, where more extreme outliers
-are observed. In contrast, the QLS method, shown on the right, maintains
-consistently low variability around zero, irrespective of the
-correlation structure or confounding covariate inclusion.
+covariates, are presented in Figure 2. The dashed horizontal line at
+\(y = 0\) is used as a reference to indicate 0 relative bias for
+estimating the BAV effect. The left panel shows the GEE method, in which
+the median relative bias values are close to zero across all correlation
+structures, although considerable variability and numerous outliers
+exist. In contrast, the QLS method on the right maintains consistently
+low variability but a systematic positive bias in the estimates. There
+is no significant difference between plots with and without inclusion of
+confounding covariates. The detailed number of outliers are reported in
+Appendix B.
 
 \begin{figure}[H]
 
-{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-4-1.pdf}
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-7-1.pdf}
 
 }
 
@@ -818,16 +857,16 @@ structures.}
 
 \end{figure}%
 
-Figure 3 shows the plot of the relative bias of estimates for the
-interaction effect between BAV and time. With the same layout as Figure
-2, the GEE method still exhibits moderate variability with median values
-around zero. In contrast, the QLS method shows low variability but
-exhibits a negative relative bias, with estimates skewed below zero,
-irrespective of including confounding covariates.
+Figure 3 illustrates the relative bias in the coefficient estimates of
+the interaction effect between BAV and time. With the same layout as
+Figure 2, the GEE method provides nearly unbiased estimates of
+\(\beta_3\) on average but exhibits significant variability. In
+contrast, the QLS method produces negatively biased estimates with low
+variability.
 
 \begin{figure}[H]
 
-{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-5-1.pdf}
+{\centering \includegraphics{FinalReport_files/figure-pdf/unnamed-chunk-8-1.pdf}
 
 }
 
@@ -839,15 +878,18 @@ working correlation structures.}
 
 The comparison of the mean estimation for correlations \(\alpha\) among
 longitudinal measurements between GEE and QLS methods is shown in Table
-2. Given that the true intravisit correlation is set to be 0.3, the GEE
-method shows lower bias in the estimates of \(\alpha\), with a mean
-value of 0.166, and it shows the closest value when the specification
-working correlation is consistent with the true working correlation
-structure. However, when the working correlation is specified to be
-exchangeable, the GEE approach tends to underestimate the intravisit
-correlation at around 0.1. In contrast, the QLS method provides more
-consistent estimates across different covariate sets and working
-correlations, at around 0.7, though with generally higher bias.
+2. As indicated by the column truth, the true correlation is set to be
+0.3 at the simulation stage. When the working correlation is correctly
+specified, i.e., AR1, the GEE method exhibits a mean estimate of 0.236
+with a bias of -0.064 when no covariate set is considered, and a mean
+estimate of 0.185 with a bias of -0.115 when covariates are included.
+The QLS method shows a mean estimate of 0.725 with a bias of 0.425,
+irrespective of covariate inclusion. On the other hand, when the working
+correlation is misspecified to be exchangeable, the GEE method yields a
+mean estimate of 0.124 with a bias of -0.176 without covariates, and a
+mean estimate of 0.086 with a bias of -0.214 with covariates. Meanwhile,
+the QLS method provides mean estimates of 0.560 and 0.723, with
+corresponding biases of 0.260 and 0.423, respectively.
 
 \begin{table}[H]
 \centering\centering
@@ -857,17 +899,17 @@ correlations, at around 0.7, though with generally higher bias.
 \fontsize{8}{10}\selectfont
 \begin{tabular}[t]{>{}llrrrrr}
 \toprule
-\multicolumn{2}{c}{ } & \multicolumn{2}{c}{GEE} & \multicolumn{1}{c}{ } & \multicolumn{2}{c}{QLS} \\
-\cmidrule(l{3pt}r{3pt}){3-4} \cmidrule(l{3pt}r{3pt}){6-7}
-Working Correlation & Covariate Set & Mean Estimate & Bias & True Value & Mean Estimate & Bias\\
+\multicolumn{3}{c}{ } & \multicolumn{2}{c}{GEE} & \multicolumn{2}{c}{QLS} \\
+\cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7}
+Working Correlation & Covariate Set & Truth & Mean Estimate & Bias & Mean Estimate & Bias\\
 \midrule
- & No & 0.246 & -0.054 & 0.3 & 0.727 & 0.427\\
+ & No & 0.3 & 0.236 & -0.064 & 0.725 & 0.425\\
 \cmidrule{2-7}
-\multirow[t]{-2}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{AR1}} & Yes & 0.196 & -0.104 & 0.3 & 0.725 & 0.425\\
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{AR1}} & Yes & 0.3 & 0.185 & -0.115 & 0.723 & 0.423\\
 \cmidrule{1-7}
- & No & 0.130 & -0.170 & 0.3 & 0.561 & 0.261\\
+ & No & 0.3 & 0.124 & -0.176 & 0.560 & 0.260\\
 \cmidrule{2-7}
-\multirow[t]{-2}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Exchangeable}} & Yes & 0.095 & -0.205 & 0.3 & 0.725 & 0.425\\
+\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{Exchangeable}} & Yes & 0.3 & 0.086 & -0.214 & 0.723 & 0.423\\
 \bottomrule
 \multicolumn{7}{l}{\rule{0pt}{1em}\textsuperscript{*} Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates}\\
 \end{tabular}}
@@ -876,16 +918,15 @@ Working Correlation & Covariate Set & Mean Estimate & Bias & True Value & Mean E
 Table 3 presents the estimation of correlations (\(\tau\)) between
 subjects in matched pairs using the QLS approach, across the three
 different working correlations and covariate sets (with and without
-confounder adjustment). In general, including confounding covariates
-consistently have higher estimation irrespective of the specified
-working correlation, although the difference is ignorable. When the
-working correlation is specified correctly (AR1) and without including
-confounding covariates, the estimation are the lowest at 0.361 with a
-standard deviation of 0.137. With exchangeable working correlation, the
-mean estimation is around 0.390 with a SD of 0.111. Finally, the mean
-\(\tau\) is estimated to be 0.486 with a SD of 0.095 when the working
-correlation is specified to be independence. Figure 4 visualized the
-estimation for \(\tau\).
+confounder adjustment). In general, the differences in the intra-pair
+correlation estimation between models with and without confounding
+covariates are ignorable irrespective of the specified working
+correlation. When the specified working correlation matches with the
+true working correlation (AR1), he intra-pair correlation is estimated
+to be the lowest, at around 0.362, similar to the estimate based on
+exchangeable working correlation. However, the intra-pair correlation is
+estimated to around 0.5 when the working correlation is specified to be
+independence.
 
 \begin{table}[H]
 \centering\centering
@@ -893,29 +934,22 @@ estimation for \(\tau\).
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{>{}llrr}
+\begin{tabular}[t]{>{}lrrrr}
 \toprule
-Working Correlation & Covariate Set & Mean $\tau$ & SD $\tau$\\
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5}
+Working Correlation & Mean $\tau$ & SD $\tau$ & Mean $\tau$ & SD $\tau$\\
 \midrule
- & No & 0.361 & 0.137\\
-\cmidrule{2-4}
-\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{AR1}} & Yes & 0.362 & 0.137\\
-\cmidrule{1-4}
- & No & 0.389 & 0.111\\
-\cmidrule{2-4}
-\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{Exchangeable}} & Yes & 0.390 & 0.111\\
-\cmidrule{1-4}
- & No & 0.485 & 0.095\\
-\cmidrule{2-4}
-\multirow[t]{-2}{*}{\raggedright\arraybackslash \textbf{Independence}} & Yes & 0.487 & 0.094\\
+\textbf{AR1} & 0.362 & 0.143 & 0.362 & 0.143\\
+\textbf{Exchangeable} & 0.390 & 0.114 & 0.391 & 0.114\\
+\textbf{Independence} & 0.484 & 0.093 & 0.486 & 0.093\\
 \bottomrule
-\multicolumn{4}{l}{\rule{0pt}{1em}\textsuperscript{*} Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates}\\
 \end{tabular}}
 \end{table}
 
 \begin{figure}[H]
 
-{\centering \includegraphics[width=0.7\textwidth,height=\textheight]{FinalReport_files/figure-pdf/unnamed-chunk-8-1.pdf}
+{\centering \includegraphics[width=0.7\textwidth,height=\textheight]{FinalReport_files/figure-pdf/unnamed-chunk-12-1.pdf}
 
 }
 
@@ -927,53 +961,70 @@ inclusion of confounding covariates.}
 
 \section{Discusssion}\label{discusssion}
 
-In this paper, we assessed the performance and validity of the
-Generalized Estimating Equations (GEE) method and the two-stage
-quasi-least squares (QLS) approach in analyzing small matched-pair
-longitudinal binary data, particularly focusing on the effect of
-bicuspid aortic valve (BAV) on aortic root size post-surgery. We
-analyzed a cohort of patients from the Peter Munk Cardiac Center and
-performed extensive simulations to compare these methods under different
-working correlation structures. Our findings revealed no significant
-difference in performance across different specified working
-correlations, nor between the estimation results from the empirical
-sandwich estimator and the corrected ones.
+In this study, we compared the performance of the GEE and QLS methods in
+modelling binary outcomes of aortic root diameter in patients with
+bicuspid aortic valves (BAV) versus tricuspid aortic valves (TAV). Both
+methods were evaluated across different working correlation structures.
+Our findings indicate that, within this small sample context (20 to 25
+matched pairs), the GEE method shows considerable variability in its
+estimates, whereas the QLS method, although more consistent, exhibits
+systematic positive bias. The choice of working correlation structure
+significantly impacts the parameter estimates. The AR1 structure
+provided more accurate estimates in GEE because it aligns with the true
+working correlation used in simulating the data.
 
-In our simulation study, the QLS method demonstrates superior
-performance, with mean estimates closer to the true coefficients and
-narrower confidence intervals than GEE. Moreover, GEE tends to
-underestimate the intravisit correlation parameter (\(\alpha\)) with low
-bias only when the working correlation is specified correctly. In
-contrast, QLS provided more consistent estimates of \(\alpha\) across
-different working correlation specifications, although biases are much
-higher than those based on the GEE approach. Both methods failed to
-capture the effect of time. Additionally, including confounding
-covariates did not present large differences in performance. The
-findings highlight the importance of choosing an appropriate correlation
-structure in GEE analyses. For studies with small sample sizes and
-complex correlation structures, QLS may offer a more reliable
-alternative by providing consistent estimates with lower variability.
+In our simulation study, we noticed that the GEE method tended to be
+unstable with small sample sizes, leading to variability in the
+estimates. On the other hand, the QLS method provided more consistent
+results, but these were often biased. This means that QLS might either
+underestimate or overestimate the true effects because of how it deals
+with the correlation structure. Interestingly, even though we tested
+different working correlation structures (AR1, exchangeable, and
+independence), the parameter estimates for each method didn't change
+much. This suggests that for small matched samples, the specific choice
+of correlation structure might not significantly affect the overall
+estimates for binary outcomes. However, it's still crucial to choose the
+right correlation structure to ensure accurate standard errors and
+confidence intervals.
 
-This study has several limitations. The small sample size of our
-motivational data and the assumption of AR1 as the true correlation
-structure may limit the generalizability of our findings. However, these
-limitations also present exciting opportunities for future research to
-explore alternative correlation structures and extend the QLS method to
-accommodate more complex data scenarios. The informative dropout process
-modeled in our simulations may not fully capture real-world
-complexities, but it also motivates further investigations to refine GEE
-and QLS approaches for handling informative dropouts and covariate
-endogeneity in longitudinal studies.
+In the clinical context of aortic root diameter changes in BAV patients
+post-surgery, the methodological differences between GEE and QLS can
+influence clinical decision-making. Accurate modelling of aortic root
+changes is crucial for assessing the risk of aortic dilatation and
+planning follow-up care. As shown in Figure 1, the true effect of BAV is
+estimated to be around -1. However, the QLS method provides an average
+estimate of around 0, indicating a substantial positive bias. As a
+comparison, although with more variability, the GEE method offers more
+conservative and closer-to-true estimates for the effect of BAV and its
+interaction with time. These estimation differences can have important
+implications for clinical decisions. Overestimating the effect of
+interventions or conditions like BAV due to biased estimates from QLS
+may lead to inappropriate clinical strategies. On the other hand, the
+variability in GEE estimates requires careful interpretation to avoid
+misjudging the treatment effect.
 
-In conclusion, our comparative analysis of GEE and QLS methods provides
-valuable insights into their performance in analyzing longitudinal
-binary data. While GEE showed better ability to capture the correlation
-among repeated measurements, QLS demonstrated lower variability and
-consistent parameter estimates across different correlation structures.
-These robust findings underscore the importance of methodological
-considerations in longitudinal data analysis and offer confident
-guidance for researchers in selecting appropriate analytical approaches
-for their studies.
+It's important to note several limitations. While using simulated data
+allows for controlled studies, it might not fully reflect the
+complexities of real-world data. Both GEE and QLS methods have
+limitations in handling informative dropouts and covariate endogeneity,
+which could affect the robustness of the estimates. The small sample
+size poses challenges for the GEE method, potentially leading to
+underestimated standard errors and variability in estimates. The
+informative dropout process modelled in our simulations may not fully
+capture real-world complexities. However, it also presents an
+opportunity for further investigations to refine GEE and QLS approaches
+for handling informative dropouts and covariate endogeneity in
+longitudinal studies.
+
+In conclusion, our comparative analysis of GEE and QLS methods
+underscores the importance of methodological considerations in
+longitudinal data analysis. While GEE showed a better ability to capture
+the correlation among repeated measurements, QLS demonstrated lower
+variability and consistent parameter estimates across different
+correlation structures. These robust findings offer confident guidance
+for researchers in selecting appropriate analytical approaches for their
+studies, reinforcing the importance of methodological considerations in
+longitudinal data analysis.
 
 \newpage
 
@@ -1071,22 +1122,24 @@ and \(S_2 = \sum_{k=1}^{t_{ij} - 1}Z_{ijk}'Q_i^{-1}Z_{ijk+1}\), then \[
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{4}{c}{GEE} & \multicolumn{4}{c}{QLS} \\
 \cmidrule(l{3pt}r{3pt}){2-5} \cmidrule(l{3pt}r{3pt}){6-9}
+\multicolumn{1}{c}{ } & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} & \multicolumn{2}{c}{No Confounders} & \multicolumn{2}{c}{With Confounders} \\
+\cmidrule(l{3pt}r{3pt}){2-3} \cmidrule(l{3pt}r{3pt}){4-5} \cmidrule(l{3pt}r{3pt}){6-7} \cmidrule(l{3pt}r{3pt}){8-9}
 Term & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE & Empirical SE & DF-SE\\
 \midrule
-(Intercept) & 0.879 & 0.888 & 0.909 & 0.913 & 1.000 & 1.000 & 0.001 & 0.001\\
-bav & 0.816 & 0.829 & 0.821 & 0.828 & 1.000 & 1.000 & 1.000 & 1.000\\
-bav:visit & 0.861 & 0.865 & 0.861 & 0.863 & 1.000 & 1.000 & 1.000 & 1.000\\
-visit & 0.107 & 0.108 & 0.087 & 0.088 & 0.000 & 0.000 & 0.000 & 0.000\\
-(Intercept) & 0.876 & 0.892 & 0.918 & 0.920 & 0.974 & 0.976 & 0.000 & 0.000\\
+(Intercept) & 0.880 & 0.893 & 0.917 & 0.920 & 1.000 & 1.000 & 0.000 & 0.000\\
+bav & 0.903 & 0.909 & 0.906 & 0.909 & 0.534 & 0.564 & 0.527 & 0.547\\
+bav:visit & 0.853 & 0.857 & 0.856 & 0.859 & 1.000 & 1.000 & 1.000 & 1.000\\
+visit & 0.881 & 0.888 & 0.887 & 0.890 & 1.000 & 1.000 & 1.000 & 1.000\\
+(Intercept) & 0.881 & 0.891 & 0.922 & 0.925 & 0.968 & 0.970 & 0.001 & 0.001\\
 \addlinespace
-bav & 0.820 & 0.832 & 0.830 & 0.835 & 1.000 & 1.000 & 1.000 & 1.000\\
-bav:visit & 0.870 & 0.878 & 0.889 & 0.891 & 0.984 & 0.984 & 0.980 & 0.981\\
-visit & 0.108 & 0.111 & 0.087 & 0.088 & 0.000 & 0.000 & 0.000 & 0.000\\
-(Intercept) & 0.879 & 0.890 & 0.907 & 0.910 & 0.935 & 0.939 & 0.001 & 0.001\\
-bav & 0.811 & 0.823 & 0.821 & 0.823 & 1.000 & 1.000 & 1.000 & 1.000\\
+bav & 0.911 & 0.918 & 0.913 & 0.917 & 0.492 & 0.517 & 0.484 & 0.497\\
+bav:visit & 0.867 & 0.876 & 0.879 & 0.883 & 0.981 & 0.983 & 0.979 & 0.979\\
+visit & 0.898 & 0.906 & 0.907 & 0.909 & 1.000 & 1.000 & 1.000 & 1.000\\
+(Intercept) & 0.882 & 0.892 & 0.914 & 0.915 & 0.936 & 0.940 & 0.000 & 0.000\\
+bav & 0.904 & 0.911 & 0.909 & 0.910 & 0.287 & 0.308 & 0.277 & 0.290\\
 \addlinespace
-bav:visit & 0.860 & 0.864 & 0.869 & 0.871 & 0.916 & 0.920 & 0.910 & 0.913\\
-visit & 0.112 & 0.122 & 0.100 & 0.104 & 0.000 & 0.000 & 0.000 & 0.000\\
+bav:visit & 0.856 & 0.862 & 0.866 & 0.870 & 0.906 & 0.917 & 0.899 & 0.903\\
+visit & 0.874 & 0.881 & 0.879 & 0.883 & 1.000 & 1.000 & 1.000 & 1.000\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1101,21 +1154,21 @@ visit & 0.112 & 0.122 & 0.100 & 0.104 & 0.000 & 0.000 & 0.000 & 0.000\\
 \toprule
 Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
 \midrule
- &  & Intercept & -1.784 & -2.116 & 4.173 & 2.827 & 2.887 & 17.528\\
+ &  & Intercept & -1.784 & -1.937 & 3.702 & 2.795 & 2.853 & 13.731\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -1.595 & 7.357 & 1.255 & 1.281 & 56.538\\
+ &  & BAV & -1.077 & -1.541 & 4.088 & 1.276 & 1.303 & 16.924\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.149 & 2.163 & 0.390 & 0.398 & 4.682\\
+ &  & BAV:Visit & 0.192 & 0.209 & 0.527 & 0.397 & 0.405 & 0.278\\
 \cmidrule{3-9}
- & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -1.077 & -0.019 & 2.138 & 0.256 & 0.261 & 5.691\\
+ & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -0.042 & -0.085 & 0.330 & 0.258 & 0.263 & 0.111\\
 \cmidrule{2-9}
- &  & Intercept & -1.784 & 0.128 & 0.315 & 2.012 & 2.055 & 3.755\\
+ &  & Intercept & -1.784 & 0.137 & 0.319 & 2.008 & 2.051 & 3.791\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -0.093 & 0.117 & 0.509 & 0.520 & 0.016\\
+ &  & BAV & -1.077 & -0.091 & 0.117 & 0.507 & 0.517 & 0.986\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.017 & 0.042 & 0.192 & 0.196 & 0.032\\
+ &  & BAV:Visit & 0.192 & 0.016 & 0.044 & 0.192 & 0.196 & 0.033\\
 \cmidrule{3-9}
-\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{AR1}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -1.077 & -0.005 & 0.031 & 0.138 & 0.141 & 1.151\\
+\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{AR1}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -0.042 & -0.004 & 0.032 & 0.140 & 0.143 & 0.002\\
 \bottomrule
 \multicolumn{9}{l}{\rule{0pt}{1em}\textit{Corstr: } \textsuperscript{*} Correlation Structure}\\
 \end{tabular}}
@@ -1130,21 +1183,21 @@ Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & M
 \toprule
 Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
 \midrule
- &  & Intercept & -1.784 & -2.113 & 4.219 & 2.843 & 2.903 & 17.907\\
+ &  & Intercept & -1.784 & -1.931 & 3.726 & 2.805 & 2.863 & 13.901\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -1.586 & 7.526 & 1.262 & 1.288 & 59.021\\
+ &  & BAV & -1.077 & -1.540 & 4.102 & 1.283 & 1.309 & 17.040\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.147 & 2.268 & 0.394 & 0.403 & 5.148\\
+ &  & BAV:Visit & 0.192 & 0.208 & 0.547 & 0.401 & 0.409 & 0.300\\
 \cmidrule{3-9}
- & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -1.077 & -0.027 & 2.177 & 0.258 & 0.263 & 5.840\\
+ & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -0.042 & -0.092 & 0.338 & 0.260 & 0.265 & 0.116\\
 \cmidrule{2-9}
- &  & Intercept & -1.784 & 0.127 & 0.314 & 1.701 & 1.738 & 3.749\\
+ &  & Intercept & -1.784 & 0.139 & 0.314 & 1.702 & 1.739 & 3.797\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -0.094 & 0.116 & 0.438 & 0.447 & 0.016\\
+ &  & BAV & -1.077 & -0.093 & 0.117 & 0.438 & 0.447 & 0.981\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.018 & 0.042 & 0.155 & 0.159 & 0.032\\
+ &  & BAV:Visit & 0.192 & 0.018 & 0.043 & 0.155 & 0.159 & 0.032\\
 \cmidrule{3-9}
-\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Exchangeable}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -1.077 & -0.007 & 0.032 & 0.111 & 0.114 & 1.146\\
+\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Exchangeable}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -0.042 & -0.006 & 0.032 & 0.112 & 0.115 & 0.002\\
 \bottomrule
 \multicolumn{9}{l}{\rule{0pt}{1em}\textit{Corstr:} \textsuperscript{*} Correlation Structure}\\
 \end{tabular}}
@@ -1159,25 +1212,138 @@ Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & M
 \toprule
 Corstr & Type & Term & True Value & Mean Est & SD Est & Mean SE & Mean SE-DF & Mean MSE\\
 \midrule
- &  & Intercept & -1.784 & -2.062 & 4.207 & 2.823 & 2.883 & 17.778\\
+ &  & Intercept & -1.784 & -1.903 & 3.700 & 2.795 & 2.853 & 13.703\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -1.583 & 7.450 & 1.255 & 1.281 & 57.873\\
+ &  & BAV & -1.077 & -1.540 & 4.103 & 1.280 & 1.307 & 17.047\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.145 & 2.209 & 0.385 & 0.393 & 4.882\\
+ &  & BAV:Visit & 0.192 & 0.207 & 0.546 & 0.394 & 0.402 & 0.298\\
 \cmidrule{3-9}
- & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -1.077 & -0.023 & 2.174 & 0.253 & 0.259 & 5.837\\
+ & \multirow[t]{-4}{*}{\raggedright\arraybackslash GEE} & Visit & -0.042 & -0.090 & 0.337 & 0.256 & 0.261 & 0.116\\
 \cmidrule{2-9}
- &  & Intercept & -1.784 & 0.131 & 0.318 & 2.753 & 2.812 & 3.769\\
+ &  & Intercept & -1.784 & 0.138 & 0.315 & 2.755 & 2.814 & 3.793\\
 \cmidrule{3-9}
- &  & BAV & -0.042 & -0.094 & 0.114 & 0.524 & 0.535 & 0.016\\
+ &  & BAV & -1.077 & -0.092 & 0.114 & 0.525 & 0.536 & 0.983\\
 \cmidrule{3-9}
- &  & BAV:Visit & 0.192 & 0.017 & 0.039 & 0.246 & 0.251 & 0.032\\
+ &  & BAV:Visit & 0.192 & 0.017 & 0.040 & 0.247 & 0.252 & 0.032\\
 \cmidrule{3-9}
-\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Independence}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -1.077 & -0.005 & 0.029 & 0.172 & 0.175 & 1.150\\
+\multirow[t]{-8}{*}[1\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash \textbf{Independence}} & \multirow[t]{-4}{*}{\raggedright\arraybackslash QLS} & Visit & -0.042 & -0.004 & 0.029 & 0.173 & 0.176 & 0.002\\
 \bottomrule
 \multicolumn{9}{l}{\rule{0pt}{1em}\textit{Corstr, SD, MSE: } \textsuperscript{*} Correlation Structure, Standard Deviation and Mean Squared Error}\\
 \end{tabular}}
 \endgroup{}
+\end{table}
+
+\subsection{Outliers in Relative Bias}\label{outliers-in-relative-bias}
+
+\textbf{BAV}
+
+\begin{table}[H]
+\centering\centering
+\caption{Outliers in Relative Bias for the effect of BAV}
+\centering
+\begin{tabular}[t]{lllr}
+\toprule
+Method & Working Correlation & Confounders & No.Outliers\\
+\midrule
+ & Exchangeable & No & 16\\
+\cmidrule{2-4}
+ & Independence & No & 16\\
+\cmidrule{2-4}
+ &  & Yes & 17\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & No & 18\\
+\cmidrule{2-4}
+ & Independence & Yes & 18\\
+\cmidrule{2-4}
+\multirow[t]{-6}{*}[4\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash QLS} & Exchangeable & Yes & 20\\
+\cmidrule{1-4}
+ & AR1 & Yes & 36\\
+\cmidrule{2-4}
+ &  & No & 37\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash Exchangeable} & Yes & 39\\
+\cmidrule{2-4}
+ &  & No & 40\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash Independence} & Yes & 40\\
+\cmidrule{2-4}
+\multirow[t]{-6}{*}[3\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash GEE} & AR1 & No & 42\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Time}
+
+\begin{table}[H]
+\centering\centering
+\caption{Outliers in Relative Bias for the effect of Time}
+\centering
+\begin{tabular}[t]{lllr}
+\toprule
+Method & Working Correlation & Confounders & No.Outliers\\
+\midrule
+ &  & No & 12\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & Yes & 13\\
+\cmidrule{2-4}
+ &  & Yes & 15\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash Exchangeable} & No & 16\\
+\cmidrule{2-4}
+ &  & Yes & 21\\
+\cmidrule{3-4}
+\multirow[t]{-6}{*}[2\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash QLS} & \multirow[t]{-2}{*}{\raggedright\arraybackslash Independence} & No & 27\\
+\cmidrule{1-4}
+ &  & No & 41\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & Yes & 41\\
+\cmidrule{2-4}
+ & Exchangeable & No & 42\\
+\cmidrule{2-4}
+ & Independence & Yes & 43\\
+\cmidrule{2-4}
+ & Exchangeable & Yes & 44\\
+\cmidrule{2-4}
+\multirow[t]{-6}{*}[4\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash GEE} & Independence & No & 44\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Interaction Effect between BAV and Time}
+
+\begin{table}[H]
+\centering\centering
+\caption{Outliers in Relative Bias for the interaction effect between BAV and Time}
+\centering
+\begin{tabular}[t]{lllr}
+\toprule
+Method & Working Correlation & Confounders & No.Outliers\\
+\midrule
+ &  & No & 12\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash Exchangeable} & Yes & 14\\
+\cmidrule{2-4}
+ &  & No & 23\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & Yes & 23\\
+\cmidrule{2-4}
+ &  & Yes & 29\\
+\cmidrule{3-4}
+\multirow[t]{-6}{*}[2\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash QLS} & \multirow[t]{-2}{*}{\raggedright\arraybackslash Independence} & No & 30\\
+\cmidrule{1-4}
+ &  & No & 40\\
+\cmidrule{3-4}
+ & \multirow[t]{-2}{*}{\raggedright\arraybackslash AR1} & Yes & 41\\
+\cmidrule{2-4}
+ & Exchangeable & Yes & 44\\
+\cmidrule{2-4}
+ & Independence & Yes & 44\\
+\cmidrule{2-4}
+ & Exchangeable & No & 45\\
+\cmidrule{2-4}
+\multirow[t]{-6}{*}[4\dimexpr\aboverulesep+\belowrulesep+\cmidrulewidth]{\raggedright\arraybackslash GEE} & Independence & No & 45\\
+\bottomrule
+\end{tabular}
 \end{table}
 
 \newpage

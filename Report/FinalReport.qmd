@@ -263,7 +263,7 @@ To model the motivational data, we first selected all patients who had at least 
 ```{r, include=FALSE}
 load("~/Documents/Projects/Practicum_GEE/data/realcoefs.RData")
 n_patients <- 250 
-n_sim <- 1000
+n_sim <- 1500
 maxT <- 6
 rho <- 0.3
 alpha_ci <- 0.05
@@ -289,7 +289,7 @@ Each subject is assumed to have six visits, including the baseline measurement, 
 
 To simulate the informative dropouts, we first modeled the dropout pattern by fitting the motivational data using survival models at every visit except the baseline and the last measurement. For each visit, the status indicator was set to 1 if the maximum number of visits for the subject was the current visit, indicating dropout from the study with no further follow-up measurements. For example, the first survival model was fitted at visit 2 since visit 1 is the baseline measurement, and subjects with a total of 2 visits were assigned a status of 1. The event time was defined as the total number of visits. Given that the total number of visits was 6, four survival models were fitted to the real data. The fitting coefficients, including scale and shape parameters, were extracted from these models. These parameters were then used in the `simsurv` function to simulate dropouts at each follow-up visit for the simulated data [@simsurv20]. Once the dropout process is completed, propensity scores are calculated based on the logistic regression with the three baseline covariates, which are then been applied with the `pairmatch` function in the `optmatch` R package to match BAV subjects with TAV subjects. Then, we applied QLS with independence, AR1, and exchangeable working correlation structures to estimate the regression coefficients. We also applied GEE functions from existing R package `geepack` with the three working correlation structures [@Hojsgaard2006]. 
 
-We simulated 1,000 data sets, each containing 250 subjects with up to 6 observations per subject, using the described simulation process. For each simulation and method, we computed the mean estimates, the mean standard errors, mean robust standard errors (MSEs), the standard deviations (SD), mean bias, and mean relative bias for each regression coefficient estimate. The mean bias was obtained by calculating the difference between the mean estimates and the respective true value, which was then divided by the true value to obtain the mean relative bias. The coverage probability was determined by calculating the proportion of the 95% confidence intervals that included the respective true parameter values among the 1,000 fitting results. 
+We simulated 1,500 data sets, each containing 250 subjects with up to 6 observations per subject, using the described simulation process. For each simulation and method, we computed the mean estimates, the mean standard errors, mean robust standard errors (MSEs), the standard deviations (SD), mean bias, and mean relative bias for each regression coefficient estimate. The mean bias was obtained by calculating the difference between the mean estimates and the respective true value, which was then divided by the true value to obtain the mean relative bias. The coverage probability was determined by calculating the proportion of the 95% confidence intervals that included the respective true parameter values among the 1,500 fitting results. 
 
 
 ## Results 
@@ -297,7 +297,9 @@ We simulated 1,000 data sets, each containing 250 subjects with up to 6 observat
 
 ### Analysis of Motivational Data 
 
-Table 1 compares the estimates, standard errors (SE), and SE adjusted for degrees of freedom (SE-DF) for the GEE and QLS methods across different working correlation structures in modeling the binary outcome of aortic root diameter in BAV patients using data from the Peter Munk Cardiac Center. Within each method, parameter estimates are stable across correlation structures, showing minor variations. The GEE method estimates for $\beta_1$ (BAV) range from -1.093 to -1.117, while QLS estimates range from -0.108 to -0.071. For $\beta_2$ (Visit), GEE estimates range from -0.063 to -0.042, and QLS estimates range from -0.005 to 0.011. The interaction term $\beta_4$ shows a positive effect across both methods, with GEE estimates ranging from 0.192 to 0.224 and QLS estimates ranging from 0.003 to 0.026. The correlation parameter $\alpha$ are all around 0.01 and 0.55 for GEE and QLS, respectively. Specifying the working correlation to be independence is actually assuming that there is no correlation among repeated measurements, the QLS approach estimated the intra-pair correlation to be 0.494 which is higher than estimates using the other two working correlations. The intra-pair correlation is smallest when the specified working correlation is consistent with the true working correlation at around 0.307. 
+Table 1 compares the estimates, standard errors (SE), and SE adjusted for degrees of freedom (SE-DF) for the GEE and QLS methods across different working correlation structures in modeling the binary outcome of aortic root diameter in BAV patients using data from the Peter Munk Cardiac Center. A total of 22 matched pairs were successfully created using propensity score matching, resulting in a sample size of 44 patients. 
+
+Within each method, parameter estimates are stable across correlation structures, showing minor variations. The GEE method estimates for $\beta_1$ (BAV) range from -1.093 to -1.117, while QLS estimates range from -0.108 to -0.071. For $\beta_2$ (Visit), GEE estimates range from -0.063 to -0.042, and QLS estimates range from -0.005 to 0.011. The interaction term $\beta_4$ shows a positive effect across both methods, with GEE estimates ranging from 0.192 to 0.224 and QLS estimates ranging from 0.003 to 0.026. The correlation parameter $\alpha$ are all around 0.01 and 0.55 for GEE and QLS, respectively. Specifying the working correlation to be independence is actually assuming that there is no correlation among repeated measurements, the QLS approach estimated the intra-pair correlation to be 0.494 which is higher than estimates using the other two working correlations. The intra-pair correlation is smallest when the specified working correlation is consistent with the true working correlation at around 0.307. 
 
 Across methods, there are notable differences in parameter estimates within the same correlation structure. GEE consistently shows stronger associations for BAV status and its interaction with time compared to QLS, which yields more conservative estimates. The GEE method suggests a stronger negative association between BAV status and the binary outcome and a positive interaction effect between visit and BAV status, while the QLS method indicates smaller effects. 
 
@@ -305,10 +307,11 @@ Across methods, there are notable differences in parameter estimates within the 
 library(tidyverse)
 library(kableExtra)
 library(ggpubr)
-load("~/Documents/Projects/Practicum_GEE/Outputs/fits_analysis.RData")
+load("~/Documents/Projects/Practicum_GEE/Outputs/newfits_analysis.RData")
 load("~/Documents/Projects/Practicum_GEE/data/se_df.RData")
 source("~/Documents/Projects/Practicum_GEE/fits_analysis.R")
 ```
+
 
 ```{r motivationFit}
 parameters <- c("$\\beta_0$ (Intercept)", "$\\beta_1$ (BAV)", "$\\beta_2$ (Visit)", "$\\beta_4$ (Visit $\\times$ BAV)", "$\\alpha$")
@@ -339,7 +342,6 @@ data.frame(method = c(rep("GEE", 5), rep("QLS", 6)),
   kable_styling(latex_options = c("hold_position", "scale_down"), 
                 font_size = 6) %>% 
   kable_paper("striped", full_width = F) %>% 
-   column_spec(1, bold = T) %>%
   collapse_rows(columns = 1, valign = "top") %>% 
   add_header_above(c(" ", " ","Independence" = 3, "AR1" = 3, "Exchangeable" = 3)) 
 ```
@@ -347,11 +349,73 @@ data.frame(method = c(rep("GEE", 5), rep("QLS", 6)),
 
 ### Simulation Results
 
-All 1000 simulations converged for both GEE and QLS fits. Each simulation was checked for extreme values. Seventy-one simulations showed extremely large standard errors when fitted with GEE, while only nine simulations exhibited extreme standard errors using the QLS approach. These problematic simulations were removed from further analysis.
+All 1000 simulations converged for both GEE and QLS fits. Each simulation was checked for extreme values. Seventy-one simulations showed extremely large standard errors when fitted with GEE, while only nine simulations exhibited extreme standard errors using the QLS approach. These problematic simulations were removed from further analysis. Table 2 summarizes the baseline information and propensity matching results for the simulated cohort. On average, 23 out of 45 subjects had BAV, with a standard deviation (SD) of 4.577. The mean age was 55.378 years (SD: 2.098), and the average Body Surface Area (BSA) was 1.796 $m^2$ (SD: 0.060). Subjects had an average of 3 visits (SD: 0.499). The mean number of matched pairs was 23.
 
-Figure 1 shows the average regression coefficient estimates from 1000 simulations for the GEE (left three columns) and QLS (right three columns) methods. The estimates are presented for three covariates: BAV, Visit, and their interaction (BAV × Visit). Each dot represents the mean estimate across simulations, with colours indicating different working correlation structures: AR1 (red), Exchangeable (blue), and Independence (green). The panel labels indicate that the 95% confidence intervals in the first row are based on empirical standard errors, whereas the second row uses standard errors corrected by degrees of freedom. The black dashed line marks the true coefficient values used in the simulations. In general, QLS shows smaller variability in estimates compared to GEE, and both methods fail to capture the true coefficient for the effect of Visit regardless of the adjustment for standard errors. The mean estimates for the effect of BAV using QLS are more accurate and have less variability, while the mean estimates for the interaction effect using the GEE approach are closer to the true value, although they show greater variability. More details about accurate true parameter coverage probabilities can be found in the Appendix B. 
+```{r}
+cohort_analysis <- function(df, true_set){
+  df %>%
+    group_by(id) %>%
+    slice(1) %>%
+    ungroup() %>% 
+    summarise(
+      bav_count = sum(bav == 1, na.rm = TRUE),
+      male_count = sum(male == 1, na.rm = TRUE),
+      age_mean = mean(age, na.rm = TRUE),
+      bsa_mean = mean(bsa, na.rm = TRUE),
+      total_visit_mean = mean(total_visit, na.rm = TRUE)
+    )
+}
+```
 
-```{r, fig.cap="Comparison of Estimation Results From 1000 Simulation"}
+
+```{r}
+load("~/Documents/Projects/Practicum_GEE/Outputs/matched_data.RData")
+matched_info <- matched_df %>% 
+   mutate(sim_id = 1:1500, 
+         n_pairs = map_int(matched_ddat, ~ n_distinct(.x$matched)))
+# Apply the function to each dataset in the list
+baseline_summaries <- map_dfr(matched_info$matched_ddat, 
+                              cohort_analysis, .id = "sim_id")
+
+baseline_summaries %>% mutate(total_visit = round(total_visit_mean)) %>% 
+  rename(bav = bav_count, male = male_count, age=age_mean, bsa = bsa_mean) %>% 
+  select(-total_visit_mean) %>% 
+  mutate(sim_id = as.numeric(sim_id)) %>% 
+  left_join(matched_info %>% select(sim_id, n_pairs), by = "sim_id") %>% 
+  select(-sim_id) %>% 
+  summarise(mean_bav = round(mean(bav)), sd_bav = sd(bav), 
+            mean_age = mean(age), sd_age = sd(age), 
+            mean_bsa = mean(bsa), sd_bsa = sd(bsa), 
+            mean_tv = round(mean(total_visit)), sd_tv = sd(total_visit), 
+            mean_pairs = round(mean(n_pairs)), sd_pairs = sd(n_pairs), 
+            mean_n = round(mean(n_pairs*2)), sd_n = sd(n_pairs*2)) %>% 
+  pivot_longer(cols = everything(), 
+               names_to = c(".value", "stat"),
+               names_pattern = "(mean|sd)_(.*)") %>% 
+  mutate(stat = case_when(stat == "bav" ~ "No.BAV", 
+                          stat == "age" ~ "Age", 
+                          stat == "bsa" ~ "BSA", 
+                          stat == "tv" ~ "No.Total Visit", 
+                          stat == "pairs" ~ "No. Pairs", 
+                          stat == "n" ~ "No.Subjects")) %>% 
+  rename(Term = stat, Mean = mean, SD = sd) %>% 
+  kable(booktabs = TRUE, digits = 3, escape = F, 
+        caption = "\\footnotesize Summary of Average Statistics Across 1500 Simulations") %>% 
+  kable_styling(latex_options = c("HOLD_position", "scale_down"), 
+                font_size = 8) %>% 
+  kable_paper("striped", full_width = F) %>% 
+  column_spec(1, bold = T) 
+```
+
+```{r}
+rm(matched_df)
+```
+
+Figure 1 shows the average regression coefficient estimates from 1000 simulations for the GEE (left three columns) and QLS (right three columns) methods. Each panel represents different coefficient estimates, with empirical standard errors (SE) displayed in the top row and SE-DF (Standard Error adjusted for degrees of freedom) in the bottom row. The mean estimates are denoted by points, and the vertical bars represent the confidence intervals. Different working correlation structures—AR1 (red), Exchangeable (blue), and Independence (green)—are compared, with the true value for each coefficient indicated by the dashed horizontal line at 0. 
+
+In general, the mean estimates from the GEE method are more accurate compared to those from the QLS method, which tend to be biased. Both methods show difficulties in capturing the true coefficient for the effect of BAV. Specifically, the GEE method exhibits considerable variability in its estimates, while the QLS method consistently fails to capture the true value. The mean estimates for BAV using GEE are spread widely, indicating a lack of precision. In contrast, the QLS estimates, although more consistent, are systematically biased away from the true value. Additionally, there is no significant difference in the range of 95% confidence intervals between empirical SE and SE corrected by degrees of freedom, suggesting that the adjustment for degrees of freedom does not substantially impact the precision of the estimates. Additionally, the the 95% confidence intervals derived from the exchangeable correlation structure are consistently smaller than those from other structures within the QLS method. 
+
+```{r, fig.cap="Comparison of Estimation Results From 1,500 Simulation"}
 red_summary %>% 
   left_join(
     true_set %>% mutate(term = case_when(term == "visit" ~ "Visit", 
@@ -359,9 +423,12 @@ red_summary %>%
                                          term == "bav:visit" ~ "BAV:Visit")), 
     by = "term") %>% 
   mutate(se = ifelse(adjusted == "Adjusted", "SE-DF", "Empirical SE")) %>% 
-  rename(true_value = coefficient, 
+  rename(true_value = truth, 
          corstr = model, 
          model = type) %>% 
+  mutate(term = case_when(term == "Visit" ~ "Time", 
+                          term == "BAV:Visit" ~ "BAV:Time", 
+                          TRUE ~ term)) %>% 
   ggplot(aes(x = corstr, y = mean_estimate, color = corstr)) +
   geom_point(position = position_dodge(width = 0.5)) +
   geom_errorbar(aes(ymin = Lower, ymax = Upper), width = 0.2, 
@@ -384,7 +451,7 @@ red_summary %>%
 ```
 
 
-Relative bias of estimates for the effect of BAV across different working correlation structures (AR1, Exchangeable, Independence) using the GEE and QLS methods, with and without including confounding covariates are presented in Figure 2. The left panel shows the GEE method, which exhibits higher variability in $\beta_1$ estimates particularly with confounding covariates, where more extreme outliers are observed. In contrast, the QLS method, shown on the right, maintains consistently low variability around zero, irrespective of the correlation structure or confounding covariate inclusion. 
+The relative bias of estimates for the effect of BAV across different working correlation structures (AR1, Exchangeable, Independence) using the GEE and QLS methods, with and without including confounding covariates, are presented in Figure 2. The dashed horizontal line at $y = 0$ is used as a reference to indicate 0 relative bias for estimating the BAV effect. The left panel shows the GEE method, in which the median relative bias values are close to zero across all correlation structures, although considerable variability and numerous outliers exist. In contrast, the QLS method on the right maintains consistently low variability but a systematic positive bias in the estimates. There is no significant difference between plots with and without inclusion of confounding covariates. The detailed number of outliers are reported in Appendix B. 
 
 ```{r, fig.cap="Relative bias of estimations for the effect of BAV using GEE and QLS with independence, AR1, and exchangeable working correlation structures. "}
 red_relbias_df <- cal_rel_bias(gee_sim_results$ind_mdl_red, true_set) %>% 
@@ -418,9 +485,10 @@ relbias_df <- rbind(red_relbias_df, full_relbias_df) %>%
   relocate(c(method, corstr, cov_set), .before = b0)
 
 relbias_df %>% select(-c(b0, b2, b3)) %>% 
-  filter(b1 > -110 & b1 < 100) %>% 
+  filter(b1 > -5 & b1 < 5) %>% 
   ggplot(aes(x = corstr, y = b1, color = corstr)) +
   geom_boxplot()+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   facet_grid(cov_set ~ method, scales = "free_y", 
              axes = "all", axis.labels = "all_x") +
   labs(y =expression(beta[1] ~ "(BAV)"),
@@ -438,13 +506,14 @@ relbias_df %>% select(-c(b0, b2, b3)) %>%
         legend.position = "bottom")
 ```
 
-Figure 3 shows the plot of the relative bias of estimates for the interaction effect between BAV and time. With the same layout as Figure 2, the GEE method still exhibits moderate variability with median values around zero. In contrast, the QLS method shows low variability but exhibits a negative relative bias, with estimates skewed below zero, irrespective of including confounding covariates.
+Figure 3  illustrates the relative bias in the coefficient estimates of the interaction effect between BAV and time. With the same layout as Figure 2, the GEE method provides nearly unbiased estimates of $\beta_3$ on average but exhibits significant variability. In contrast, the QLS method produces negatively biased estimates with low variability. 
 
 ```{r, fig.cap="Relative bias of estimations for the interaction effect of BAV and time using GEE and QLS with independence, AR1, and exchangeable working correlation structures."}
 relbias_df %>% select(-c(b0, b1, b2)) %>% 
-  filter(b3 > -5 & b3 < 5) %>% 
+  filter(b3 > -50 & b3 < 50) %>% 
   ggplot(aes(x = corstr, y = b3, color = corstr)) +
   geom_boxplot()+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   facet_grid(cov_set ~ method, scales = "free_y", 
              axes = "all", axis.labels = "all_x") +
   labs(y =expression(beta[3] ~ "(BAV" %*% "Visit)"),
@@ -462,7 +531,7 @@ relbias_df %>% select(-c(b0, b1, b2)) %>%
         legend.position = "bottom")
 ```
 
-The comparison of the mean estimation for correlations $\alpha$ among longitudinal measurements between GEE and QLS methods is shown in Table 2. Given that the true intravisit correlation is set to be 0.3, the GEE method shows lower bias in the estimates of $\alpha$, with a mean value of 0.166, and it shows the closest value when the specification working correlation is consistent with the true working correlation structure. However, when the working correlation is specified to be exchangeable, the GEE approach tends to underestimate the intravisit correlation at around 0.1. In contrast, the QLS method provides more consistent estimates across different covariate sets and working correlations, at around 0.7, though with generally higher bias. 
+The comparison of the mean estimation for correlations $\alpha$ among longitudinal measurements between GEE and QLS methods is shown in Table 2. As indicated by the column truth, the true correlation is set to be 0.3 at the simulation stage. When the working correlation is correctly specified, i.e., AR1, the GEE method exhibits a mean estimate of 0.236 with a bias of -0.064 when no covariate set is considered, and a mean estimate of 0.185 with a bias of -0.115 when covariates are included. The QLS method shows a mean estimate of 0.725 with a bias of 0.425, irrespective of covariate inclusion. On the other hand, when the working correlation is misspecified to be exchangeable, the GEE method yields a mean estimate of 0.124 with a bias of -0.176 without covariates, and a mean estimate of 0.086 with a bias of -0.214 with covariates. Meanwhile, the QLS method provides mean estimates of 0.560 and 0.723, with corresponding biases of 0.260 and 0.423, respectively.
 
 ```{r}
 rho_df <- calculate_mean_rho(gee_sim_results$ar1_mdl_red) %>% 
@@ -472,16 +541,17 @@ rho_df <- calculate_mean_rho(gee_sim_results$ar1_mdl_red) %>%
   select(mean_rho, bias) %>% 
   cbind(corstr = c(rep("AR1", 2), rep("Exchangeable", 2))) %>% 
   cbind(mod = rep(c("No", "Yes"), 2)) %>% 
-  cbind(rho) %>% 
-  relocate(c(corstr, mod), .before = mean_rho) %>% 
+  cbind(rho=0.3) %>% 
+  relocate(c(corstr, mod, rho), .before = mean_rho) %>% 
   cbind(calculate_mean_rho(qls_sim_results$ar1_mdl_red) %>% 
       rbind(calculate_mean_rho(qls_sim_results$ar1_mdl_full)) %>%
       rbind(calculate_mean_rho(qls_sim_results$exch_mdl_red)) %>% 
       rbind(calculate_mean_rho(qls_sim_results$ar1_mdl_full)) %>% 
       select(mean_rho, bias))
 
-colnames(rho_df) <- c("Working Correlation", "Covariate Set", "Mean Estimate", 
-                      "Bias", "True Value", "Mean Estimate", "Bias")
+colnames(rho_df) <- c("Working Correlation", "Covariate Set", "Truth", 
+                      "Mean Estimate",  "Bias", "Mean Estimate", "Bias")
+
 
 rho_df %>%
   kable(format = "latex", booktabs = TRUE, digits = 3, escape = F, 
@@ -490,13 +560,13 @@ rho_df %>%
                 font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
   column_spec(1, bold = T) %>%
-  collapse_rows(columns = 1:2, valign = "top") %>% 
-  add_header_above(c(" " = 2, "GEE" = 2, " ", "QLS" = 2)) %>% 
+  collapse_rows(columns = 1, valign = "top") %>% 
+  add_header_above(c(" " = 3, "GEE" = 2, "QLS" = 2)) %>% 
   footnote(symbol = "Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates",
            footnote_as_chunk = T)
 ```
 
-Table 3 presents the estimation of correlations ($\tau$) between subjects in matched pairs using the QLS approach, across the three different working correlations and covariate sets (with and without confounder adjustment). In general, including confounding covariates consistently have higher estimation irrespective of the specified working correlation, although the difference is ignorable. When the working correlation is specified correctly (AR1) and without including confounding covariates, the estimation are the lowest at 0.361 with a standard deviation of 0.137. With exchangeable working correlation, the mean estimation is around 0.390 with a SD of 0.111. Finally, the mean $\tau$ is estimated to be 0.486 with a SD of 0.095 when the working correlation is specified to be independence. Figure 4 visualized the estimation for $\tau$. 
+Table 3 presents the estimation of correlations ($\tau$) between subjects in matched pairs using the QLS approach, across the three different working correlations and covariate sets (with and without confounder adjustment). In general, the differences in the intra-pair correlation estimation between models with and without confounding covariates are ignorable irrespective of the specified working correlation. When the specified working correlation matches with the true working correlation (AR1), he intra-pair correlation is estimated to be the lowest, at around 0.362, similar to the estimate based on exchangeable working correlation. However, the intra-pair correlation is estimated to around 0.5 when the working correlation is specified to be independence. 
 
 ```{r}
 red_tau <- data.frame(
@@ -511,26 +581,39 @@ full_tau <- data.frame(
   exch = pull_tau(qls_sim_results$exch_mdl_full)) %>% 
   cbind(covset = "Yes")
 
-tau_df <- red_tau %>% rbind(full_tau) %>% 
-  pivot_longer(!covset, names_to = "corstr", values_to = "tau") 
-
-tau_df %>% 
+mean_red_tau <- red_tau %>% rbind(full_tau) %>% 
+  pivot_longer(!covset, names_to = "corstr", values_to = "tau") %>% 
   group_by(corstr, covset) %>% 
   summarise(mean_tau = mean(tau), 
             sd_tau = sd(tau)) %>% 
   mutate(corstr = case_when(corstr == "ar1" ~ "AR1", 
                             corstr == "ind" ~ "Independence", 
                             TRUE ~ "Exchangeable")) %>% 
+  filter(covset == "No") %>% ungroup()
+
+mean_full_tau <- red_tau %>% rbind(full_tau) %>% 
+  pivot_longer(!covset, names_to = "corstr", values_to = "tau") %>% 
+  group_by(corstr, covset) %>% 
+  summarise(mean_tau = mean(tau), 
+            sd_tau = sd(tau)) %>% 
+  mutate(corstr = case_when(corstr == "ar1" ~ "AR1", 
+                            corstr == "ind" ~ "Independence", 
+                            TRUE ~ "Exchangeable")) %>% 
+  filter(covset == "Yes") %>% ungroup()
+```
+
+
+```{r}
+mean_red_tau %>% select(-covset) %>% 
+  cbind(mean_full_tau %>% select(-corstr, -covset)) %>% 
   kable(format = "latex", booktabs = TRUE, digits = 3, escape = F, 
         caption = "\\footnotesize Estimation of correlations between subjects in matched pairs using QLS approach.", 
-        col.names = c("Working Correlation", "Covariate Set", "Mean $\\tau$", "SD $\\tau$")) %>% 
+        col.names = c("Working Correlation", rep(c("Mean $\\tau$", "SD $\\tau$"), 2))) %>% 
   kable_styling(latex_options = c("HOLD_position", "scale_down"), 
                 font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
-  column_spec(1, bold = T) %>%
-  collapse_rows(columns = 1, valign = "top") %>% 
-  footnote(symbol = "Covariate Set: Yes = Included confounding covariates, No = Without confounding covariates",
-           footnote_as_chunk = T)
+  column_spec(1, bold = T) %>% 
+  add_header_above(c(" " = 1, "No Confounders" = 2, "With Confounders" = 2))
 ```
 
 ```{r, fig.cap="Estimation of intra-pair correlation using QLS approach across three different working correlation structures for both with and without inclusion of confounding covariates. ", out.width="70%"}
@@ -565,7 +648,7 @@ unajd_df <- data.frame(
                 rbind(evaluate_fits(gee_sim_results$exch_mdl_red, true_set)) %>% 
                 rbind(evaluate_fits(qls_sim_results$exch_mdl_red, true_set)) %>% 
                 select(-c(bias, mse)))) %>% 
-  relocate(coefficient, .after = term) %>% 
+  relocate(truth, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
@@ -598,7 +681,7 @@ adj_df <- data.frame(
                 rbind(evaluate_fits(gee_sim_results$exch_mdl_full, true_set)) %>% 
                 rbind(evaluate_fits(qls_sim_results$exch_mdl_full, true_set)) %>% 
                 filter(term %in% c("(Intercept)", "bav", "bav:visit", "visit")))) %>% 
-  relocate(coefficient, .after = term) %>% 
+  relocate(truth, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
@@ -621,14 +704,15 @@ kable(adj_df, format = "latex", booktabs = TRUE, digits = 3, escape = F,
 
 ## Discusssion
 
-In this paper, we assessed the performance and validity of the Generalized Estimating Equations (GEE) method and the two-stage quasi-least squares (QLS) approach in analyzing small matched-pair longitudinal binary data, particularly focusing on the effect of bicuspid aortic valve (BAV) on aortic root size post-surgery. We analyzed a cohort of patients from the Peter Munk Cardiac Center and performed extensive simulations to compare these methods under different working correlation structures. Our findings revealed no significant difference in performance across different specified working correlations, nor between the estimation results from the empirical sandwich estimator and the corrected ones. 
+In this study, we compared the performance of the GEE and QLS methods in modelling binary outcomes of aortic root diameter in patients with bicuspid aortic valves (BAV) versus tricuspid aortic valves (TAV). Both methods were evaluated across different working correlation structures. Our findings indicate that, within this small sample context (20 to 25 matched pairs), the GEE method shows considerable variability in its estimates, whereas the QLS method, although more consistent, exhibits systematic positive bias. The choice of working correlation structure significantly impacts the parameter estimates. The AR1 structure provided more accurate estimates in GEE because it aligns with the true working correlation used in simulating the data.
 
-In our simulation study, the QLS method demonstrates superior performance, with mean estimates closer to the true coefficients and narrower confidence intervals than GEE. Moreover, GEE tends to underestimate the intravisit correlation parameter ($\alpha$) with low bias only when the working correlation is specified correctly. In contrast, QLS provided more consistent estimates of $\alpha$ across different working correlation specifications, although biases are much higher than those based on the GEE approach. Both methods failed to capture the effect of time. Additionally, including confounding covariates did not present large differences in performance. The findings highlight the importance of choosing an appropriate correlation structure in GEE analyses. For studies with small sample sizes and complex correlation structures, QLS may offer a more reliable alternative by providing consistent estimates with lower variability. 
+In our simulation study, we noticed that the GEE method tended to be unstable with small sample sizes, leading to variability in the estimates. On the other hand, the QLS method provided more consistent results, but these were often biased. This means that QLS might either underestimate or overestimate the true effects because of how it deals with the correlation structure. Interestingly, even though we tested different working correlation structures (AR1, exchangeable, and independence), the parameter estimates for each method didn't change much. This suggests that for small matched samples, the specific choice of correlation structure might not significantly affect the overall estimates for binary outcomes. However, it’s still crucial to choose the right correlation structure to ensure accurate standard errors and confidence intervals.
 
-This study has several limitations. The small sample size of our motivational data and the assumption of AR1 as the true correlation structure may limit the generalizability of our findings. However, these limitations also present exciting opportunities for future research to explore alternative correlation structures and extend the QLS method to accommodate more complex data scenarios. The informative dropout process modeled in our simulations may not fully capture real-world complexities, but it also motivates further investigations to refine GEE and QLS approaches for handling informative dropouts and covariate endogeneity in longitudinal studies.
+In the clinical context of aortic root diameter changes in BAV patients post-surgery, the methodological differences between GEE and QLS can influence clinical decision-making. Accurate modelling of aortic root changes is crucial for assessing the risk of aortic dilatation and planning follow-up care. As shown in Figure 1, the true effect of BAV is estimated to be around -1. However, the QLS method provides an average estimate of around 0, indicating a substantial positive bias. As a comparison, although with more variability, the GEE method offers more conservative and closer-to-true estimates for the effect of BAV and its interaction with time. These estimation differences can have important implications for clinical decisions. Overestimating the effect of interventions or conditions like BAV due to biased estimates from QLS may lead to inappropriate clinical strategies. On the other hand, the variability in GEE estimates requires careful interpretation to avoid misjudging the treatment effect.
 
-In conclusion, our comparative analysis of GEE and QLS methods provides valuable insights into their performance in analyzing longitudinal binary data. While GEE showed better ability to capture the correlation among repeated measurements, QLS demonstrated lower variability and consistent parameter estimates across different correlation structures. These robust findings underscore the importance of methodological considerations in longitudinal data analysis and offer confident guidance for researchers in selecting appropriate analytical approaches for their studies.
+It's important to note several limitations. While using simulated data allows for controlled studies, it might not fully reflect the complexities of real-world data. Both GEE and QLS methods have limitations in handling informative dropouts and covariate endogeneity, which could affect the robustness of the estimates. The small sample size poses challenges for the GEE method, potentially leading to underestimated standard errors and variability in estimates. The informative dropout process modelled in our simulations may not fully capture real-world complexities. However, it also presents an opportunity for further investigations to refine GEE and QLS approaches for handling informative dropouts and covariate endogeneity in longitudinal studies.
 
+In conclusion, our comparative analysis of GEE and QLS methods underscores the importance of methodological considerations in longitudinal data analysis. While GEE showed a better ability to capture the correlation among repeated measurements, QLS demonstrated lower variability and consistent parameter estimates across different correlation structures. These robust findings offer confident guidance for researchers in selecting appropriate analytical approaches for their studies, reinforcing the importance of methodological considerations in longitudinal data analysis.
 
 
 \newpage 
@@ -724,6 +808,32 @@ $$
 ### Coverage Probability 
 
 ```{r}
+# GEE 
+# (1) Coverage probabilities for models without adjustment by age, male, and BSA
+coverage_gee_unadj <- calculate_coverage(gee_sim_results$ind_mdl_red, true_set) %>%
+  rbind(calculate_coverage(gee_sim_results$ar1_mdl_red, true_set)) %>%
+  rbind(calculate_coverage(gee_sim_results$exch_mdl_red, true_set)) %>%
+  na.omit()
+
+# (2) Coverage probabilities for models adjusted by age, male, and BSA
+coverage_gee_adj <- calculate_coverage(gee_sim_results$ind_mdl_full, true_set) %>%
+  rbind(calculate_coverage(gee_sim_results$ar1_mdl_full, true_set)) %>%
+  rbind(calculate_coverage(gee_sim_results$exch_mdl_full, true_set)) %>%
+  na.omit()
+
+# QLS
+# (1) Coverage probabilities for models without adjustment by age, male, and BSA
+coverage_qls_unadj <- calculate_coverage(qls_sim_results$ind_mdl_red, true_set) %>%
+  rbind(calculate_coverage(qls_sim_results$ar1_mdl_red, true_set)) %>%
+  rbind(calculate_coverage(qls_sim_results$exch_mdl_red, true_set)) %>%
+  na.omit()
+
+# (2) Coverage probabilities for models adjusted by age, male, and BSA
+coverage_qls_adj <- calculate_coverage(qls_sim_results$ind_mdl_full, true_set) %>%
+  rbind(calculate_coverage(qls_sim_results$ar1_mdl_full, true_set)) %>%
+  rbind(calculate_coverage(qls_sim_results$exch_mdl_full, true_set)) %>%
+  na.omit()
+
 coverage_gee_adj %>% cbind(coverage_gee_unadj %>% select(-term)) %>% 
   cbind(coverage_qls_adj %>% select(-term)) %>% 
   cbind(coverage_qls_unadj %>% select(-term)) %>% 
@@ -732,6 +842,8 @@ coverage_gee_adj %>% cbind(coverage_gee_unadj %>% select(-term)) %>%
         col.names = c("Term", rep(c("Empirical SE", "DF-SE"),4))) %>% 
   kable_styling(latex_options = c("hold_position", "scale_down"), font_size = 8) %>% 
   kable_paper("striped", full_width = F) %>% 
+  add_header_above(c(" " = 1, "No Confounders" = 2, "With Confounders" = 2, 
+                     "No Confounders" = 2, "With Confounders" = 2)) %>% 
   add_header_above(c(" " = 1, "GEE" = 4, "QLS" = 4))
 ```
 
@@ -743,7 +855,7 @@ adj_ar1 <- data.frame(corstr = rep("AR1", 14),
   cbind(evaluate_fits(gee_sim_results$ar1_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$ar1_mdl_full, true_set))) %>% 
   na.omit() %>% 
-  relocate(coefficient, .after = term) %>% 
+  relocate(truth, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
@@ -773,7 +885,7 @@ adj_exch <- data.frame(corstr = rep("Exchangeable", 14),
   cbind(evaluate_fits(gee_sim_results$exch_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$exch_mdl_full, true_set))) %>% 
   na.omit() %>% 
-  relocate(coefficient, .after = term) %>% 
+  relocate(truth, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
@@ -802,7 +914,7 @@ adj_ind <- data.frame(corstr = rep("Independence", 14),
   cbind(evaluate_fits(gee_sim_results$ind_mdl_full, true_set) %>% 
            rbind(evaluate_fits(qls_sim_results$ind_mdl_full, true_set))) %>% 
   na.omit() %>% 
-  relocate(coefficient, .after = term) %>% 
+  relocate(truth, .after = term) %>% 
   mutate(term = case_when(term == "(Intercept)" ~ "Intercept", 
                           term == "bav" ~ "BAV", 
                           term == "bav:visit" ~ "BAV:Visit", 
@@ -823,6 +935,101 @@ kable(adj_ind, format = "latex", booktabs = TRUE, digits = 3, escape = F,
   footnote(symbol = "Correlation Structure, Standard Deviation and Mean Squared Error",
            symbol_title = "Corstr, SD, MSE: ",
            footnote_as_chunk = T)
+```
+
+
+### Outliers in Relative Bias 
+
+**BAV**
+
+```{r}
+bav_outliers_df <- relbias_df %>%
+  select(-c(b0, b2, b3)) %>%
+  group_by(corstr, cov_set, method) %>%
+  summarise(Q1 = quantile(b1, 0.25), Q3 = quantile(b1, 0.75)) %>%
+  mutate(IQR = Q3 - Q1,
+         lower_bound = Q1 - 1.5 * IQR,
+         upper_bound = Q3 + 1.5 * IQR)
+
+bav_outliers <- relbias_df %>%
+  select(-c(b0, b2, b3)) %>%
+  left_join(bav_outliers_df, by = c("corstr", "cov_set", "method")) %>%
+  filter(b1 < lower_bound | b1 > upper_bound) %>%
+  select(-Q1, -Q3, -IQR, -lower_bound, -upper_bound)
+
+bav_outliers %>% 
+  group_by(method, corstr, cov_set) %>% 
+  summarise(n = n()) %>% 
+  arrange(n) %>% 
+  kable(format = "latex", booktabs = TRUE, digits = 3, 
+        col.names = c("Method", "Working Correlation", 
+                      "Confounders", "No.Outliers"), 
+        caption = "Outliers in Relative Bias for the effect of BAV") %>% 
+  kable_paper("striped", full_width = F) %>% 
+  kable_styling(latex_options = "HOLD_position") %>% 
+  collapse_rows(columns = 1:2, valign = "top") 
+```
+
+
+**Time**
+```{r}
+visit_outliers_df <- relbias_df %>%
+  select(-c(b0, b1, b3)) %>%
+  group_by(corstr, cov_set, method) %>%
+  summarise(Q1 = quantile(b2, 0.25), Q3 = quantile(b2, 0.75)) %>%
+  mutate(IQR = Q3 - Q1,
+         lower_bound = Q1 - 1.5 * IQR,
+         upper_bound = Q3 + 1.5 * IQR)
+
+visit_outliers <- relbias_df %>%
+  select(-c(b0, b1, b3)) %>%
+  left_join(visit_outliers_df, by = c("corstr", "cov_set", "method")) %>%
+  filter(b2 < lower_bound | b2 > upper_bound) %>%
+  select(-Q1, -Q3, -IQR, -lower_bound, -upper_bound)
+
+
+visit_outliers %>% 
+  group_by(method, corstr, cov_set) %>% 
+  summarise(n = n()) %>% 
+  arrange(n) %>% 
+  kable(format = "latex", booktabs = TRUE, digits = 3, 
+        col.names = c("Method", "Working Correlation", 
+                      "Confounders", "No.Outliers"), 
+        caption = "Outliers in Relative Bias for the effect of Time") %>% 
+  kable_paper("striped", full_width = F) %>% 
+  kable_styling(latex_options = "HOLD_position") %>% 
+  collapse_rows(columns = 1:2, valign = "top") 
+```
+
+**Interaction Effect between BAV and Time** 
+
+```{r}
+interaction_outliers_df <- relbias_df %>%
+  select(-c(b0, b1, b2)) %>%
+  group_by(corstr, cov_set, method) %>%
+  summarise(Q1 = quantile(b3, 0.25), Q3 = quantile(b3, 0.75)) %>%
+  mutate(IQR = Q3 - Q1,
+         lower_bound = Q1 - 1.5 * IQR,
+         upper_bound = Q3 + 1.5 * IQR)
+
+interaction_outliers <- relbias_df %>%
+  select(-c(b0, b1, b2)) %>%
+  left_join(interaction_outliers_df, by = c("corstr", "cov_set", "method")) %>%
+  filter(b3 < lower_bound | b3 > upper_bound) %>%
+  select(-Q1, -Q3, -IQR, -lower_bound, -upper_bound)
+
+
+interaction_outliers %>% 
+  group_by(method, corstr, cov_set) %>% 
+  summarise(n = n()) %>% 
+  arrange(n) %>% 
+  kable(format = "latex", booktabs = TRUE, digits = 3, 
+        col.names = c("Method", "Working Correlation", 
+                      "Confounders", "No.Outliers"), 
+        caption = "Outliers in Relative Bias for the interaction effect between BAV and Time") %>% 
+  kable_paper("striped", full_width = F) %>% 
+  kable_styling(latex_options = "HOLD_position") %>% 
+  collapse_rows(columns = 1:2, valign = "top") 
 ```
 
 \newpage

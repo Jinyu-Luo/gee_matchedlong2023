@@ -1175,6 +1175,8 @@ Emrich, L. J., & Piedmonte, M. R. (1991). A method for generating high-dimension
 * True value should always be in the front of the table.  
 * We look at the estimation for alpha only when the estimations for beta are unbiased. 
 * Add a horizontal line of 0 in relative bias plot.  
+* Fix the above contents and have a preview by Aya.  
+* Send to Steve for review. 
 
 
 

@@ -11,7 +11,7 @@ library(survival)
 library(simsurv)
 library(doParallel) 
 load("data/realcoefs.RData")
-load("Outputs/sim_data.RData")
+load("Outputs/matched_data.RData")
 source("qls_functions.R")
 
 # Set up parallel backend
@@ -21,14 +21,8 @@ registerDoParallel(cl)
 
 # Global Variables -------------------------------------------------------------
 maxT <- 6
-rho <- 0.3
 alpha_ci <- 0.05
-
-true_coefs <- full_ar1$coefficients$Estimate
-names(true_coefs) <- c("g0", "bav", "visit", "age", "male", "bsa", "bav_visit")
-corr_alpha <- full_ar1$corr$Estimate
-surv_coefs <- surv_coefs[,-4]
-rownames(surv_coefs)[4] <- "male"
+n_sim <- 1500
 
 # Formulas for model fit 
 formula_red <- y ~ bav*visit 
@@ -46,7 +40,8 @@ model_specs <- list(
 
 # GEE --------------------------------------------------------------------------
 # Get the matched data
-matched_df <- sim_df %>% pull(matched_data)
+# matched_data <- matched_df %>% pull(matched_full)
+matched_data <- matched_df %>% pull(matched_ddat)
 
 # Function to fit GEE with different correlation structures on simulated data
 get_gee_results <- function(df, formula, corstr, adjusted) {
@@ -106,8 +101,8 @@ get_gee_results <- function(df, formula, corstr, adjusted) {
 gee_fits <- list()
 
 # Loop through each dataset and fit all models
-for (i in 1:length(matched_df)) {
-  df <- matched_df[[i]]
+for (i in 1:length(matched_data)) {
+  df <- matched_data[[i]]
   sim_id <- i
   model_results <- list()
   
@@ -118,7 +113,7 @@ for (i in 1:length(matched_df)) {
   
   gee_fits[[i]] <- c(list(sim_id = sim_id), model_results)
   
-  print(paste("Completed simulation", i, "out of", nrow(sim_df)))
+  print(paste("Completed simulation", i, "out of", n_sim))
 }
 
 # Convert the results list to a dataframe
@@ -179,8 +174,9 @@ get_qls_results <- function(df, formula, corstr, adjusted) {
   return(result)
 }
 
-qls_df <- sim_df %>% select(sim_id, matched_data) %>% 
-  mutate(matched_data = map(matched_data, ~ .x %>% 
+qls_df <- matched_df %>% select(matched_ddat) %>%  
+  mutate(sim_id = 1:n_sim, 
+         matched_data = map(matched_ddat, ~ .x %>% 
                               arrange(matched) %>% 
                               mutate(clusterID = as.integer(factor(matched))) %>% 
                               select(-matched) %>% 
